@@ -1,6 +1,6 @@
 import Nav from "@/components/Nav";
 import Support from "@/components/Support";
-import FloatingContact from "@/components/FloatingContact";
+import AIChatWidget from "@/components/AIChatWidget";
 
 export default function OriginalLayout({
   children,
@@ -12,7 +12,7 @@ export default function OriginalLayout({
       <Nav />
       <main>{children}</main>
       <Support />
-      <FloatingContact />
+      <AIChatWidget />
     </>
   );
 }

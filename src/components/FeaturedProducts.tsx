@@ -15,10 +15,8 @@ const FEATURED_SLUGS = [
 // shouldn't be cropped by object-cover. Use object-contain + padding
 // on the home-page card to show the whole image.
 const CONTAIN_SLUGS = new Set([
-  "aso-aligner",
   "flat-occlusal-splint",
   "press-type-appliance",
-  "invisible-retainer",
 ]);
 
 export default function FeaturedProducts() {

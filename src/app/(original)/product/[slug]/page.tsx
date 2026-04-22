@@ -82,10 +82,11 @@ export default function ProductDetailPage({ params }: { params: Params }) {
   // Render them with object-contain + neutral backdrop so the full arch
   // is visible.
   const CONTAIN_SLUGS = new Set([
-    "aso-aligner",
     "flat-occlusal-splint",
     "press-type-appliance",
-    "invisible-retainer",
+    // invisible-retainer: source image is 1440×1920 — high-res enough to
+    // show cropped with object-cover without quality loss. Full-bleed
+    // look is stronger than the letterboxed contain version.
   ]);
   const containHero = !!product.slug && CONTAIN_SLUGS.has(product.slug);
 
@@ -148,14 +149,14 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                 </div>
 
                 <div className="lg:col-span-6 order-1 lg:order-2">
-                  <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-[0_30px_60px_-20px_rgba(15,41,66,0.15)] flex items-center justify-center p-10 md:p-16">
+                  <div className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-navy shadow-[0_30px_60px_-20px_rgba(15,41,66,0.25)]">
                     <Image
-                      src="/images/aso/asoaligner-logo.png"
-                      alt="AsoAligner Digital"
-                      width={800}
-                      height={469}
+                      src="/images/aso/aso-aligner-package.png"
+                      alt="AsoAligner Digital retail packaging — Soft and Hard variants"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       priority
-                      className="w-full h-auto max-w-[480px] object-contain"
+                      className="object-cover"
                     />
                   </div>
                 </div>
@@ -487,16 +488,23 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   className={containHero ? "object-contain p-6 md:p-10" : "object-cover"}
                   priority
                 />
-                {product.items && product.items.length > 0 && (
+                {product.items && product.items.length > 0 && (() => {
+                  // Pick the item whose image matches the hero (when the
+                  // catalog has an explicit heroImageOverride pointing at a
+                  // non-first item). Falls back to items[0].
+                  const shown =
+                    product.items.find((it) => it.image === product.heroImage) ??
+                    product.items[0];
+                  return (
                   <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3">
                     <div className="inline-flex flex-col items-start rounded-xl bg-black/55 backdrop-blur-md px-4 py-2.5 border border-white/10">
                       <div className="text-[10px] uppercase tracking-[0.2em] text-white/70">
                         Shown
                       </div>
                       <div className="font-serif italic text-white text-base md:text-lg leading-tight mt-0.5">
-                        {product.items[0].code
-                          ? `${product.items[0].code} · ${product.items[0].name}`
-                          : product.items[0].name}
+                        {shown.code
+                          ? `${shown.code} · ${shown.name}`
+                          : shown.name}
                       </div>
                     </div>
                     <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-sm text-navy text-xs font-medium px-3 py-1.5">
@@ -506,7 +514,8 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                       variants in catalog below
                     </div>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           </div>

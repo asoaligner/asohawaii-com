@@ -297,11 +297,11 @@ export const productCatalog: ProductTile[] = [
       "Ideal: relapse, MTM (mainly 3–3), mild crowding ≤4 mm",
       "Not recommended: extraction cases, Angle II/III, skeletal, open bite",
     ],
-    fallback: "/images/aso/asoaligner-logo.png",
+    fallback: "/images/aso/aso-aligner-package.png",
     // ASO ALIGNER uses an intro/brochure layout — the product-detail page
-    // branches on this slug. The AsoAligner DIGITAL wordmark is the hero;
-    // no item tiles are rendered.
-    heroImageOverride: "/images/aso/asoaligner-logo.png",
+    // branches on this slug. Hero is the actual retail packaging photo
+    // (Soft + Hard pouches visible, AsoAligner DIGITAL branding printed).
+    heroImageOverride: "/images/aso/aso-aligner-package.png",
   }),
   build({
     name: "Flat Occlusal Splint",
@@ -642,6 +642,11 @@ export const productCatalog: ProductTile[] = [
       "Cuts chair-time for bonding visits",
     ],
     fallback: "/images/aso/product-3.jpg",
+    // Hero uses the 208 IDB (Labial) photo — the "SHOWN" label on the page
+    // hero updates automatically. Previously first-parsed was Set Up
+    // (Lingual), the articulator photo; user prefers the Labial tray image.
+    heroImageOverride:
+      "/images/aso/wix/e724a4_fee6e10ee23f43509c855318d13b36a8.png",
     items: [
       { code: "201", name: "Set Up (Lingual)" },
       { code: "202", name: "Positioning with Chart" },

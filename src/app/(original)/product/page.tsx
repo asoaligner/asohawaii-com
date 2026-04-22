@@ -13,10 +13,8 @@ export const metadata: Metadata = {
 // shouldn't be cropped by object-cover. Render with object-contain
 // so the full image stays inside the card.
 const CONTAIN_SLUGS = new Set([
-  "aso-aligner",
   "flat-occlusal-splint",
   "press-type-appliance",
-  "invisible-retainer",
 ]);
 
 export default function ProductPage() {

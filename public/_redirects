@@ -1,0 +1,5 @@
+# Cloudflare Pages / Netlify redirect rules.
+# Legacy asohawaii.com URLs → new semantic paths.
+
+/services-9       /product/sleep-apnea/   301
+/services-9/      /product/sleep-apnea/   301

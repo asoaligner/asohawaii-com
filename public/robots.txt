@@ -1,0 +1,20 @@
+# robots.txt for www.asohawaii.com
+# See https://www.robotstxt.org/ for format spec.
+
+User-agent: *
+Allow: /
+
+# Design-variant routes are development artifacts — keep them out of the index.
+Disallow: /apple/
+Disallow: /stripe/
+Disallow: /linear/
+Disallow: /notion/
+Disallow: /claude/
+Disallow: /vercel/
+Disallow: /supabase/
+
+# Next.js internals (shouldn't show up in search anyway, belt and braces).
+Disallow: /_next/
+Disallow: /api/
+
+Sitemap: https://www.asohawaii.com/sitemap.xml

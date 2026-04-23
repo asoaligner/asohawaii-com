@@ -1,17 +1,15 @@
 /**
  * POST /api/chat — chat endpoint for the AIChatWidget on asohawaii.com.
  *
- * This is a Cloudflare Pages Function — it runs on Cloudflare's edge
- * workers alongside the static site, and gets its API key from
- * Cloudflare's Environment Variables (set in the Pages dashboard).
+ * Runs as a Cloudflare Pages Function. Each request:
+ *   1. Rate-limits per IP (20 msg/min).
+ *   2. Upserts a session row keyed by the client-provided `sessionId`,
+ *      storing optional name/clinic and request metadata.
+ *   3. Logs the user message + assistant reply into the `messages` table.
+ *   4. Proxies the conversation to Claude Haiku 4.5 and returns the reply.
  *
- * Flow:
- *   1. Browser POSTs { messages: [...] } to /api/chat.
- *   2. This function prepends the system prompt and calls Claude.
- *   3. Streaming response is piped back to the browser as SSE-ish text.
- *
- * The Anthropic API key is never exposed to the browser — it lives in
- * the Cloudflare Pages environment as ANTHROPIC_API_KEY.
+ * ANTHROPIC_API_KEY env var: Anthropic API key (Secret)
+ * DB binding:               Cloudflare D1 database "aso-chat-logs"
  */
 
 import {
@@ -24,10 +22,26 @@ type Message = { role: "user" | "assistant"; content: string };
 
 interface Env {
   ANTHROPIC_API_KEY: string;
+  DB: D1Database;
 }
 
-/** Cloudflare Pages Function context (minimal inline type to avoid pulling
- * in @cloudflare/workers-types just for this one file). */
+// Minimal D1 types (Cloudflare Workers runtime types).
+interface D1Database {
+  prepare(query: string): D1PreparedStatement;
+  batch<T = unknown>(statements: D1PreparedStatement[]): Promise<D1Result<T>[]>;
+}
+interface D1PreparedStatement {
+  bind(...values: unknown[]): D1PreparedStatement;
+  first<T = unknown>(colName?: string): Promise<T | null>;
+  run(): Promise<D1Result>;
+  all<T = unknown>(): Promise<D1Result<T>>;
+}
+interface D1Result<T = unknown> {
+  success: boolean;
+  results?: T[];
+  meta?: { duration: number; rows_read: number; rows_written: number };
+}
+
 type PagesFunction<E = unknown> = (context: {
   request: Request;
   env: E;
@@ -43,11 +57,8 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Simple per-IP rate limit using in-memory map (resets on worker cold-start,
-// good enough for basic abuse prevention; real rate limiting should use
-// Cloudflare's Rate Limiting rules on top).
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX = 20; // 20 messages per minute per IP
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 20;
 const rateLimitBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function rateLimitOk(ip: string): boolean {
@@ -62,12 +73,11 @@ function rateLimitOk(ip: string): boolean {
   return true;
 }
 
-// OPTIONS preflight
 export const onRequestOptions: PagesFunction = async () => {
   return new Response(null, { headers: CORS_HEADERS });
 };
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   const ip =
     request.headers.get("CF-Connecting-IP") ||
     request.headers.get("X-Forwarded-For") ||
@@ -90,7 +100,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     );
   }
 
-  let body: { messages?: Message[] };
+  let body: {
+    messages?: Message[];
+    sessionId?: string;
+    userName?: string;
+    userClinic?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -102,8 +117,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "No messages provided." }, 400);
   }
 
-  // Guardrails on size — cap history to the last 10 turns and truncate
-  // each message to 2000 characters to keep input reasonable.
+  // Trim history: last 10 turns, each message capped at 2000 chars.
   const trimmed = messages.slice(-10).map((m) => ({
     role: m.role,
     content: String(m.content || "").slice(0, 2000),
@@ -127,7 +141,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   if (!anthropicResp.ok) {
     const errText = await anthropicResp.text().catch(() => "");
-    // Log the real error server-side (Cloudflare logs), return generic to user.
     console.error(
       `Anthropic API error: ${anthropicResp.status} ${errText.slice(0, 300)}`
     );
@@ -147,8 +160,90 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ?.map((c) => c.text || "")
       ?.join("\n") ?? "";
 
+  // Log to D1 asynchronously so a DB slow/failure doesn't block the reply.
+  if (env.DB && body.sessionId) {
+    waitUntil(
+      logConversation(env.DB, {
+        sessionId: body.sessionId,
+        userName: body.userName,
+        userClinic: body.userClinic,
+        userCountry: request.headers.get("CF-IPCountry") || null,
+        userAgent: request.headers.get("User-Agent") || null,
+        userMessage: trimmed[trimmed.length - 1]?.content || "",
+        assistantReply: text,
+      }).catch((err) => {
+        console.error("D1 log error:", err instanceof Error ? err.message : err);
+      })
+    );
+  }
+
   return json({ reply: text });
 };
+
+async function logConversation(
+  db: D1Database,
+  params: {
+    sessionId: string;
+    userName?: string;
+    userClinic?: string;
+    userCountry: string | null;
+    userAgent: string | null;
+    userMessage: string;
+    assistantReply: string;
+  }
+) {
+  const now = Math.floor(Date.now() / 1000);
+  const shortUA = params.userAgent?.slice(0, 200) || null;
+
+  // INSERT OR IGNORE on sessions — first message creates the row, later
+  // messages are no-ops on the sessions table.
+  const upsertSession = db
+    .prepare(
+      `INSERT OR IGNORE INTO sessions
+         (id, created_at, user_name, user_clinic, user_country, user_agent_short)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .bind(
+      params.sessionId,
+      now,
+      params.userName || null,
+      params.userClinic || null,
+      params.userCountry,
+      shortUA
+    );
+
+  // If name/clinic arrived on a later message (user filled in after first
+  // turn), update the session row to capture it.
+  const updateSessionIdentity = db
+    .prepare(
+      `UPDATE sessions
+         SET user_name   = COALESCE(?, user_name),
+             user_clinic = COALESCE(?, user_clinic)
+       WHERE id = ?`
+    )
+    .bind(params.userName || null, params.userClinic || null, params.sessionId);
+
+  const insertUserMsg = db
+    .prepare(
+      `INSERT INTO messages (session_id, created_at, role, content)
+       VALUES (?, ?, 'user', ?)`
+    )
+    .bind(params.sessionId, now, params.userMessage.slice(0, 8000));
+
+  const insertAsstMsg = db
+    .prepare(
+      `INSERT INTO messages (session_id, created_at, role, content)
+       VALUES (?, ?, 'assistant', ?)`
+    )
+    .bind(params.sessionId, now + 1, params.assistantReply.slice(0, 8000));
+
+  await db.batch([
+    upsertSession,
+    updateSessionIdentity,
+    insertUserMsg,
+    insertAsstMsg,
+  ]);
+}
 
 function json(body: Record<string, unknown>, status = 200): Response {
   return new Response(JSON.stringify(body), {

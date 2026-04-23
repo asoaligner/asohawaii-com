@@ -17,14 +17,39 @@ const SUGGESTED_PROMPTS = [
   "Can I schedule a pickup on Oahu?",
 ];
 
+/** Generate a short UUID-ish id for session tracking. Server only cares
+ * that it's stable per browser session and distinct across users. */
+function generateSessionId(): string {
+  // crypto.randomUUID is available in all modern browsers.
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return (
+    Math.random().toString(36).slice(2) +
+    Math.random().toString(36).slice(2) +
+    Date.now().toString(36)
+  );
+}
+
 export default function AIChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [sending, setSending] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [userName, setUserName] = useState("");
+  const [userClinic, setUserClinic] = useState("");
+  const [identityProvided, setIdentityProvided] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom whenever messages change
+  // Generate a session ID once when the widget first opens.
+  useEffect(() => {
+    if (open && !sessionId) {
+      setSessionId(generateSessionId());
+    }
+  }, [open, sessionId]);
+
+  // Auto-scroll
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
@@ -58,8 +83,12 @@ export default function AIChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Send history without the synthetic welcome message
-          messages: nextMessages.filter((m, i) => !(i === 0 && m === WELCOME_MESSAGE)),
+          sessionId,
+          userName: userName.trim() || undefined,
+          userClinic: userClinic.trim() || undefined,
+          messages: nextMessages.filter(
+            (m, i) => !(i === 0 && m === WELCOME_MESSAGE)
+          ),
         }),
       });
 
@@ -202,7 +231,7 @@ export default function AIChatWidget() {
               )}
 
               {/* Suggested prompts — only before any user message */}
-              {messages.length === 1 && (
+              {messages.length === 1 && !sending && (
                 <div className="mt-3 flex flex-col gap-1.5">
                   {SUGGESTED_PROMPTS.map((s) => (
                     <button
@@ -219,6 +248,42 @@ export default function AIChatWidget() {
               )}
             </div>
           </div>
+
+          {/* Optional identity form — collapsed by default; opens on click */}
+          {!identityProvided && (
+            <details className="px-4 py-2 bg-white border-t border-gray-100 text-[12px]">
+              <summary className="cursor-pointer text-gray-500 hover:text-navy transition-colors select-none">
+                <span className="font-medium text-navy">Optional:</span>{" "}
+                tell us who you are{" "}
+                <span className="text-gray-400">
+                  (helps us follow up)
+                </span>
+              </summary>
+              <div className="pt-3 pb-1 flex flex-col gap-2">
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Your name (optional)"
+                  className="w-full px-3 py-2 text-[13px] rounded-lg border border-gray-200 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 text-navy placeholder:text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={userClinic}
+                  onChange={(e) => setUserClinic(e.target.value)}
+                  placeholder="Clinic / practice name (optional)"
+                  className="w-full px-3 py-2 text-[13px] rounded-lg border border-gray-200 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 text-navy placeholder:text-gray-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setIdentityProvided(true)}
+                  className="self-end text-[12px] font-medium text-brandOrange hover:underline"
+                >
+                  Save
+                </button>
+              </div>
+            </details>
+          )}
 
           {/* Input */}
           <form
@@ -286,9 +351,7 @@ export default function AIChatWidget() {
 function Bubble({ role, content }: { role: Message["role"]; content: string }) {
   const isUser = role === "user";
   return (
-    <div
-      className={`max-w-[85%] ${isUser ? "self-end" : "self-start"}`}
-    >
+    <div className={`max-w-[85%] ${isUser ? "self-end" : "self-start"}`}>
       <div
         className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
           isUser
@@ -302,10 +365,7 @@ function Bubble({ role, content }: { role: Message["role"]; content: string }) {
   );
 }
 
-/** Very lightweight markdown-ish renderer: linkify URLs + bold + line breaks.
- * Avoids pulling in a full markdown lib for the chat bubbles. */
 function renderRichText(s: string): React.ReactNode {
-  // Bold: **text**
   const parts = s.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
@@ -316,16 +376,13 @@ function renderRichText(s: string): React.ReactNode {
 }
 
 function linkify(text: string, key: number): React.ReactNode {
-  // Match http(s) URLs and site-internal paths like /product/band-appliance
   const re = /(https?:\/\/\S+|\/[a-z][a-z0-9/_-]*)/gi;
   const out: React.ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
   let idx = 0;
   while ((m = re.exec(text)) !== null) {
-    if (m.index > last) {
-      out.push(text.slice(last, m.index));
-    }
+    if (m.index > last) out.push(text.slice(last, m.index));
     const href = m[0];
     out.push(
       <a

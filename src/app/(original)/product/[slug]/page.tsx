@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CatalogGrid from "@/components/CatalogGrid";
+import HeroImageButton from "@/components/HeroImageButton";
+import { LightboxProvider } from "@/components/LightboxProvider";
 import {
   findProductBySlug,
   productCatalog,
@@ -97,6 +100,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
+      <LightboxProvider items={product.items ?? []}>
       {isAligner ? (
         <>
           {/* ——— ASO ALIGNER brochure hero ——— */}
@@ -480,7 +484,11 @@ export default function ProductDetailPage({ params }: { params: Params }) {
             </div>
 
             <div className="lg:col-span-7">
-              <div className={`relative aspect-[4/3] rounded-3xl overflow-hidden shadow-[0_30px_60px_-20px_rgba(15,41,66,0.25)] ${containHero ? "bg-white border border-gray-200" : "bg-gray-100"}`}>
+              <HeroImageButton
+                image={product.heroImage}
+                label={`Enlarge ${product.name}`}
+                className={`relative aspect-[4/3] rounded-3xl overflow-hidden shadow-[0_30px_60px_-20px_rgba(15,41,66,0.25)] block w-full ${containHero ? "bg-white border border-gray-200" : "bg-gray-100"}`}
+              >
                 <Image
                   src={product.heroImage}
                   alt={product.name}
@@ -497,7 +505,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                     product.items.find((it) => it.image === product.heroImage) ??
                     product.items[0];
                   return (
-                  <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3">
+                  <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3 pointer-events-none">
                     <div className="inline-flex flex-col items-start rounded-xl bg-black/55 backdrop-blur-md px-4 py-2.5 border border-white/10">
                       <div className="text-[10px] uppercase tracking-[0.2em] text-white/70">
                         Shown
@@ -517,7 +525,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   </div>
                   );
                 })()}
-              </div>
+              </HeroImageButton>
             </div>
           </div>
         </div>
@@ -582,55 +590,8 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                 Request a quote →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-              {product.items.map((item, i) => (
-                <div
-                  key={`${item.code ?? ""}-${item.name}-${i}`}
-                  className="group rounded-xl overflow-hidden border border-gray-200 bg-white hover:border-navy/30 hover:shadow-[0_10px_30px_-10px_rgba(15,41,66,0.18)] transition-all flex flex-col"
-                >
-                  {item.image ? (
-                    <div className={`relative aspect-[4/3] overflow-hidden ${containHero ? "bg-white" : "bg-gray-50"}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                        className={`absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-[1.04] ${containHero ? "object-contain p-3" : "object-cover"}`}
-                      />
-                      {item.code && (
-                        <span className="absolute top-2.5 left-2.5 inline-flex items-center text-[10px] tracking-widest font-semibold font-serif italic bg-white/95 backdrop-blur-sm text-brandOrange px-2 py-0.5 rounded-full">
-                          {item.code}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="aspect-[4/3] bg-gray-50 flex items-center justify-center text-gray-300">
-                      <svg
-                        className="w-10 h-10"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.25"
-                      >
-                        <rect x="3" y="5" width="18" height="14" rx="2" />
-                        <circle cx="9" cy="11" r="2" />
-                        <path d="M21 17l-5-5-7 7" />
-                      </svg>
-                    </div>
-                  )}
-                  <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="font-serif text-[15px] text-navy leading-snug tracking-tight">
-                      {item.name}
-                    </h3>
-                    {item.note && (
-                      <p className="mt-1.5 text-[12.5px] text-gray-500 leading-relaxed">
-                        {item.note}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CatalogGrid items={product.items} containCards={containHero} />
+
           </div>
         </section>
       )}
@@ -797,6 +758,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
           ← Back to all products
         </Link>
       </section>
+      </LightboxProvider>
     </>
   );
 }

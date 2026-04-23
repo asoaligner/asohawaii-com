@@ -398,12 +398,12 @@ export const productCatalog: ProductTile[] = [
       body: "3 sets for $100 — ask us for details.",
     },
     heroImageOverride:
-      "/images/aso/invisible-retainer/standard-co-polyester.jpg",
+      "/images/aso/invisible-retainer/standard-co-polyester-alt.jpg",
     items: [
       {
         name: "Standard Co-Polyester",
         note: "1.0 mm · thermoformed clear",
-        image: "/images/aso/invisible-retainer/standard-co-polyester.jpg",
+        image: "/images/aso/invisible-retainer/standard-co-polyester-alt.jpg",
       },
       {
         name: "C+ High-Strength",

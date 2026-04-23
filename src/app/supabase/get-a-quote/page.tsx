@@ -69,7 +69,7 @@ export default function GetAQuotePage() {
                     "email",
                     <a
                       key="e"
-                      href="mailto:aso-digital@outlook.com"
+                      href="mailto:asohawaii@hotmail.com"
                       style={{
                         color: "var(--sb-green)",
                         textDecoration: "none",
@@ -77,7 +77,7 @@ export default function GetAQuotePage() {
                           "'Source Code Pro', ui-monospace, monospace",
                       }}
                     >
-                      aso-digital@outlook.com
+                      asohawaii@hotmail.com
                     </a>,
                   ],
                   ["hours", "Mon–Fri · 8:00 am – 4:30 pm HST"],

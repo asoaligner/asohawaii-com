@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     q: "What if I need help using EasyRx?",
-    a: "Our team is one phone call or email away — 808-957-0111 or aso-digital@outlook.com. EasyRx also has a dedicated support team for software questions.",
+    a: "Our team is one phone call or email away — 808-957-0111 or asohawaii@hotmail.com. EasyRx also has a dedicated support team for software questions.",
   },
 ];
 

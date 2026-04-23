@@ -99,7 +99,7 @@ export default function AIChatWidget() {
       if (!res.ok || !data || data.error) {
         const errMsg =
           data?.error ||
-          "Something went wrong. Please email aso-digital@outlook.com or call 808-957-0111.";
+          "Something went wrong. Please email asohawaii@hotmail.com or call 808-957-0111.";
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: errMsg },
@@ -116,7 +116,7 @@ export default function AIChatWidget() {
         {
           role: "assistant",
           content:
-            "Network error — can't reach the assistant right now. Please email aso-digital@outlook.com or call 808-957-0111.",
+            "Network error — can't reach the assistant right now. Please email asohawaii@hotmail.com or call 808-957-0111.",
         },
       ]);
     } finally {
@@ -329,7 +329,7 @@ export default function AIChatWidget() {
           <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-[10px] text-gray-500 text-center">
             AI-assisted · for case-specific questions{" "}
             <a
-              href="mailto:aso-digital@outlook.com"
+              href="mailto:asohawaii@hotmail.com"
               className="text-navy hover:text-brandOrange underline underline-offset-2"
             >
               email us

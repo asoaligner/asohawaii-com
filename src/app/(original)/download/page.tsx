@@ -150,10 +150,10 @@ export default function DownloadPage() {
                 Contact us
               </Link>
               <a
-                href="mailto:aso-digital@outlook.com"
+                href="mailto:asohawaii@hotmail.com"
                 className="inline-flex items-center justify-center gap-2 bg-white text-navy border border-gray-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-navy transition-colors"
               >
-                aso-digital@outlook.com
+                asohawaii@hotmail.com
               </a>
             </div>
           </div>

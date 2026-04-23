@@ -104,7 +104,7 @@ export default function HowToOrderPage() {
             </span>{" "}
             or{" "}
             <a
-              href="mailto:aso-digital@outlook.com"
+              href="mailto:asohawaii@hotmail.com"
               style={{
                 color: "var(--sb-green)",
                 textDecoration: "none",
@@ -225,10 +225,10 @@ export default function HowToOrderPage() {
             }}
           >
             <a
-              href="mailto:aso-digital@outlook.com"
+              href="mailto:asohawaii@hotmail.com"
               className="supabase-btn-green"
             >
-              aso-digital@outlook.com
+              asohawaii@hotmail.com
             </a>
             <a
               href="tel:8089570111"

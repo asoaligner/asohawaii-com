@@ -59,10 +59,10 @@ export default function GetAQuotePage() {
                     "Email",
                     <a
                       key="e"
-                      href="mailto:aso-digital@outlook.com"
+                      href="mailto:asohawaii@hotmail.com"
                       className="text-navy hover:text-brandOrange transition-colors"
                     >
-                      aso-digital@outlook.com
+                      asohawaii@hotmail.com
                     </a>,
                   ],
                   ["Hours", "Mon–Fri · 8:00 am – 4:30 pm HST"],

@@ -117,14 +117,14 @@ const sections = [
         of your personal information. To exercise these rights, contact us
         at{" "}
         <a
-          href="mailto:aso-digital@outlook.com"
+          href="mailto:asohawaii@hotmail.com"
           style={{
             color: "var(--sb-green)",
             textDecoration: "none",
             fontFamily: "'Source Code Pro', ui-monospace, monospace",
           }}
         >
-          aso-digital@outlook.com
+          asohawaii@hotmail.com
         </a>
         .
       </>
@@ -266,10 +266,10 @@ export default function PrivacyPolicyPage() {
               </a>
               <br />▸ email{" "}
               <a
-                href="mailto:aso-digital@outlook.com"
+                href="mailto:asohawaii@hotmail.com"
                 style={{ color: "var(--sb-green)", textDecoration: "none" }}
               >
-                aso-digital@outlook.com
+                asohawaii@hotmail.com
               </a>
             </p>
           </div>

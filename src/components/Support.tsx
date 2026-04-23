@@ -97,10 +97,10 @@ export default function Support() {
                 <dt className="w-12 text-white/50">Email</dt>
                 <dd>
                   <a
-                    href="mailto:aso-digital@outlook.com"
+                    href="mailto:asohawaii@hotmail.com"
                     className="hover:text-brandOrange transition-colors"
                   >
-                    aso-digital@outlook.com
+                    asohawaii@hotmail.com
                   </a>
                 </dd>
               </div>

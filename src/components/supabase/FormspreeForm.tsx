@@ -116,7 +116,7 @@ export default function FormspreeForm({
           ▸ dev_notice: set NEXT_PUBLIC_FORMSPREE_ENDPOINT in .env.local to
           enable delivery to {" "}
           <span style={{ color: "var(--sb-off-white)" }}>
-            aso-digital@outlook.com
+            asohawaii@hotmail.com
           </span>
         </div>
       )}

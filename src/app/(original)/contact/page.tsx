@@ -308,6 +308,20 @@ export default function ContactPage() {
               </dl>
             </div>
           </div>
+
+          <div className="mt-6 rounded-2xl overflow-hidden border border-gray-200 bg-white">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3719.5489!2d-157.8397!3d21.2937!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c006e0e0!2s1441+Kapiolani+Blvd+Honolulu!5e0!3m2!1sen!2sus!4v1700000000000"
+              width="100%"
+              height="320"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="ASO International Hawaii — 1441 Kapiolani Blvd"
+              className="block"
+            />
+          </div>
         </div>
       </section>
 

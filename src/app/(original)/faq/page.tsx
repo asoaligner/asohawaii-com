@@ -34,7 +34,15 @@ const faqs = [
   },
   {
     q: "How do I contact ASO Hawaii?",
-    a: "Phone 808-957-0111 · Email aso-digital@outlook.com · Hours Monday–Friday, 8:00 am – 4:30 pm HST (closed on federal holidays).",
+    a: "Phone 808-957-0111 · Email asohawaii@hotmail.com · Hours Monday–Friday, 8:00 am – 4:30 pm HST (closed on federal holidays).",
+  },
+  {
+    q: "How is shipping handled?",
+    a: "Oahu practices: we offer courier pickup and delivery at no extra charge, Monday–Friday, 1:00–4:00 PM window. Mainland U.S. practices: cases ship via UPS or FedEx; shipping is billed at cost. Rush shipping is available upon request.",
+  },
+  {
+    q: "What are your billing and payment options?",
+    a: "We bill monthly — one consolidated invoice at the end of each month covering all cases submitted that month. We accept Visa, MasterCard, American Express, ACH transfer, and check. New practices: your first few orders are invoiced individually via Square for quick setup; once your account is established, you'll transition to monthly billing.",
   },
 ];
 

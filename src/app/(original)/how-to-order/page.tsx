@@ -163,10 +163,10 @@ export default function HowToOrderPage() {
                   </a>{" "}
                   or email{" "}
                   <a
-                    href="mailto:aso-digital@outlook.com"
+                    href="mailto:asohawaii@hotmail.com"
                     className="text-navy font-medium hover:text-brandOrange transition-colors"
                   >
-                    aso-digital@outlook.com
+                    asohawaii@hotmail.com
                   </a>
                   .
                 </p>
@@ -222,7 +222,7 @@ export default function HowToOrderPage() {
                 <p className="text-[15px] text-navy leading-relaxed">
                   3Shape submissions must be sent via <strong>EasyRx</strong>{" "}
                   or <a
-                    href="mailto:aso-digital@outlook.com"
+                    href="mailto:asohawaii@hotmail.com"
                     className="underline underline-offset-2 hover:text-brandOrange"
                   >
                     email
@@ -306,10 +306,10 @@ export default function HowToOrderPage() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
               <a
-                href="mailto:aso-digital@outlook.com"
+                href="mailto:asohawaii@hotmail.com"
                 className="inline-flex items-center justify-center gap-2 bg-navy text-white px-6 py-3.5 rounded-full text-sm font-medium hover:bg-navy-light transition-colors"
               >
-                aso-digital@outlook.com
+                asohawaii@hotmail.com
               </a>
               <a
                 href="tel:8089570111"

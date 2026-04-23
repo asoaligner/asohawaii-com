@@ -560,7 +560,9 @@ export const productCatalog: ProductTile[] = [
       "Snore Guard (Fixed & Separate types)",
     ],
     fallback: "/images/aso/product-2.jpg",
-    heroImageOverride: "/images/aso/hero-slides/left-03-somnodent-flex.png",
+    // heroImageOverride removed — previously reused the homepage hero-slide,
+    // making Sleep Apnea look identical on /, /product/, and /product/sleep-apnea/.
+    // Falls through to items[0].image (dedicated SomnoDent Flex photo).
     items: [
       {
         name: "SomnoDent Flex",
@@ -685,6 +687,67 @@ export const productCatalog: ProductTile[] = [
     ],
   }),
 ];
+
+/**
+ * Curated "Related products" shown at the bottom of each product detail
+ * page. Keyed by product slug, values are the slugs to surface. Falls
+ * back to same-category products when a slug is not in this map.
+ *
+ * Most product categories have only 1–2 siblings, so the plain category
+ * filter alone leaves several pages with 0 or 1 related tile. This map
+ * reaches across categories based on clinical affinity (e.g. aligners
+ * surface IDB + retainers rather than each other alone).
+ */
+export const RELATED_BY_SLUG: Record<string, string[]> = {
+  "plate-type-retainer-expansion": [
+    "invisible-retainer",
+    "lingual-retainer",
+    "plate-expansion",
+  ],
+  "plate-expansion": [
+    "band-appliance",
+    "functional-appliances",
+    "plate-type-retainer-expansion",
+  ],
+  "band-appliance": [
+    "plate-expansion",
+    "functional-appliances",
+    "lingual-retainer",
+  ],
+  "aso-aligner": ["idb", "invisible-retainer", "functional-appliances"],
+  "flat-occlusal-splint": [
+    "press-type-appliance",
+    "sleep-apnea",
+    "study-model",
+  ],
+  "lingual-retainer": [
+    "invisible-retainer",
+    "plate-type-retainer-expansion",
+    "idb",
+  ],
+  "invisible-retainer": [
+    "lingual-retainer",
+    "plate-type-retainer-expansion",
+    "aso-aligner",
+  ],
+  "press-type-appliance": [
+    "flat-occlusal-splint",
+    "sleep-apnea",
+    "invisible-retainer",
+  ],
+  "study-model": ["idb", "flat-occlusal-splint", "press-type-appliance"],
+  "sleep-apnea": [
+    "flat-occlusal-splint",
+    "press-type-appliance",
+    "functional-appliances",
+  ],
+  idb: ["aso-aligner", "invisible-retainer", "study-model"],
+  "functional-appliances": [
+    "plate-expansion",
+    "band-appliance",
+    "aso-aligner",
+  ],
+};
 
 export function findProductBySlug(slug: string): ProductTile | undefined {
   return productCatalog.find((p) => p.slug === slug);

@@ -79,7 +79,7 @@ export function OriginalForm({
         <div className="text-[11px] text-brandOrange bg-brandOrange/5 border border-brandOrange/20 rounded-md px-3 py-2 tracking-wide">
           <span className="font-serif italic">dev notice</span> — set{" "}
           <code className="font-mono">NEXT_PUBLIC_FORMSPREE_ENDPOINT</code> to
-          enable delivery to aso-digital@outlook.com
+          enable delivery to asohawaii@hotmail.com
         </div>
       )}
       {children}

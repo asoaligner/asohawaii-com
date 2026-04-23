@@ -102,10 +102,10 @@ const sections = [
         You have the right to request access to, correction of, or deletion of
         your personal information. To exercise these rights, contact us at{" "}
         <a
-          href="mailto:aso-digital@outlook.com"
+          href="mailto:asohawaii@hotmail.com"
           className="text-navy font-medium underline underline-offset-2 hover:text-brandOrange transition-colors"
         >
-          aso-digital@outlook.com
+          asohawaii@hotmail.com
         </a>
         .
       </>
@@ -195,10 +195,10 @@ export default function PrivacyPolicyPage() {
                   Email
                 </span>
                 <a
-                  href="mailto:aso-digital@outlook.com"
+                  href="mailto:asohawaii@hotmail.com"
                   className="text-navy font-medium hover:text-brandOrange transition-colors"
                 >
-                  aso-digital@outlook.com
+                  asohawaii@hotmail.com
                 </a>
               </div>
             </div>

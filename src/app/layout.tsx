@@ -114,7 +114,7 @@ const localBusinessJsonLd = {
   image: `${SITE_URL}/images/og-default.png`,
   telephone: "+1-808-957-0111",
   faxNumber: "+1-808-957-0222",
-  email: "aso-digital@outlook.com",
+  email: "asohawaii@hotmail.com",
   address: {
     "@type": "PostalAddress",
     streetAddress: "1441 Kapiolani Blvd #1112",

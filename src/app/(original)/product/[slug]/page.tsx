@@ -9,7 +9,9 @@ import {
   findProductBySlug,
   productCatalog,
   productDetailSlugs,
+  RELATED_BY_SLUG,
 } from "@/data/product-catalog";
+import type { ProductTile } from "@/data/product-catalog";
 
 type Params = { slug: string };
 
@@ -64,15 +66,24 @@ export default function ProductDetailPage({ params }: { params: Params }) {
     url: `${SITE_URL}/product/${product.slug}/`,
   };
 
-  const related = productCatalog
-    .filter(
-      (p) =>
-        p.slug &&
-        p.slug !== product.slug &&
-        p.slug !== "new-products" &&
-        p.category === product.category
-    )
-    .slice(0, 3);
+  // Prefer the curated cross-category related list when we have one;
+  // otherwise fall back to same-category siblings. Most products now
+  // ship with a curated list so the bottom-of-page section always shows
+  // three tiles.
+  const curatedSlugs = product.slug ? RELATED_BY_SLUG[product.slug] : undefined;
+  const related: ProductTile[] = curatedSlugs
+    ? curatedSlugs
+        .map((s) => productCatalog.find((p) => p.slug === s))
+        .filter((p): p is ProductTile => !!p)
+    : productCatalog
+        .filter(
+          (p) =>
+            p.slug &&
+            p.slug !== product.slug &&
+            p.slug !== "new-products" &&
+            p.category === product.category
+        )
+        .slice(0, 3);
 
   // ASO ALIGNER is rendered as a brochure/intro page rather than a tile
   // catalog — its "variants" are wear schedules + material grades, not

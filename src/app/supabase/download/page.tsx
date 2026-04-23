@@ -149,14 +149,14 @@ export default function DownloadPage() {
                 Contact us
               </Link>
               <a
-                href="mailto:aso-digital@outlook.com"
+                href="mailto:asohawaii@hotmail.com"
                 className="supabase-btn-secondary"
                 style={{
                   fontFamily:
                     "'Source Code Pro', ui-monospace, monospace",
                 }}
               >
-                aso-digital@outlook.com
+                asohawaii@hotmail.com
               </a>
             </div>
           </div>

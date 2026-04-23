@@ -4,7 +4,7 @@ export const company = {
   address: "1441 Kapiolani Blvd #1112, Honolulu, HI 96814",
   phone: "808-957-0111",
   fax: "808-957-0222",
-  email: "aso-digital@outlook.com",
+  email: "asohawaii@hotmail.com",
   hours: "Monday–Friday · 8:00 AM – 4:30 PM",
   holidays: "Closed on Federal Holidays",
   practices: "150+",
@@ -131,7 +131,7 @@ export const faqs = [
   },
   {
     q: "What if I need help using EasyRx?",
-    a: "Call 808-957-0111 or email aso-digital@outlook.com. EasyRx also has a dedicated software support team.",
+    a: "Call 808-957-0111 or email asohawaii@hotmail.com. EasyRx also has a dedicated software support team.",
   },
 ];
 

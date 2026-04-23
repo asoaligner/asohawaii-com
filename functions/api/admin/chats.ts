@@ -61,10 +61,12 @@ function requireAuth(
 }
 
 function unauthorized(): Response {
-  return new Response("Unauthorized", {
+  // Intentionally NOT sending WWW-Authenticate — we use a custom login UI,
+  // and that header causes Chrome to pop a native Basic-Auth dialog over it.
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
     status: 401,
     headers: {
-      "WWW-Authenticate": 'Basic realm="ASO Hawaii Admin"',
+      "Content-Type": "application/json",
       ...CORS_HEADERS,
     },
   });

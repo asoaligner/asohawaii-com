@@ -397,48 +397,33 @@ export const productCatalog: ProductTile[] = [
       label: "CR3 Package",
       body: "3 sets for $100 — ask us for details.",
     },
+    heroImageOverride:
+      "/images/aso/invisible-retainer/standard-co-polyester.jpg",
     items: [
       {
         name: "Standard Co-Polyester",
-        note: "1.0 mm",
-        image: "/images/aso/wix/e724a4_bd68ca9db1544535a3834f250d224290.jpg",
+        note: "1.0 mm · thermoformed clear",
+        image: "/images/aso/invisible-retainer/standard-co-polyester.jpg",
       },
       {
         name: "C+ High-Strength",
-        note: "1.0 mm",
-        image: "/images/aso/product-7.jpg",
+        note: "1.0 mm · reinforced co-polyester",
+        image: "/images/aso/invisible-retainer/c-plus-high-strength.jpg",
       },
       {
         name: "LuxCreo Direct-Print",
-        note: "0.6 / 0.8 / 1.0 / 1.5 / 2.0 mm",
-        image:
-          "/images/aso/wix/e724a4_9c6f80d6b09240ce8403b15b8eb62d87.png",
+        note: "0.6 / 0.8 / 1.0 / 1.5 / 2.0 mm · 3D-printed resin",
+        image: "/images/aso/invisible-retainer/direct-print-luxcreo.jpg",
       },
       {
         name: "Zendura A",
         note: "0.625 / 0.76 / 1.0 mm · single-layer TPU",
-        image:
-          "/images/aso/wix/e724a4_3ad43298f7574f9cb1fc21fd8c6c8f63.png",
-      },
-      {
-        name: "Zendura FLX",
-        note: "0.76 mm · 3-layer with shape-memory core · 7-day cycle",
-        image: "/images/aso/wix/e724a4_bd68ca9db1544535a3834f250d224290.jpg",
-      },
-      {
-        name: "Zendura VIVA",
-        note: "0.89 mm · reinforced 3-layer · 150% torque retention",
-        image: "/images/aso/product-7.jpg",
+        image: "/images/aso/invisible-retainer/zendura-a.jpg",
       },
       {
         name: "Invisible Retainer with Pontic",
         note: "Tooth-colored pontic filled into the retainer for single-tooth gaps",
-        image: "/images/aso/wix/e724a4_bd68ca9db1544535a3834f250d224290.jpg",
-      },
-      {
-        name: "Invisible Retainer with Scallop Cut",
-        note: "Gingival scallop finish — minimized gum impingement",
-        image: "/images/aso/wix/e724a4_9c6f80d6b09240ce8403b15b8eb62d87.png",
+        image: "/images/aso/invisible-retainer/with-pontic.jpg",
       },
     ],
   }),

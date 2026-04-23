@@ -83,7 +83,8 @@ export default function ProductDetailPage({ params }: { params: Params }) {
   // is visible.
   const CONTAIN_SLUGS = new Set([
     "flat-occlusal-splint",
-    "press-type-appliance",
+    // press-type-appliance: real bench photos are pre-padded to 4:3 with
+    // their own dark backdrop, so object-cover fills the card cleanly.
     // invisible-retainer: source image is 1440×1920 — high-res enough to
     // show cropped with object-cover without quality loss. Full-bleed
     // look is stronger than the letterboxed contain version.

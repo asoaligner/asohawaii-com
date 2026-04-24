@@ -12,21 +12,21 @@ const files = [
     name: "Order Form",
     desc:
       "Printable prescription / order form for ASO Hawaii products. Fill out and include with stone model submissions.",
-    href: "https://www.asohawaii.com/_files/ugd/e724a4_9483bc8b00d74acd9603ccec3cc0d9d8.pdf",
+    href: "/pdf/aso-hawaii-order-form.pdf",
     filename: "aso-hawaii-order-form.pdf",
   },
   {
     name: "ASO ALIGNER Prescription Form",
     desc:
       "Clear-aligner-specific order sheet for ASO ALIGNER treatment planning. Captures staging, material, and attachment preferences.",
-    href: "https://www.asohawaii.com/_files/ugd/e724a4_a5420cdcc0804bb9a2f40b982b002fc0.pdf",
+    href: "/pdf/aso-aligner-order-form.pdf",
     filename: "aso-aligner-order-form.pdf",
   },
   {
     name: "Product Catalog",
     desc:
       "Complete ASO International product catalog — every appliance line we fabricate, with specifications, material options, and configuration codes.",
-    href: "https://www.asohawaii.com/_files/ugd/e724a4_2779b06e639a4071855b9b3937126307.pdf",
+    href: "/pdf/aso-general-catalog.pdf",
     filename: "aso-general-catalog.pdf",
   },
 ];

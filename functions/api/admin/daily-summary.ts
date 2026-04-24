@@ -125,7 +125,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       env,
       recipient,
       `[ASO Hawaii] No chat activity — last ${hours}h`,
-      `<p>No chat sessions in the last ${hours} hours.</p><p>Chatbot dashboard: <a href="https://asohawaii-com.pages.dev/admin/chats">asohawaii-com.pages.dev/admin/chats</a></p>`
+      `<p>No chat sessions in the last ${hours} hours.</p><p>Chatbot dashboard: <a href="https://asohawaii.com/admin/chats">asohawaii.com/admin/chats</a></p>`
     );
     return json({ sent: emailRes.ok, sessions: 0 });
   }
@@ -226,7 +226,7 @@ Keep the whole output under 400 words. Use markdown. Do NOT include raw chat con
     </div>
     <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
     <p style="font-size: 12px; color: #6B7280;">
-      Full transcripts: <a href="https://asohawaii-com.pages.dev/admin/chats" style="color: #F97316;">asohawaii-com.pages.dev/admin/chats</a>
+      Full transcripts: <a href="https://asohawaii.com/admin/chats" style="color: #F97316;">asohawaii.com/admin/chats</a>
     </p>
   </div>`;
 

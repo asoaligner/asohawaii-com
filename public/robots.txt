@@ -1,4 +1,4 @@
-# robots.txt for www.asohawaii.com
+# robots.txt for asohawaii.com
 # See https://www.robotstxt.org/ for format spec.
 
 User-agent: *
@@ -17,4 +17,4 @@ Disallow: /supabase/
 Disallow: /_next/
 Disallow: /api/
 
-Sitemap: https://www.asohawaii.com/sitemap.xml
+Sitemap: https://asohawaii.com/sitemap.xml

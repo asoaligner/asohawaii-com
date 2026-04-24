@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy · ASO International Hawaii",
   description:
     "Privacy policy for ASO International Hawaii — what information we collect, how we use it, data storage, cookies, third-party services, and your rights.",
+  alternates: { canonical: "/privacy-policy/" },
 };
 
 const sections = [

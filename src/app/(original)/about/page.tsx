@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "About · ASO International Hawaii — Japan's leading orthodontic lab",
   description:
     "ASO International was founded in Tokyo in 1982 and has grown into Japan's largest orthodontic laboratory. ASO Hawaii (est. 2005) brings that pipeline to practices across the Pacific.",
+  alternates: { canonical: "/about/" },
 };
 
 const pillars = [

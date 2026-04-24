@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "New Products · ASO Hawaii — Latest appliance lineup",
   description:
     "ASO Hawaii's newest appliances: SomnoDent sleep devices, MSE/MARPE expanders, LuxCreo 3D-printed aligners, Zendura A retainers, SYMPHONY, SHU-Lider, and more.",
+  alternates: { canonical: "/new-products/" },
 };
 
 type Tile = {

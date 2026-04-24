@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Download · ASO Hawaii — Forms & guides",
   description:
     "Download order forms, submission guides, and reference documents from ASO International Hawaii.",
+  alternates: { canonical: "/download/" },
 };
 
 const files = [

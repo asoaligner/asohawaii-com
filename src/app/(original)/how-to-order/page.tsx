@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "How to Order · ASO Hawaii — Case submission & pickup",
   description:
     "How to send your cases to ASO International Hawaii. Digital scanner submissions (iTero, Medit, Primescan, DEXIS, Shining 3D, 3Shape) or stone models. Oahu afternoon pickup available.",
+  alternates: { canonical: "/how-to-order/" },
 };
 
 export default function HowToOrderPage() {

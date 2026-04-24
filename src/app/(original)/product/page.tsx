@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Products · ASO Hawaii — Orthodontic lab catalogue",
   description:
     "ASO International Hawaii's full product catalogue: retainers, aligners, splints, sleep appliances, functional appliances, IDB, and more. Fabricated from your digital scans.",
+  alternates: { canonical: "/product/" },
 };
 
 // Slugs whose hero image is a logo/wordmark or tall arch render that

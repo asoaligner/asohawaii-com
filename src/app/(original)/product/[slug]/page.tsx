@@ -29,10 +29,11 @@ export function generateMetadata({
   return {
     title: `${product.name} · ASO Hawaii`,
     description: product.description,
+    alternates: { canonical: `/product/${product.slug}/` },
   };
 }
 
-const SITE_URL = "https://www.asohawaii.com";
+const SITE_URL = "https://asohawaii.com";
 
 export default function ProductDetailPage({ params }: { params: Params }) {
   const product = findProductBySlug(params.slug);

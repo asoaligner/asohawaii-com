@@ -45,10 +45,13 @@ const sourceCode = Source_Code_Pro({
   display: "swap",
 });
 
-const SITE_URL = "https://www.asohawaii.com";
+const SITE_URL = "https://asohawaii.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: "/",
+  },
   title: "ASO International Hawaii | Digital Case Submission with EasyRx",
   description:
     "Trusted orthodontic lab in Honolulu offering clear aligners, retainers, splints, expanders, and premium digital appliances. Accepts scans from every major IOS scanner via EasyRx. HIPAA-compliant, full case history, fast turnaround.",

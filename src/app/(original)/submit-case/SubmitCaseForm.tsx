@@ -14,11 +14,11 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 const DELIVERY_METHODS = [
   { value: "Pickup", label: "Pickup at ASO Hawaii (Honolulu only)" },
-  { value: "USPS Priority Mail", label: "USPS Priority Mail" },
   {
     value: "Local Delivery",
     label: "Local delivery (Honolulu area, some remote zones excluded)",
   },
+  { value: "USPS Priority Mail", label: "USPS Priority Mail" },
 ];
 
 const COLOR_CHARTS = [

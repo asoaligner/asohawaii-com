@@ -507,10 +507,27 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   </svg>
                 </Link>
                 <Link
+                  href="/submit-case/"
+                  className="inline-flex items-center justify-center gap-2 bg-brandOrange text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors"
+                >
+                  Submit case
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </Link>
+                <Link
                   href="/how-to-order"
                   className="inline-flex items-center justify-center gap-2 bg-white text-navy border border-gray-200 px-6 py-3 rounded-full text-sm font-medium hover:border-navy transition-colors"
                 >
-                  How to submit a case
+                  How to submit
                 </Link>
               </div>
 

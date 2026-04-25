@@ -57,6 +57,76 @@ export default function HowToOrderPage() {
         </div>
       </section>
 
+      <section className="py-12 md:py-14 bg-gradient-to-br from-brandOrange/5 via-white to-brandOrange/5 border-t border-brandOrange/15">
+        <div className="container-narrow">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
+            <div className="md:col-span-7">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-brandOrange text-white text-[10px] font-semibold uppercase tracking-widest mb-4">
+                New
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
+                Quick Order Form{" "}
+                <span className="italic text-brandOrange">— online.</span>
+              </h2>
+              <p className="mt-4 text-[15px] text-gray-700 leading-relaxed max-w-xl">
+                Submit cases directly through our online form — designed for
+                practices not yet on EasyRx, or when you just want a fast,
+                no-login submission. Upload STL files, photos, and your Rx
+                PDF in one go.
+              </p>
+              <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[14px] text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  No login required
+                </li>
+                <li className="flex items-start gap-2">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  STL · Photo · PDF uploads
+                </li>
+                <li className="flex items-start gap-2">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  Response within 1 business day
+                </li>
+                <li className="flex items-start gap-2">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  HIPAA-conscious workflow
+                </li>
+              </ul>
+            </div>
+            <div className="md:col-span-5 md:text-right">
+              <Link
+                href="/submit-case/"
+                className="inline-flex items-center gap-2 bg-brandOrange text-white px-6 py-3.5 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors"
+              >
+                Submit a case
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </Link>
+              <p className="mt-3 text-[12px] text-gray-500 md:text-right">
+                Already on EasyRx? Submit there for full traceability.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-24 md:py-28 bg-white">
         <div className="container-narrow">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">

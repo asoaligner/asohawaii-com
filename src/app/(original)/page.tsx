@@ -7,6 +7,7 @@ import HowToSubmit from "@/components/HowToSubmit";
 import FAQ from "@/components/FAQ";
 import CTAForm from "@/components/CTAForm";
 import MiniatureCollectionBand from "@/components/MiniatureCollectionBand";
+import SubmitCaseBand from "@/components/SubmitCaseBand";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Hero />
       <IosAcceptanceBand />
       <FeaturedProducts />
+      <SubmitCaseBand />
       <CustomOralAppliances />
       <MiniatureCollectionBand />
       <ConsultationBand />

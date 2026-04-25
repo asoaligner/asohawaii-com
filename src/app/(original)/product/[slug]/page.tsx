@@ -513,6 +513,10 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   How to submit a case
                 </Link>
               </div>
+
+              {product.slug && COLOR_CUSTOMIZABLE_SLUGS.has(product.slug) && (
+                <CompactCustomization />
+              )}
             </div>
 
             <div className="lg:col-span-7">
@@ -596,10 +600,6 @@ export default function ProductDetailPage({ params }: { params: Params }) {
             </div>
           </div>
         </section>
-      )}
-
-      {product.slug && COLOR_CUSTOMIZABLE_SLUGS.has(product.slug) && (
-        <CompactCustomization />
       )}
 
       {product.items && product.items.length > 0 && (

@@ -1,175 +1,134 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import AcrylicColorChart from "./AcrylicColorChart";
-import CustomColorOptions from "./CustomColorOptions";
-import StickersGrid from "./StickersGrid";
+import { useEffect, useState } from "react";
 
 /**
- * Compact, collapsible customization panel for plate-type / expansion /
- * functional-appliance product pages. All three accordions default to
- * closed so the catalog grid stays the page's focal point.
+ * Two color-chart thumbnails with click-to-zoom lightbox. Designed to
+ * tuck into the hero column of plate-type / expansion / functional
+ * appliance product pages without crowding out the catalog grid below.
+ *
+ * Esc key and backdrop click both close the lightbox.
  */
+
+const CHARTS: { src: string; alt: string; label: string }[] = [
+  {
+    src: "/images/aso/colors/charts/traditional-glitter.jpg",
+    alt: "Acrylic color chart — traditional and glitter samples",
+    label: "Acrylic colors",
+  },
+  {
+    src: "/images/aso/colors/charts/neon-stickers.jpg",
+    alt: "Neon colors and sticker designs reference chart",
+    label: "Neon & stickers",
+  },
+];
+
 export default function CompactCustomization() {
-  const [colorOpen, setColorOpen] = useState(false);
-  const [stickerOpen, setStickerOpen] = useState(false);
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (openIdx === null) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpenIdx(null);
+    }
+    window.addEventListener("keydown", onKey);
+    // Lock body scroll while lightbox is up.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [openIdx]);
+
+  const open = openIdx !== null ? CHARTS[openIdx] : null;
 
   return (
-    <section className="py-12 md:py-14 bg-gray-50/60 border-t border-gray-200/60">
-      <div className="container-narrow">
-        <div className="max-w-2xl mb-8">
-          <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
-            Customization
-          </div>
-          <h2 className="font-serif text-2xl sm:text-3xl leading-[1.2] tracking-tightest text-navy text-balance">
-            Colors &amp; <span className="italic">stickers.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
-          {/* COLORS */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
-            <div className="flex items-start gap-4">
-              <div className="relative w-32 sm:w-40 shrink-0 aspect-[4/3] rounded-lg overflow-hidden bg-gray-50 border border-gray-200/70">
-                <Image
-                  src="/images/aso/colors/charts/traditional-glitter.jpg"
-                  alt="ASO acrylic color sample sheet"
-                  fill
-                  sizes="160px"
-                  className="object-cover object-center"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-serif text-lg sm:text-xl text-navy leading-snug tracking-tight">
-                  Acrylic Color Options
-                </h3>
-                <p className="mt-1.5 text-[13px] text-gray-600 leading-snug">
-                  28 colors · 9 neon shades · custom combinations
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setColorOpen((v) => !v)}
-                  aria-expanded={colorOpen}
-                  aria-controls="customize-colors-panel"
-                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-brandOrange hover:text-brandOrange/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/40 focus-visible:ring-offset-2 rounded-full px-2 -mx-2 py-1 transition-colors"
-                >
-                  <span aria-hidden className="text-base leading-none">
-                    {colorOpen ? "−" : "+"}
-                  </span>
-                  {colorOpen ? "Hide colors" : "View all colors"}
-                </button>
-              </div>
-            </div>
-
-            {colorOpen && (
-              <div
-                id="customize-colors-panel"
-                className="mt-6 pt-6 border-t border-gray-200/70"
+    <>
+      <div className="mt-6 flex items-start gap-3">
+        {CHARTS.map((c, i) => (
+          <button
+            key={c.src}
+            type="button"
+            onClick={() => setOpenIdx(i)}
+            aria-label={`View ${c.label} chart`}
+            className="group block w-28 sm:w-32 rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-navy/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/50 focus-visible:ring-offset-2 transition-all"
+          >
+            <div className="relative aspect-[4/3] bg-gray-50">
+              <Image
+                src={c.src}
+                alt={c.alt}
+                fill
+                sizes="128px"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+              <span
+                aria-hidden
+                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/30 text-white transition-opacity"
               >
-                <AcrylicColorChart />
-                <div className="mt-10">
-                  <h4 className="font-serif text-lg text-navy mb-1">
-                    Custom combinations
-                  </h4>
-                  <p className="text-[13.5px] text-gray-600 mb-5">
-                    Available on request — perfect for a signature look.
-                  </p>
-                  <CustomColorOptions />
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 text-[12px] text-gray-500">
-              · Dual color · Color with glitter · Neon marble
-            </div>
-          </div>
-
-          {/* STICKERS */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
-            <div className="flex items-start gap-4">
-              <div className="relative w-32 sm:w-40 shrink-0 aspect-[4/3] rounded-lg overflow-hidden bg-gray-50 border border-gray-200/70">
-                <Image
-                  src="/images/aso/colors/charts/neon-stickers.jpg"
-                  alt="ASO sticker design sample sheet"
-                  fill
-                  sizes="160px"
-                  className="object-cover object-bottom"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-serif text-lg sm:text-xl text-navy leading-snug tracking-tight">
-                  Add Personality with Stickers
-                </h3>
-                <p className="mt-1.5 text-[13px] text-gray-600 leading-snug">
-                  29 fun designs · multiple per retainer
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setStickerOpen((v) => !v)}
-                  aria-expanded={stickerOpen}
-                  aria-controls="customize-stickers-panel"
-                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-brandOrange hover:text-brandOrange/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/40 focus-visible:ring-offset-2 rounded-full px-2 -mx-2 py-1 transition-colors"
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <span aria-hidden className="text-base leading-none">
-                    {stickerOpen ? "−" : "+"}
-                  </span>
-                  {stickerOpen ? "Hide stickers" : "View all stickers"}
-                </button>
-              </div>
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+                </svg>
+              </span>
             </div>
-
-            {stickerOpen && (
-              <div
-                id="customize-stickers-panel"
-                className="mt-6 pt-6 border-t border-gray-200/70"
-              >
-                <StickersGrid />
-              </div>
-            )}
-
-            <div className="mt-4 text-[12px] text-gray-500">
-              · Animals · Sports · Vehicles · Characters
+            <div className="px-2.5 py-1.5 text-[11px] uppercase tracking-widest text-gray-500 truncate">
+              {c.label}
             </div>
-          </div>
-        </div>
+          </button>
+        ))}
+      </div>
 
-        {/* IMPORTANT NOTES — accordion */}
-        <div className="mt-5 lg:mt-6 rounded-xl border-l-4 border-brandOrange bg-brandOrange/[0.06]">
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={open.alt}
+          onClick={() => setOpenIdx(null)}
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+        >
           <button
             type="button"
-            onClick={() => setNotesOpen((v) => !v)}
-            aria-expanded={notesOpen}
-            aria-controls="customize-notes-panel"
-            className="w-full flex items-center justify-between gap-4 px-5 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/40 rounded-r-xl"
+            onClick={() => setOpenIdx(null)}
+            aria-label="Close enlarged chart"
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-navy shadow-lg flex items-center justify-center hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/60 transition-colors"
           >
-            <span className="text-[13.5px] font-medium text-navy">
-              <span aria-hidden className="mr-2">
-                ℹ️
-              </span>
-              Important notes about color availability
-            </span>
-            <span
-              aria-hidden
-              className="text-brandOrange text-lg leading-none shrink-0"
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
             >
-              {notesOpen ? "−" : "+"}
-            </span>
+              <path d="M4 4l8 8M12 4L4 12" />
+            </svg>
           </button>
-          {notesOpen && (
-            <ul
-              id="customize-notes-panel"
-              className="px-5 pb-4 text-[13.5px] text-gray-700 leading-relaxed space-y-1.5 list-disc list-inside"
-            >
-              <li>
-                Color samples may vary slightly from the final product.
-              </li>
-              <li>Custom combinations available upon request.</li>
-            </ul>
-          )}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-5xl max-h-[90vh] w-full"
+          >
+            <Image
+              src={open.src}
+              alt={open.alt}
+              width={1400}
+              height={1082}
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
+              priority
+            />
+          </div>
         </div>
-      </div>
-    </section>
+      )}
+    </>
   );
 }

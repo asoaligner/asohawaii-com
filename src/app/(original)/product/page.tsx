@@ -70,18 +70,25 @@ export default function ProductPage() {
         <div className="container-narrow">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {productCatalog.map((p, i) => {
-              const href = p.slug
+              const detailHref = p.slug
                 ? p.slug === "new-products"
                   ? "/new-products"
                   : `/product/${p.slug}`
                 : "/get-a-quote";
+              const submitHref =
+                p.slug && p.slug !== "new-products"
+                  ? `/submit-case/?product=${encodeURIComponent(p.slug)}`
+                  : "/submit-case/";
+              const showSubmit = p.slug !== "new-products";
               return (
-                <Link
+                <div
                   key={p.tag}
-                  href={href}
                   className="group rounded-2xl overflow-hidden border border-gray-200 bg-white hover:border-navy/30 hover:shadow-[0_12px_40px_-12px_rgba(15,41,66,0.15)] transition-all flex flex-col"
                 >
-                  <div className={`relative aspect-[4/3] overflow-hidden ${p.slug && CONTAIN_SLUGS.has(p.slug) ? "bg-white" : "bg-gray-50"}`}>
+                  <Link
+                    href={detailHref}
+                    className={`relative aspect-[4/3] overflow-hidden block ${p.slug && CONTAIN_SLUGS.has(p.slug) ? "bg-white" : "bg-gray-50"}`}
+                  >
                     <Image
                       src={p.heroImage}
                       alt={p.name}
@@ -109,30 +116,56 @@ export default function ProductPage() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                   <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-serif text-xl text-navy leading-snug tracking-tight">
-                      {p.name}
-                    </h3>
-                    <p className="mt-2 text-[14.5px] text-gray-600 leading-relaxed flex-grow">
-                      {p.blurb}
-                    </p>
-                    <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-navy group-hover:text-brandOrange transition-colors">
-                      {p.slug ? "See details" : "Request quote"}
-                      <svg
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                    <Link href={detailHref} className="block">
+                      <h3 className="font-serif text-xl text-navy leading-snug tracking-tight group-hover:text-brandOrange transition-colors">
+                        {p.name}
+                      </h3>
+                      <p className="mt-2 text-[14.5px] text-gray-600 leading-relaxed flex-grow">
+                        {p.blurb}
+                      </p>
+                    </Link>
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                      <Link
+                        href={detailHref}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:text-brandOrange transition-colors"
                       >
-                        <path d="M3 8h10M9 4l4 4-4 4" />
-                      </svg>
+                        {p.slug ? "See details" : "Request quote"}
+                        <svg
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 8h10M9 4l4 4-4 4" />
+                        </svg>
+                      </Link>
+                      {showSubmit && (
+                        <Link
+                          href={submitHref}
+                          className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brandOrange border border-brandOrange/30 hover:bg-brandOrange hover:text-white rounded-full px-3 py-1.5 transition-colors ml-auto"
+                        >
+                          Submit case
+                          <svg
+                            className="w-3 h-3"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 8h10M9 4l4 4-4 4" />
+                          </svg>
+                        </Link>
+                      )}
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>

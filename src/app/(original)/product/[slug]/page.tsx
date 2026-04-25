@@ -507,7 +507,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   </svg>
                 </Link>
                 <Link
-                  href="/submit-case/"
+                  href={`/submit-case/?product=${encodeURIComponent(product.slug ?? "")}`}
                   className="inline-flex items-center justify-center gap-2 bg-brandOrange text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors"
                 >
                   Submit case
@@ -643,7 +643,11 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                 Request a quote →
               </Link>
             </div>
-            <CatalogGrid items={product.items} containCards={containHero} />
+            <CatalogGrid
+              items={product.items}
+              containCards={containHero}
+              productSlug={product.slug ?? undefined}
+            />
 
           </div>
         </section>

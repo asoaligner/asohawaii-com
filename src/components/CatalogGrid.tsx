@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { CatalogItem } from "@/data/product-catalog";
 import { useLightbox } from "@/components/LightboxProvider";
 
@@ -8,11 +9,16 @@ type Props = {
   /** When true, use object-contain + white backdrop for items whose
    *  source image is a bare render/logo that would crop awkwardly. */
   containCards?: boolean;
+  /** Parent product slug — used to deep-link "Submit Case" CTAs to
+   *  /submit-case/?product=<slug>&item=<code>. When undefined, the
+   *  per-item CTA falls back to a category-level link. */
+  productSlug?: string;
 };
 
 export default function CatalogGrid({
   items,
   containCards = false,
+  productSlug,
 }: Props) {
   const { openAt } = useLightbox();
 
@@ -20,6 +26,13 @@ export default function CatalogGrid({
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
       {items.map((item, i) => {
         const key = `${item.code ?? ""}-${item.name}-${i}`;
+        const submitHref = (() => {
+          const params = new URLSearchParams();
+          if (productSlug) params.set("product", productSlug);
+          if (item.code) params.set("item", item.code);
+          const qs = params.toString();
+          return qs ? `/submit-case/?${qs}` : "/submit-case/";
+        })();
         return (
           <div
             key={key}
@@ -73,6 +86,23 @@ export default function CatalogGrid({
                   {item.note}
                 </p>
               )}
+              <Link
+                href={submitHref}
+                className="mt-3 inline-flex items-center justify-center gap-1.5 text-[12.5px] font-medium text-brandOrange border border-brandOrange/30 hover:bg-brandOrange hover:text-white rounded-full px-3 py-1.5 transition-colors w-fit"
+              >
+                Submit case
+                <svg
+                  className="w-3 h-3"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </Link>
             </div>
           </div>
         );

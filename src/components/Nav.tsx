@@ -29,6 +29,7 @@ const primary: PrimaryLink[] = [
       },
     ],
   },
+  { label: "Shop", href: "/shop" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact Us", href: "/contact" },
 ];

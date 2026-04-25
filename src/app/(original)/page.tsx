@@ -6,6 +6,7 @@ import ConsultationBand from "@/components/ConsultationBand";
 import HowToSubmit from "@/components/HowToSubmit";
 import FAQ from "@/components/FAQ";
 import CTAForm from "@/components/CTAForm";
+import MiniatureCollectionBand from "@/components/MiniatureCollectionBand";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <IosAcceptanceBand />
       <FeaturedProducts />
       <CustomOralAppliances />
+      <MiniatureCollectionBand />
       <ConsultationBand />
       <HowToSubmit />
       <FAQ />

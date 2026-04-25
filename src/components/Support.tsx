@@ -132,6 +132,7 @@ export default function Support() {
                 { label: "New Products", href: "/new-products" },
                 { label: "About", href: "/about" },
                 { label: "How to Order", href: "/how-to-order" },
+                { label: "Shop", href: "/shop" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Contact", href: "/contact" },
                 { label: "Get a Quote", href: "/get-a-quote" },

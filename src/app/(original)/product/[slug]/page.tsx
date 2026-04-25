@@ -762,6 +762,55 @@ export default function ProductDetailPage({ params }: { params: Params }) {
         </section>
       )}
 
+      {/* Miniature Collection cross-sell */}
+      <section className="py-16 md:py-20 bg-white">
+        <div className="container-narrow">
+          <Link
+            href="/shop/"
+            className="group block rounded-3xl border border-gray-200 bg-gradient-to-br from-gray-50/80 to-white overflow-hidden hover:border-navy/30 hover:shadow-[0_12px_40px_-12px_rgba(15,41,66,0.15)] transition-all"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-0 items-stretch">
+              <div className="md:col-span-5 relative aspect-[4/3] md:aspect-auto md:min-h-[280px] bg-gray-50">
+                <Image
+                  src="/images/aso/miniature/miniature-set.jpg"
+                  alt="ASO Miniature Collection — set of 5 hand-crafted models"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              </div>
+              <div className="md:col-span-7 p-7 md:p-10 flex flex-col justify-center">
+                <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
+                  Looking for a unique dental gift?
+                </div>
+                <h3 className="font-serif text-2xl md:text-3xl text-navy leading-snug tracking-tight">
+                  Discover our{" "}
+                  <span className="italic">Miniature Collection.</span>
+                </h3>
+                <p className="mt-3 text-[14.5px] text-gray-600 leading-relaxed max-w-xl">
+                  Hand-crafted miniature orthodontic models — for graduations,
+                  patient milestones, and orthodontic office decor.
+                </p>
+                <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-navy group-hover:text-brandOrange transition-colors">
+                  Visit the shop
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="py-12 text-center">
         <Link
           href="/product"

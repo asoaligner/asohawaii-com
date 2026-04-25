@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { SubmitCaseForm } from "./SubmitCaseForm";
 
 const SITE_URL = "https://asohawaii.com";
@@ -100,7 +101,15 @@ export default function SubmitCasePage() {
       <section className="py-12 md:py-16 bg-white">
         <div className="container-narrow">
           <div className="max-w-3xl mx-auto">
-            <SubmitCaseForm />
+            <Suspense
+              fallback={
+                <div className="text-center text-gray-400 text-sm py-10">
+                  Loading form…
+                </div>
+              }
+            >
+              <SubmitCaseForm />
+            </Suspense>
           </div>
         </div>
       </section>

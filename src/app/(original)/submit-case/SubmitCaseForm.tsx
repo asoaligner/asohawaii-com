@@ -2,32 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  applianceValueFor,
+  buildApplianceOptionGroups,
+} from "@/data/appliance-options";
 import { FORMSPREE_ENDPOINT, FORMSPREE_READY } from "@/data/config";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-const APPLIANCE_TYPES = [
-  "Plate Type Retainer",
-  "Plate Expansion",
-  "Functional Appliances",
-  "Aligner (ASO ALIGNER)",
-  "Lingual Retainer",
-  "Invisible Retainer",
-  "Flat Occlusal Splint",
-  "IDB (Indirect Bonding)",
-  "Press Type Appliance",
-  "Sleep Apnea Device",
-  "Study Model",
-  "Band Appliance",
-  "Other (specify in notes)",
-];
-
 const DELIVERY_METHODS = [
   { value: "Pickup", label: "Pickup at ASO Hawaii (Honolulu only)" },
   { value: "USPS Priority Mail", label: "USPS Priority Mail" },
-  { value: "FedEx", label: "FedEx" },
-  { value: "UPS", label: "UPS" },
+  {
+    value: "Local Delivery",
+    label: "Local delivery (Honolulu area, some remote zones excluded)",
+  },
 ];
 
 const COLOR_CHARTS = [
@@ -192,17 +183,35 @@ function FileSlot({
 }
 
 export function SubmitCaseForm() {
+  const params = useSearchParams();
+  const applianceGroups = useMemo(() => buildApplianceOptionGroups(), []);
+  const initialAppliance = useMemo(() => {
+    const slug = params?.get("product");
+    const code = params?.get("item");
+    return applianceValueFor(slug, code) ?? "";
+  }, [params]);
+
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [reference, setReference] = useState<string>("");
   const [submittedDoctor, setSubmittedDoctor] = useState<string>("");
   const [submittedAppliance, setSubmittedAppliance] = useState<string>("");
   const [easyRxUser, setEasyRxUser] = useState(false);
+  const [appliance, setAppliance] = useState<string>(initialAppliance);
   const [delivery, setDelivery] = useState<string>("USPS Priority Mail");
   const [stlFiles, setStlFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<File[]>([]);
   const [pdfFiles, setPdfFiles] = useState<File[]>([]);
   const [chartIdx, setChartIdx] = useState<number | null>(null);
+
+  // If the URL params change after mount (rare, but possible if the user
+  // navigates between catalog item buttons that all link to /submit-case/),
+  // resync the appliance selection with whatever the URL now requests —
+  // but only when the user hasn't already started editing the value.
+  useEffect(() => {
+    if (!initialAppliance) return;
+    setAppliance((prev) => prev || initialAppliance);
+  }, [initialAppliance]);
 
   // Compute the soonest valid due-date (5 business days from today).
   const minDueDate = (() => {
@@ -495,18 +504,28 @@ export function SubmitCaseForm() {
                 name="appliance_type"
                 required
                 aria-required
-                defaultValue=""
+                value={appliance}
+                onChange={(e) => setAppliance(e.target.value)}
                 className={inputClass}
               >
                 <option value="" disabled>
                   Select appliance type…
                 </option>
-                {APPLIANCE_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
+                {applianceGroups.map((g) => (
+                  <optgroup key={g.slug} label={g.groupLabel}>
+                    {g.options.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
+              <p className="mt-2 text-[12px] text-gray-500 leading-snug">
+                Pick the closest match. Specific items (e.g. &quot;804 — Wrap-Around (Begg)&quot;)
+                are listed under each category. Choose &quot;general inquiry&quot; if
+                you&apos;re unsure.
+              </p>
             </div>
             <div>
               <label htmlFor="sc-jaw" className={labelClass}>

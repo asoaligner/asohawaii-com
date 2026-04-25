@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import AcrylicColorChart from "@/components/AcrylicColorChart";
 import CatalogGrid from "@/components/CatalogGrid";
-import CustomColorOptions from "@/components/CustomColorOptions";
+import CompactCustomization from "@/components/CompactCustomization";
 import HeroImageButton from "@/components/HeroImageButton";
 import { LightboxProvider } from "@/components/LightboxProvider";
-import StickersGrid from "@/components/StickersGrid";
 import {
   findProductBySlug,
   productCatalog,
@@ -601,93 +599,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
       )}
 
       {product.slug && COLOR_CUSTOMIZABLE_SLUGS.has(product.slug) && (
-        <>
-          <section className="py-16 md:py-20 bg-gray-50/60 border-t border-gray-200/60">
-            <div className="container-narrow">
-              <div className="max-w-2xl mb-10">
-                <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-4">
-                  Color customization
-                </div>
-                <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
-                  Customize your{" "}
-                  <span className="italic">retainer color.</span>
-                </h2>
-                <p className="mt-4 text-[15px] text-gray-600 leading-relaxed">
-                  Pick from 28 acrylic colors across our Traditional, Glitter,
-                  and Neon families. Numbers below match the printed reference
-                  sheet — quote them on your Rx form to lock in the exact
-                  finish.
-                </p>
-              </div>
-              <AcrylicColorChart />
-            </div>
-          </section>
-
-          <section className="py-16 md:py-20 bg-white border-t border-gray-200/60">
-            <div className="container-narrow">
-              <div className="max-w-2xl mb-10">
-                <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-4">
-                  Custom combinations
-                </div>
-                <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
-                  Mix &amp; match{" "}
-                  <span className="italic">finishes.</span>
-                </h2>
-                <p className="mt-4 text-[15px] text-gray-600 leading-relaxed">
-                  Beyond the standard catalogue, three custom combinations are
-                  available on request — perfect for patients who want a
-                  signature look.
-                </p>
-              </div>
-              <CustomColorOptions />
-            </div>
-          </section>
-
-          <section className="py-16 md:py-20 bg-gray-50/60 border-t border-gray-200/60">
-            <div className="container-narrow">
-              <div className="max-w-2xl mb-10">
-                <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-4">
-                  Stickers
-                </div>
-                <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
-                  Add personality with{" "}
-                  <span className="italic">stickers.</span>
-                </h2>
-                <p className="mt-4 text-[15px] text-gray-600 leading-relaxed">
-                  29 fun designs to make retainers more enjoyable for kids.
-                  Stickers are pressed into the acrylic during cure, so the
-                  artwork sits permanently inside the appliance.
-                </p>
-              </div>
-              <StickersGrid />
-            </div>
-          </section>
-
-          <section className="py-12 bg-white border-t border-gray-200/60">
-            <div className="container-narrow max-w-3xl">
-              <div className="rounded-xl border-l-4 border-brandOrange bg-brandOrange/5 px-5 py-4">
-                <div className="text-xs uppercase tracking-widest text-brandOrange font-semibold mb-2">
-                  Important notes
-                </div>
-                <ul className="text-[14px] text-gray-700 leading-relaxed space-y-1.5">
-                  <li>
-                    Splint (Hard Acrylic) is available in all colors.
-                  </li>
-                  <li>
-                    Splint with color is currently not available — only the
-                    Hard Acrylic option ships for splints.
-                  </li>
-                  <li>
-                    Color samples may vary slightly from the final product.
-                  </li>
-                  <li>
-                    Custom combinations available upon request.
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </section>
-        </>
+        <CompactCustomization />
       )}
 
       {product.items && product.items.length > 0 && (

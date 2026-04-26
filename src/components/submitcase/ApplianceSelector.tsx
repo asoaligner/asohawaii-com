@@ -1,6 +1,6 @@
 "use client";
 
-import { APPLIANCES, APPLIANCE_CATEGORIES } from "@/data/appliances";
+import { APPLIANCES } from "@/data/appliances";
 import ApplianceDetails from "./ApplianceDetails";
 import type { ApplianceConfig } from "./types";
 
@@ -43,8 +43,13 @@ export default function ApplianceSelector({
 
   return (
     <div className="space-y-5">
-      <div className="text-xs uppercase tracking-widest text-brandOrange font-medium">
-        {archLabel} appliance(s)
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium">
+          {archLabel} appliance(s)
+        </div>
+        <div className="text-[11.5px] text-gray-500">
+          {APPLIANCES.length} products · select all that apply
+        </div>
       </div>
 
       {readOnly ? (
@@ -53,42 +58,32 @@ export default function ApplianceSelector({
           for upper and lower&quot; to configure independently.
         </div>
       ) : (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 space-y-5">
-          {APPLIANCE_CATEGORIES.map((cat) => {
-            const inCat = APPLIANCES.filter((a) => a.category === cat.id);
-            return (
-              <div key={cat.id}>
-                <div className="text-[11px] uppercase tracking-widest text-gray-500 font-medium mb-2.5">
-                  {cat.label}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {inCat.map((a) => {
-                    const checked = selectedIds.has(a.id);
-                    return (
-                      <label
-                        key={a.id}
-                        className={`flex items-start gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${
-                          checked
-                            ? "border-navy bg-navy/[0.03]"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggle(a.id)}
-                          className="mt-0.5 accent-navy shrink-0"
-                        />
-                        <span className="text-[13.5px] text-navy leading-snug">
-                          {a.name}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {APPLIANCES.map((a) => {
+              const checked = selectedIds.has(a.id);
+              return (
+                <label
+                  key={a.id}
+                  className={`flex items-start gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${
+                    checked
+                      ? "border-navy bg-navy/[0.03]"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggle(a.id)}
+                    className="mt-0.5 accent-navy shrink-0"
+                  />
+                  <span className="text-[13.5px] text-navy leading-snug">
+                    {a.name}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
         </div>
       )}
 

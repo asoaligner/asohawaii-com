@@ -1,10 +1,17 @@
 /**
- * Detailed appliance catalogue for the multi-step Submit Case form.
+ * Appliance catalogue for the Submit Case form.
  *
- * Each appliance lists the dynamic fields the form must show when that
- * appliance is selected (e.g. RPE size for banded RPE, material for
- * aligner-class items). The form renders these field-by-field based
- * on `Appliance.fields`.
+ * The 14 entries here mirror the 14 product tiles on the HP product
+ * index (the "New Product" tile is a category placeholder, not an
+ * orderable line, so it's excluded). A 15th "Other (specify)" option
+ * is appended as the catch-all — total 15 visible options.
+ *
+ * Each appliance lists the dynamic fields the form must show when
+ * that appliance is selected (e.g. RPE size for banded RPE, material
+ * for aligner-class items). Categories are kept on the type for
+ * future filtering/searching but the picker UI now renders a flat
+ * checkable list — practitioners should be able to scan the whole
+ * catalogue at a glance.
  */
 
 export type ApplianceCategory =
@@ -13,6 +20,7 @@ export type ApplianceCategory =
   | "band"
   | "aligner"
   | "splint"
+  | "service"
   | "other";
 
 export type ApplianceFieldType =
@@ -44,7 +52,7 @@ export interface Appliance {
   fields: ApplianceField[];
 }
 
-const RETAINER_COLOR_FIELDS: ApplianceField[] = [
+const COLOR_STICKERS_FIELDS: ApplianceField[] = [
   { key: "color", type: "color", required: false, label: "Color" },
   { key: "stickers", type: "stickers", required: false, label: "Stickers" },
 ];
@@ -79,71 +87,18 @@ export const APPLIANCES: Appliance[] = [
     id: "plate_type_retainer",
     name: "Plate Type Retainer",
     category: "retainer",
-    description: "Acrylic Hawley-style retainer.",
+    description:
+      "Hawley / Wrap-around / QCM / Spring / Clear Bow — note variant in the notes field.",
     fields: [
-      ...RETAINER_COLOR_FIELDS,
+      ...COLOR_STICKERS_FIELDS,
       METAL_FIELD,
       {
         key: "free_text",
         type: "free_text",
         required: false,
-        label: "Special wires / springs",
+        label: "Variant & special wires / springs",
+        hint: "e.g. Hawley, Wrap-around (Begg), QCM, Spring retainer, Clear bow, Modified #7–#10. Note any special wires.",
       },
-    ],
-  },
-  {
-    id: "modified_retainer",
-    name: "Modified Retainer (#7–#10)",
-    category: "retainer",
-    description: "Modified setup for tooth #7 to #10.",
-    fields: [
-      ...RETAINER_COLOR_FIELDS,
-      METAL_FIELD,
-      {
-        key: "free_text",
-        type: "free_text",
-        required: false,
-        label: "Modification details",
-      },
-    ],
-  },
-  {
-    id: "wrap_around",
-    name: "Wrap-Around (Begg)",
-    category: "retainer",
-    description: "Begg-style wrap-around retainer.",
-    fields: RETAINER_COLOR_FIELDS,
-  },
-  {
-    id: "qcm",
-    name: "QCM",
-    category: "retainer",
-    description: "Quad cantilever mechanism.",
-    fields: RETAINER_COLOR_FIELDS,
-  },
-  {
-    id: "spring_retainer",
-    name: "Spring Retainer",
-    category: "retainer",
-    description: "Anterior spring retainer.",
-    fields: [
-      ...RETAINER_COLOR_FIELDS,
-      {
-        key: "free_text",
-        type: "free_text",
-        required: false,
-        label: "Spring details",
-      },
-    ],
-  },
-  {
-    id: "clear_bow",
-    name: "Clear Bow",
-    category: "retainer",
-    description: "Clear acrylic bow retainer.",
-    fields: [
-      { key: "color", type: "color", required: false, label: "Color (base)" },
-      { key: "stickers", type: "stickers", required: false, label: "Stickers" },
     ],
   },
   {
@@ -152,9 +107,16 @@ export const APPLIANCES: Appliance[] = [
     category: "expansion",
     description: "Acrylic plate with expansion screw.",
     fields: [
-      ...RETAINER_COLOR_FIELDS,
+      ...COLOR_STICKERS_FIELDS,
       METAL_FIELD,
       ACTIVATION_FIELD,
+      {
+        key: "free_text",
+        type: "free_text",
+        required: false,
+        label: "Notes",
+        hint: "Variant (e.g. transverse with/without labial bow), special requirements",
+      },
     ],
   },
   {
@@ -171,23 +133,7 @@ export const APPLIANCES: Appliance[] = [
         options: ["8 mm", "10 mm", "12 mm"],
       },
       ACTIVATION_FIELD,
-      ...RETAINER_COLOR_FIELDS,
-    ],
-  },
-  {
-    id: "functional",
-    name: "Functional Appliance",
-    category: "other",
-    description: "Twin block, Frankel, Bionator, etc.",
-    fields: [
-      {
-        key: "free_text",
-        type: "free_text",
-        required: true,
-        label: "Appliance specifications",
-        hint: "Type, modifications, working bite, etc.",
-      },
-      ...RETAINER_COLOR_FIELDS,
+      ...COLOR_STICKERS_FIELDS,
     ],
   },
   {
@@ -212,52 +158,121 @@ export const APPLIANCES: Appliance[] = [
     ],
   },
   {
-    id: "invisible_retainer",
-    name: "Invisible Retainer",
-    category: "aligner",
-    description: "Clear thermoformed retainer.",
-    fields: [
-      {
-        key: "material",
-        type: "material",
-        required: true,
-        label: "Material",
-        options: MATERIAL_OPTIONS,
-      },
-    ],
-  },
-  {
-    id: "clear_retainer",
-    name: "Clear Retainer",
-    category: "aligner",
-    description: "Standard clear retainer.",
-    fields: [
-      {
-        key: "material",
-        type: "material",
-        required: true,
-        label: "Material",
-        options: MATERIAL_OPTIONS,
-      },
-    ],
-  },
-  {
     id: "flat_splint",
     name: "Flat Occlusal Splint",
     category: "splint",
-    description: "Flat-plane occlusal splint (Hard Acrylic).",
+    description:
+      "Hard / Hard-and-Soft / NTI. Hard Acrylic available in any colour.",
     fields: [
       {
         key: "color",
         type: "color",
         required: false,
-        label: "Color (Hard Acrylic — all colors available)",
+        label: "Color (Hard Acrylic)",
       },
       {
         key: "free_text",
         type: "free_text",
         required: false,
-        label: "Splint specifications",
+        label: "Type & specifications",
+        hint: "e.g. Hard type, Hard-and-Soft, NTI. Note thickness and any special design.",
+      },
+    ],
+  },
+  {
+    id: "lingual_retainer",
+    name: "Lingual Retainer",
+    category: "retainer",
+    description: "Bonded lingual / 3D-printed metal retainer.",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: false,
+        label: "Type / Variant",
+        hint: "e.g. 3D Metal Lingual Retainer, custom configuration",
+      },
+    ],
+  },
+  {
+    id: "invisible_retainer",
+    name: "Invisible Retainer",
+    category: "aligner",
+    description:
+      "Co-Polyester / C+ / LuxCreo / Zendura A / with Pontic.",
+    fields: [
+      {
+        key: "material",
+        type: "material",
+        required: true,
+        label: "Material",
+        options: MATERIAL_OPTIONS,
+      },
+      {
+        key: "free_text",
+        type: "free_text",
+        required: false,
+        label: "Notes (e.g. with pontic)",
+      },
+    ],
+  },
+  {
+    id: "press_type",
+    name: "Press-Type Appliance",
+    category: "other",
+    description:
+      "Hard / Hard-and-Soft Night Guard, soft sports guard, etc.",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: true,
+        label: "Type / Variant",
+        hint: "e.g. Hard 1.5 mm, Hard 2.0 mm, Hard-and-Soft 2.0 / 3.0 mm, sports guard",
+      },
+      { key: "color", type: "color", required: false, label: "Color" },
+    ],
+  },
+  {
+    id: "study_model",
+    name: "Study Model",
+    category: "other",
+    description: "Diagnostic study model.",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: false,
+        label: "Special requirements",
+      },
+    ],
+  },
+  {
+    id: "digital_print",
+    name: "Digital Print-Only Service",
+    category: "service",
+    description: "STL → printed model only (no appliance fabrication).",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: true,
+        label: "Print specifications",
+        hint: "Material, layer height, base type, hollow/solid, etc.",
+      },
+    ],
+  },
+  {
+    id: "sleep_apnea",
+    name: "Sleep Apnea & Snoring Appliances",
+    category: "splint",
+    description: "SomnoDent or similar mandibular advancement device.",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: true,
+        label: "Device type and specifications",
       },
     ],
   },
@@ -276,46 +291,34 @@ export const APPLIANCES: Appliance[] = [
     ],
   },
   {
-    id: "press_type",
-    name: "Press-Type Appliance",
+    id: "flipper",
+    name: "Flipper / Immediate Denture",
     category: "other",
-    description: "Pressed acrylic appliance.",
+    description: "Flipper or immediate denture replacement.",
+    fields: [
+      {
+        key: "free_text",
+        type: "free_text",
+        required: false,
+        label: "Tooth positions and shade",
+      },
+      ...COLOR_STICKERS_FIELDS,
+    ],
+  },
+  {
+    id: "functional",
+    name: "Functional Appliances",
+    category: "other",
+    description: "Twin block, Frankel, Bionator, EOA, etc.",
     fields: [
       {
         key: "free_text",
         type: "free_text",
         required: true,
         label: "Appliance specifications",
+        hint: "Type, modifications, working bite, etc.",
       },
-      { key: "color", type: "color", required: false, label: "Color" },
-    ],
-  },
-  {
-    id: "sleep_apnea",
-    name: "Sleep Apnea Device",
-    category: "splint",
-    description: "SomnoDent or similar mandibular advancement device.",
-    fields: [
-      {
-        key: "free_text",
-        type: "free_text",
-        required: true,
-        label: "Device type and specifications",
-      },
-    ],
-  },
-  {
-    id: "study_model",
-    name: "Study Model",
-    category: "other",
-    description: "Diagnostic study model.",
-    fields: [
-      {
-        key: "free_text",
-        type: "free_text",
-        required: false,
-        label: "Special requirements",
-      },
+      ...COLOR_STICKERS_FIELDS,
     ],
   },
   {
@@ -332,18 +335,6 @@ export const APPLIANCES: Appliance[] = [
       },
     ],
   },
-];
-
-export const APPLIANCE_CATEGORIES: {
-  id: ApplianceCategory;
-  label: string;
-}[] = [
-  { id: "retainer", label: "Retainers" },
-  { id: "expansion", label: "Expansion" },
-  { id: "band", label: "Bands & RPE" },
-  { id: "aligner", label: "Aligners & Clear" },
-  { id: "splint", label: "Splints" },
-  { id: "other", label: "Other" },
 ];
 
 export function findAppliance(id: string): Appliance | undefined {

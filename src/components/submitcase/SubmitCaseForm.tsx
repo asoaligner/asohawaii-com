@@ -18,21 +18,24 @@ import {
 } from "./types";
 
 /** Best-effort mapping from product slug → appliance id used by the
- *  Stage A form. Lets old `?product=<catalog-slug>` URLs still preselect
- *  something useful. */
+ *  Stage A form. Lets `?product=<catalog-slug>` URLs preselect a row.
+ *  Keys here mirror the slugs in src/data/product-catalog.ts; values
+ *  are the appliance ids in src/data/appliances.ts. */
 const SLUG_TO_APPLIANCE_ID: Record<string, string> = {
   "plate-type-retainer-expansion": "plate_type_retainer",
   "plate-expansion": "plate_expansion",
   "band-appliance": "band_appliance",
   "aso-aligner": "aso_aligner",
   "flat-occlusal-splint": "flat_splint",
-  "lingual-retainer": "wrap_around",
+  "lingual-retainer": "lingual_retainer",
   "invisible-retainer": "invisible_retainer",
   "study-model": "study_model",
   "functional-appliances": "functional",
   idb: "idb",
   "press-type-appliance": "press_type",
   "sleep-apnea": "sleep_apnea",
+  "digital-print-only-service": "digital_print",
+  "flipper-immediate-denture": "flipper",
 };
 
 type Status = "idle" | "submitting" | "success" | "error";

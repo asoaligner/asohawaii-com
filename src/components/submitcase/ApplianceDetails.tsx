@@ -192,6 +192,107 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
             />
           </div>
         );
+      case "package_type":
+      case "print_form":
+      case "denture_type": {
+        const valueKey = field.type as
+          | "package_type"
+          | "print_form"
+          | "denture_type";
+        const current = config[valueKey] ?? "";
+        return (
+          <div key={field.key}>
+            <div className={labelClass}>
+              {field.label}
+              {field.required && (
+                <span className="text-brandOrange ml-1">*</span>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(field.options ?? []).map((opt) => {
+                const checked = current === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => update(valueKey, opt)}
+                    aria-pressed={checked}
+                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
+                      checked
+                        ? "bg-navy text-white"
+                        : "bg-white text-gray-600 border border-gray-200 hover:border-navy"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+      case "denture_stages": {
+        const selected = config.denture_stages ?? [];
+        return (
+          <div key={field.key}>
+            <div className={labelClass}>
+              {field.label}
+              {field.required && (
+                <span className="text-brandOrange ml-1">*</span>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {(field.options ?? []).map((opt) => {
+                const checked = selected.includes(opt);
+                return (
+                  <label
+                    key={opt}
+                    className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 cursor-pointer text-[13px] transition-colors ${
+                      checked
+                        ? "border-navy bg-navy/[0.03] text-navy"
+                        : "border-gray-200 hover:border-gray-300 text-gray-700"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        update(
+                          "denture_stages",
+                          checked
+                            ? selected.filter((s) => s !== opt)
+                            : [...selected, opt]
+                        )
+                      }
+                      className="accent-navy"
+                    />
+                    {opt}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+      case "shade_color":
+        return (
+          <div key={field.key}>
+            <label className={labelClass}>
+              {field.label}
+              {field.required && (
+                <span className="text-brandOrange ml-1">*</span>
+              )}
+            </label>
+            <input
+              type="text"
+              value={config.shade_color ?? ""}
+              onChange={(e) => update("shade_color", e.target.value)}
+              placeholder={field.hint ?? ""}
+              required={field.required}
+              className={inputClass}
+            />
+          </div>
+        );
     }
   }
 

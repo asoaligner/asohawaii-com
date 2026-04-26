@@ -86,8 +86,15 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
       lines.push(`    Color: ${describeColor(c.color)}`);
     if (c.stickers && c.stickers.length > 0)
       lines.push(`    Stickers: ${describeStickers(c.stickers)}`);
+    if (c.package_type) lines.push(`    Package: ${c.package_type}`);
     if (c.material) lines.push(`    Material: ${c.material}`);
-    if (c.rpe_size) lines.push(`    RPE size: ${c.rpe_size}`);
+    if (c.print_form) lines.push(`    Form: ${c.print_form}`);
+    if (c.denture_type) lines.push(`    Denture type: ${c.denture_type}`);
+    if (c.denture_stages && c.denture_stages.length > 0)
+      lines.push(`    Stage(s): ${c.denture_stages.join(", ")}`);
+    if (c.shade_color?.trim())
+      lines.push(`    Shade: ${c.shade_color.trim()}`);
+    if (c.rpe_size) lines.push(`    Size: ${c.rpe_size}`);
     if (c.metal_components && c.metal_components.length > 0)
       lines.push(`    Metal: ${c.metal_components.join(", ")}`);
     if (c.activation) lines.push(`    Activation: ${c.activation}`);

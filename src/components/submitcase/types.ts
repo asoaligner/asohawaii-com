@@ -29,6 +29,16 @@ export type ApplianceConfig = {
   metal_components?: string[];
   activation?: string;
   free_text?: string;
+  /** ASO ALIGNER package level (Basic / Advance / 3in1 / Step). */
+  package_type?: string;
+  /** Digital Print-Only form (with Palatal / Horse Shoe). */
+  print_form?: string;
+  /** Flipper / Immediate / Full denture type. */
+  denture_type?: string;
+  /** Multi-stage selector for denture cases (Wax Bite / Try In / Finish). */
+  denture_stages?: string[];
+  /** Shade colour text (e.g. Vita A1, A2). */
+  shade_color?: string;
 };
 
 export function applianceConfigKey(c: ApplianceConfig): string {

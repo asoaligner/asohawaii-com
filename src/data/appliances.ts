@@ -30,7 +30,12 @@ export type ApplianceFieldType =
   | "rpe_size"
   | "metal_components"
   | "activation"
-  | "free_text";
+  | "free_text"
+  | "package_type"
+  | "print_form"
+  | "denture_type"
+  | "denture_stages"
+  | "shade_color";
 
 export interface ApplianceField {
   /** Field key — used as the FormData key suffix. */
@@ -74,6 +79,7 @@ const ACTIVATION_FIELD: ApplianceField = {
 };
 
 const MATERIAL_OPTIONS = [
+  "Standard",
   "Zendura A",
   "Zendura FLX",
   "Zendura VIVA",
@@ -91,7 +97,6 @@ export const APPLIANCES: Appliance[] = [
       "Hawley / Wrap-around / QCM / Spring / Clear Bow — note variant in the notes field.",
     fields: [
       ...COLOR_STICKERS_FIELDS,
-      METAL_FIELD,
       {
         key: "free_text",
         type: "free_text",
@@ -108,7 +113,6 @@ export const APPLIANCES: Appliance[] = [
     description: "Acrylic plate with expansion screw.",
     fields: [
       ...COLOR_STICKERS_FIELDS,
-      METAL_FIELD,
       ACTIVATION_FIELD,
       {
         key: "free_text",
@@ -121,18 +125,19 @@ export const APPLIANCES: Appliance[] = [
   },
   {
     id: "band_appliance",
-    name: "Band Appliance (RPE)",
+    name: "Band Appliance",
     category: "band",
-    description: "Banded rapid palatal expander.",
+    description: "Banded rapid palatal expander or fixed band appliance.",
     fields: [
       {
         key: "rpe_size",
         type: "rpe_size",
-        required: true,
-        label: "RPE Size",
+        required: false,
+        label: "Expander Size",
         options: ["8 mm", "10 mm", "12 mm"],
       },
       ACTIVATION_FIELD,
+      METAL_FIELD,
       ...COLOR_STICKERS_FIELDS,
     ],
   },
@@ -142,6 +147,13 @@ export const APPLIANCES: Appliance[] = [
     category: "aligner",
     description: "ASO custom aligner.",
     fields: [
+      {
+        key: "package_type",
+        type: "package_type",
+        required: true,
+        label: "Package",
+        options: ["Basic", "Advance", "3in1", "Step"],
+      },
       {
         key: "material",
         type: "material",
@@ -254,11 +266,18 @@ export const APPLIANCES: Appliance[] = [
     description: "STL → printed model only (no appliance fabrication).",
     fields: [
       {
+        key: "print_form",
+        type: "print_form",
+        required: true,
+        label: "Form",
+        options: ["with Palatal", "Horse Shoe"],
+      },
+      {
         key: "free_text",
         type: "free_text",
-        required: true,
+        required: false,
         label: "Print specifications",
-        hint: "Material, layer height, base type, hollow/solid, etc.",
+        hint: "Material, layer height, hollow/solid, base type, etc.",
       },
     ],
   },
@@ -294,15 +313,35 @@ export const APPLIANCES: Appliance[] = [
     id: "flipper",
     name: "Flipper / Immediate Denture",
     category: "other",
-    description: "Flipper or immediate denture replacement.",
+    description: "Flipper, immediate denture, or full denture replacement.",
     fields: [
+      {
+        key: "denture_type",
+        type: "denture_type",
+        required: true,
+        label: "Denture Type",
+        options: ["Flipper", "Immediate Denture", "Full Denture"],
+      },
+      {
+        key: "denture_stages",
+        type: "denture_stages",
+        required: true,
+        label: "Stage(s)",
+        options: ["Wax Bite", "Try In", "Finish"],
+      },
+      {
+        key: "shade_color",
+        type: "shade_color",
+        required: false,
+        label: "Shade Color",
+        hint: "e.g. Vita Classic A1, A2, B1",
+      },
       {
         key: "free_text",
         type: "free_text",
         required: false,
-        label: "Tooth positions and shade",
+        label: "Tooth positions and notes",
       },
-      ...COLOR_STICKERS_FIELDS,
     ],
   },
   {

@@ -49,8 +49,23 @@ function ApplianceLine({ config }: { config: ApplianceConfig }) {
       case "metal_components":
         v = (config.metal_components ?? []).join(", ") || "—";
         break;
+      case "denture_stages":
+        v = (config.denture_stages ?? []).join(", ") || "—";
+        break;
       case "free_text":
         v = config.free_text?.trim() || "—";
+        break;
+      case "shade_color":
+        v = config.shade_color?.trim() || "—";
+        break;
+      case "package_type":
+        v = config.package_type ?? "—";
+        break;
+      case "print_form":
+        v = config.print_form ?? "—";
+        break;
+      case "denture_type":
+        v = config.denture_type ?? "—";
         break;
       default:
         v =

@@ -31,3 +31,14 @@ export function applianceItems(applianceId: string): CatalogItem[] {
   const product = productCatalog.find((p) => p.slug === slug);
   return product?.items ?? [];
 }
+
+/** Hero/cover image for a given appliance id, or undefined when the
+ *  appliance has no matching product tile (Digital Print, Flipper,
+ *  Other). Used to render the small thumbnail next to the appliance
+ *  name in the picker accordion. */
+export function applianceHeroImage(applianceId: string): string | undefined {
+  const slug = APPLIANCE_TO_PRODUCT_SLUG[applianceId];
+  if (!slug) return undefined;
+  const product = productCatalog.find((p) => p.slug === slug);
+  return product?.heroImage;
+}

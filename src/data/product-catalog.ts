@@ -302,6 +302,28 @@ export const productCatalog: ProductTile[] = [
     // branches on this slug. Hero is the actual retail packaging photo
     // (Soft + Hard pouches visible, AsoAligner DIGITAL branding printed).
     heroImageOverride: "/images/aso/aso-aligner-package.png",
+    items: [
+      {
+        name: "Basic",
+        note: "Entry-level package for minor relapse / mild MTM cases.",
+        image: "/images/aso/aso-aligner-package.png",
+      },
+      {
+        name: "Advance",
+        note: "Mid-tier — broader movement scope, additional refinement.",
+        image: "/images/aso/aso-aligner-package.png",
+      },
+      {
+        name: "3in1",
+        note: "Three-step package — most common, recommended starting tier.",
+        image: "/images/aso/aso-aligner-package.png",
+      },
+      {
+        name: "Step",
+        note: "Step-up packages (1 / 3 / 5-step variants).",
+        image: "/images/aso/aso-aligner-package.png",
+      },
+    ],
   }),
   build({
     name: "Flat Occlusal Splint",

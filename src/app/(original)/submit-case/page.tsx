@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SubmitCaseForm } from "./SubmitCaseForm";
+import { SubmitCaseForm } from "@/components/submitcase/SubmitCaseForm";
 
 const SITE_URL = "https://asohawaii.com";
 
 export const metadata: Metadata = {
-  title: "Submit Case Online | Orthodontic Lab | ASO Hawaii",
+  title: "Online Order System | All Appliances | ASO Hawaii",
   description:
-    "Submit your orthodontic case online to ASO Hawaii. Quick form for retainers, expanders, aligners, and more. Response within 1 business day. Serving 150+ Hawaii dental practices.",
+    "Submit orthodontic cases online with full customisation — 28 colours, glitter, neon, 29 stickers, custom configurations. Interactive tooth chart for permanent and primary dentition. Response within 1 business day.",
   alternates: { canonical: "/submit-case/" },
   openGraph: {
     title: "Submit Case Online — ASO International Hawaii",

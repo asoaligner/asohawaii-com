@@ -42,3 +42,5 @@ screenshots/
 # Image backups kept locally for safety — not needed in Git history
 **/*-original.png
 **/*-original.jpg
+dentaurum_raw/
+scripts/dentaurum_raw/

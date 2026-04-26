@@ -550,7 +550,7 @@ export const productCatalog: ProductTile[] = [
   build({
     name: "Digital Print-Only Service",
     tag: "digital_print",
-    slug: null,
+    slug: "digital-print-only-service",
     blurb: "Send STL → receive printed model. Print-only service for your lab.",
     description:
       "Lab-to-lab service: send us an STL/PLY and we'll run it on our calibrated SLA printers. Great for practices without in-house printing capacity.",
@@ -564,6 +564,18 @@ export const productCatalog: ProductTile[] = [
     fallback: "/images/aso/product-3.jpg",
     heroImageOverride:
       "/images/aso/wix/e724a4_5b8d1aec1f5e4ea7b61b14c03fc9b96c.png",
+    items: [
+      {
+        name: "with Palatal",
+        note: "Full upper-arch model including the palate — best for retention/registration cases.",
+        image: "/images/aso/wix/e724a4_5b8d1aec1f5e4ea7b61b14c03fc9b96c.png",
+      },
+      {
+        name: "Horse Shoe",
+        note: "Horseshoe model (no palate) — saves resin and print time when palate isn't needed.",
+        image: "/images/aso/wix/e724a4_5b8d1aec1f5e4ea7b61b14c03fc9b96c.png",
+      },
+    ],
   }),
   build({
     name: "Sleep Apnea & Snoring Appliances",
@@ -663,10 +675,10 @@ export const productCatalog: ProductTile[] = [
   build({
     name: "Flipper / Immediate Denture",
     tag: "flipper",
-    slug: null,
+    slug: "flipper-immediate-denture",
     blurb: "Esthetic acrylic flippers and immediate dentures for interim use.",
     description:
-      "Interim removable partials and flippers for missing anterior teeth. Useful as esthetic placeholders during implant healing.",
+      "Interim removable partials and flippers for missing anterior teeth. Useful as esthetic placeholders during implant healing, or as a transitional appliance while implants integrate.",
     category: "removable",
     bullets: [
       "Acrylic base, tooth-colored teeth",
@@ -677,6 +689,23 @@ export const productCatalog: ProductTile[] = [
     fallback: "/images/aso/product-3.jpg",
     heroImageOverride:
       "/images/aso/wix/e724a4_066c0c324f934d8998e5fcd71bed29ab.jpg",
+    items: [
+      {
+        name: "Flipper",
+        note: "Single-tooth or small multi-unit acrylic flipper — quick interim replacement.",
+        image: "/images/aso/wix/e724a4_066c0c324f934d8998e5fcd71bed29ab.jpg",
+      },
+      {
+        name: "Immediate Denture",
+        note: "Immediate-placement denture delivered at the time of extractions for seamless healing.",
+        image: "/images/aso/wix/e724a4_066c0c324f934d8998e5fcd71bed29ab.jpg",
+      },
+      {
+        name: "Full Denture",
+        note: "Full upper / lower acrylic denture (conventional, processed after healing).",
+        image: "/images/aso/wix/e724a4_066c0c324f934d8998e5fcd71bed29ab.jpg",
+      },
+    ],
   }),
   build({
     name: "Functional Appliances",

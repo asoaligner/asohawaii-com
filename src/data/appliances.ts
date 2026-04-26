@@ -257,15 +257,9 @@ export const APPLIANCES: Appliance[] = [
     id: "digital_print",
     name: "Digital Print-Only Service",
     category: "service",
-    description: "STL → printed model only (no appliance fabrication).",
+    description:
+      "STL → printed model only. Pick the form (with Palatal / Horse Shoe) above; configure print specs here.",
     fields: [
-      {
-        key: "print_form",
-        type: "print_form",
-        required: true,
-        label: "Form",
-        options: ["with Palatal", "Horse Shoe"],
-      },
       {
         key: "free_text",
         type: "free_text",
@@ -307,15 +301,9 @@ export const APPLIANCES: Appliance[] = [
     id: "flipper",
     name: "Flipper / Immediate Denture",
     category: "other",
-    description: "Flipper, immediate denture, or full denture replacement.",
+    description:
+      "Pick Flipper / Immediate Denture / Full Denture above; configure stage and shade here.",
     fields: [
-      {
-        key: "denture_type",
-        type: "denture_type",
-        required: true,
-        label: "Denture Type",
-        options: ["Flipper", "Immediate Denture", "Full Denture"],
-      },
       {
         key: "denture_stages",
         type: "denture_stages",

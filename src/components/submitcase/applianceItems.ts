@@ -15,10 +15,10 @@ export const APPLIANCE_TO_PRODUCT_SLUG: Record<string, string | null> = {
   invisible_retainer: "invisible-retainer",
   press_type: "press-type-appliance",
   study_model: "study-model",
-  digital_print: null,
+  digital_print: "digital-print-only-service",
   sleep_apnea: "sleep-apnea",
   idb: "idb",
-  flipper: null,
+  flipper: "flipper-immediate-denture",
   functional: "functional-appliances",
   other: null,
 };

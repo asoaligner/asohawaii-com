@@ -29,8 +29,14 @@ function StickerSummary({ ids }: { ids: number[] }) {
         return (
           <span
             key={id}
-            className="inline-flex items-center gap-1 rounded-full bg-white border border-gray-200 px-2 py-0.5 text-[12px]"
+            className="inline-flex items-center gap-1.5 rounded-full bg-white border border-gray-200 pl-0.5 pr-2 py-0.5 text-[12px]"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={s.imagePath}
+              alt={s.name}
+              className="w-5 h-5 rounded-full object-cover bg-gray-50"
+            />
             <span className="text-brandOrange font-semibold">#{s.id}</span>{" "}
             <span>{s.name}</span>
           </span>
@@ -203,8 +209,14 @@ export default function StickerPicker({
                             : "border-gray-200 hover:border-navy/30 hover:-translate-y-0.5"
                       }`}
                     >
-                      <div className="aspect-square rounded-full border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white mb-2 flex items-center justify-center text-[18px] font-serif italic text-brandOrange">
-                        #{s.id}
+                      <div className="aspect-square rounded-full border-2 border-gray-200 bg-white mb-2 overflow-hidden flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={s.imagePath}
+                          alt={`#${s.id} ${s.name}`}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="text-[12.5px] text-navy leading-tight truncate">
                         {s.name}

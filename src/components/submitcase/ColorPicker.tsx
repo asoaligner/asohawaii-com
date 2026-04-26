@@ -46,7 +46,19 @@ function ColorChip({
   color: ColorOption;
   size?: "sm" | "md";
 }) {
-  const px = size === "sm" ? 18 : 24;
+  const px = size === "sm" ? 22 : 28;
+  // Prefer the real swatch photo when present; fall back to a hex chip.
+  if (color.imagePath) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={color.imagePath}
+        alt={`#${color.id} ${color.name}`}
+        className="inline-block rounded-md object-cover border border-gray-300/80"
+        style={{ width: px, height: px }}
+      />
+    );
+  }
   return (
     <span
       className="inline-block rounded-full border border-gray-300/80"
@@ -54,7 +66,7 @@ function ColorChip({
         width: px,
         height: px,
         background:
-          color.id === 20 // White — render with checker so it's visible
+          color.id === 20
             ? "repeating-linear-gradient(45deg, #fff, #fff 4px, #f3f4f6 4px, #f3f4f6 8px)"
             : color.hex,
       }}
@@ -381,16 +393,28 @@ export default function ColorPicker({
                           : "border-gray-200 hover:border-navy/30 hover:-translate-y-0.5"
                       }`}
                     >
-                      <div
-                        className="aspect-square rounded-lg border border-gray-200/70 mb-1.5"
-                        style={{
-                          background:
-                            c.id === 20
-                              ? "repeating-linear-gradient(45deg, #fff, #fff 6px, #f3f4f6 6px, #f3f4f6 12px)"
-                              : c.hex,
-                        }}
-                        aria-hidden
-                      />
+                      <div className="relative aspect-[4/3] rounded-lg border border-gray-200/70 mb-1.5 overflow-hidden bg-gray-50">
+                        {c.imagePath ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={c.imagePath}
+                            alt={`#${c.id} ${c.name}`}
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span
+                            aria-hidden
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                c.id === 20
+                                  ? "repeating-linear-gradient(45deg, #fff, #fff 6px, #f3f4f6 6px, #f3f4f6 12px)"
+                                  : c.hex,
+                            }}
+                          />
+                        )}
+                      </div>
                       <div className="text-[10px] uppercase tracking-widest text-brandOrange font-semibold">
                         #{c.id}
                       </div>

@@ -201,9 +201,14 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
         <div>
           <div className="font-serif text-base sm:text-lg text-navy leading-snug">
             {appliance.name}
+            {config.itemCode && (
+              <span className="ml-2 inline-flex items-center text-[11px] font-semibold uppercase tracking-widest bg-brandOrange/15 text-brandOrange px-2 py-0.5 rounded-full align-middle">
+                {config.itemCode}
+              </span>
+            )}
           </div>
           <div className="text-[12.5px] text-gray-500 leading-snug mt-0.5">
-            {appliance.description}
+            {config.itemName ?? appliance.description}
           </div>
         </div>
         <button

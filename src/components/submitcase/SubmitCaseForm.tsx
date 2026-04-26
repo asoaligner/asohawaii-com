@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { findAppliance } from "@/data/appliances";
 import { findColor } from "@/data/colors";
 import { FORMSPREE_ENDPOINT, FORMSPREE_READY } from "@/data/config";
+import { productCatalog } from "@/data/product-catalog";
 import { findSticker } from "@/data/stickers";
 import Step1Practice, { step1IsValid } from "./Step1Practice";
 import Step2Appliance, { step2IsValid } from "./Step2Appliance";
@@ -75,7 +76,12 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
   for (const c of arr) {
     const a = findAppliance(c.applianceId);
     if (!a) continue;
-    lines.push(`  - ${a.name}`);
+    const skuPart = c.itemCode
+      ? ` — ${c.itemCode}${c.itemName ? ` ${c.itemName}` : ""}`
+      : c.itemName
+        ? ` — ${c.itemName}`
+        : "";
+    lines.push(`  - ${a.name}${skuPart}`);
     if (c.color?.primary !== undefined)
       lines.push(`    Color: ${describeColor(c.color)}`);
     if (c.stickers && c.stickers.length > 0)
@@ -101,15 +107,25 @@ export function SubmitCaseForm() {
   const [reference, setReference] = useState<string>("");
   const [submittedDoctor, setSubmittedDoctor] = useState<string>("");
 
-  // Preselect appliance(s) from URL on mount.
-  const initialApplianceId = useMemo(() => {
+  // Preselect appliance(s) from URL on mount. When `?item=<code>`
+  // is also present we look up the SKU under the matching product
+  // catalog and pin it to itemCode/itemName so the parent opens
+  // pre-checked.
+  const initialPrefill = useMemo(() => {
     const slug = params?.get("product");
+    const code = params?.get("item");
     if (!slug) return null;
-    return SLUG_TO_APPLIANCE_ID[slug] ?? null;
+    const applianceId = SLUG_TO_APPLIANCE_ID[slug];
+    if (!applianceId) return null;
+    if (!code) return { applianceId };
+    const product = productCatalog.find((p) => p.slug === slug);
+    const item = product?.items?.find((it) => it.code === code);
+    if (!item) return { applianceId };
+    return { applianceId, itemCode: item.code, itemName: item.name };
   }, [params]);
 
   useEffect(() => {
-    if (!initialApplianceId) return;
+    if (!initialPrefill) return;
     setState((prev) => {
       // Only preselect if both arches are still empty (don't clobber user edits).
       if (
@@ -118,16 +134,16 @@ export function SubmitCaseForm() {
       ) {
         return {
           ...prev,
-          upperAppliances: [{ applianceId: initialApplianceId }],
+          upperAppliances: [initialPrefill],
           lowerAppliances:
             prev.arches === "both" && prev.archSync
-              ? [{ applianceId: initialApplianceId }]
+              ? [initialPrefill]
               : prev.lowerAppliances,
         };
       }
       return prev;
     });
-  }, [initialApplianceId]);
+  }, [initialPrefill]);
 
   function go(next: Step) {
     setStep(next);

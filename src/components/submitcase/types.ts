@@ -11,9 +11,17 @@ export type ColorChoice = {
 };
 
 /** Per-appliance configuration. Only the fields relevant to the
- *  selected appliance will be populated; others stay undefined. */
+ *  selected appliance will be populated; others stay undefined.
+ *
+ *  When the parent product has catalog SKUs (e.g. Plate Type Retainer
+ *  → 801 Hawley, 804 Wrap-Around …), each picked SKU becomes its own
+ *  ApplianceConfig with `itemCode`/`itemName` set. Parents without
+ *  SKUs (e.g. Other) have only `applianceId`. Identity is therefore
+ *  `applianceId + (itemCode ?? "")`. */
 export type ApplianceConfig = {
   applianceId: string;
+  itemCode?: string;
+  itemName?: string;
   color?: ColorChoice;
   stickers?: number[];
   material?: string;
@@ -22,6 +30,10 @@ export type ApplianceConfig = {
   activation?: string;
   free_text?: string;
 };
+
+export function applianceConfigKey(c: ApplianceConfig): string {
+  return c.itemCode ? `${c.applianceId}:${c.itemCode}` : c.applianceId;
+}
 
 export type ToothSelection = {
   dentition: Dentition;

@@ -150,6 +150,9 @@ export default function Step2Appliance({ state, setState }: Props) {
           archLabel="Upper"
           selected={state.upperAppliances}
           onChange={setUpper}
+          initiallyExpanded={Array.from(
+            new Set(state.upperAppliances.map((c) => c.applianceId))
+          )}
         />
       )}
 
@@ -160,6 +163,9 @@ export default function Step2Appliance({ state, setState }: Props) {
           selected={state.lowerAppliances}
           onChange={setLower}
           readOnly={state.arches === "both" && state.archSync}
+          initiallyExpanded={Array.from(
+            new Set(state.lowerAppliances.map((c) => c.applianceId))
+          )}
         />
       )}
     </div>

@@ -3,7 +3,7 @@
 import { findAppliance } from "@/data/appliances";
 import { findColor } from "@/data/colors";
 import { findSticker } from "@/data/stickers";
-import type { ApplianceConfig, FormState } from "./types";
+import { applianceConfigKey, type ApplianceConfig, type FormState } from "./types";
 
 type Props = {
   state: FormState;
@@ -64,6 +64,16 @@ function ApplianceLine({ config }: { config: ApplianceConfig }) {
     <div className="rounded-lg bg-gray-50/60 border border-gray-200 px-3.5 py-3">
       <div className="font-serif text-[15px] text-navy leading-snug">
         {a.name}
+        {config.itemCode && (
+          <span className="ml-2 inline-flex items-center text-[10px] font-semibold uppercase tracking-widest bg-brandOrange/15 text-brandOrange px-1.5 py-0.5 rounded-full align-middle">
+            {config.itemCode}
+          </span>
+        )}
+        {config.itemName && (
+          <span className="ml-2 text-[12.5px] text-gray-500 italic font-sans not-italic">
+            {config.itemName}
+          </span>
+        )}
       </div>
       {lines.length > 0 && (
         <dl className="mt-2 space-y-0.5 text-[12.5px]">
@@ -162,7 +172,10 @@ export default function ReviewSummary({ state }: Props) {
           </div>
           <div className="space-y-2">
             {state.upperAppliances.map((c) => (
-              <ApplianceLine key={`u-${c.applianceId}`} config={c} />
+              <ApplianceLine
+                key={`u-${applianceConfigKey(c)}`}
+                config={c}
+              />
             ))}
           </div>
         </section>
@@ -180,7 +193,10 @@ export default function ReviewSummary({ state }: Props) {
           </div>
           <div className="space-y-2">
             {state.lowerAppliances.map((c) => (
-              <ApplianceLine key={`l-${c.applianceId}`} config={c} />
+              <ApplianceLine
+                key={`l-${applianceConfigKey(c)}`}
+                config={c}
+              />
             ))}
           </div>
         </section>

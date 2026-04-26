@@ -25,9 +25,6 @@ type Props = {
 
 type ZoomState = { src: string; alt: string } | null;
 
-/** Small image trigger — square thumbnail with hover state and a
- *  zoom icon. Clicking opens the lightbox without toggling the
- *  surrounding checkbox label (stopPropagation + preventDefault). */
 function ThumbButton({
   src,
   alt,
@@ -117,11 +114,12 @@ export default function ApplianceSelector({
 
   function toggleParent(id: string) {
     if (readOnly) return;
-    const key = id;
-    if (selectedKeys.has(key)) {
-      onChange(selected.filter((c) => applianceConfigKey(c) !== key));
+    if (selectedKeys.has(id)) {
+      onChange(selected.filter((c) => applianceConfigKey(c) !== id));
     } else {
       onChange([...selected, { applianceId: id }]);
+      // Auto-expand when first selected so the user sees the fields.
+      setExpanded((s) => new Set(s).add(id));
     }
   }
 
@@ -148,10 +146,8 @@ export default function ApplianceSelector({
     onChange(selected.filter((c) => applianceConfigKey(c) !== key));
   }
 
-  function selectedSkuCountFor(applianceId: string): number {
-    return selected.filter(
-      (c) => c.applianceId === applianceId && c.itemCode
-    ).length;
+  function selectedConfigsFor(applianceId: string): ApplianceConfig[] {
+    return selected.filter((c) => c.applianceId === applianceId);
   }
 
   return (
@@ -178,49 +174,12 @@ export default function ApplianceSelector({
             const hasItems = items.length > 0;
             const isOpen = expanded.has(a.id);
             const parentChecked = selectedKeys.has(a.id);
-            const skuCount = selectedSkuCountFor(a.id);
-            const totalChecked = parentChecked ? 1 : skuCount;
+            const configsForThis = selectedConfigsFor(a.id);
+            const totalChecked = configsForThis.length;
 
-            // For appliances WITHOUT sub-items: render a flat checkbox row
-            // (no expand/collapse — parent selection is the whole choice).
-            if (!hasItems) {
-              return (
-                <label
-                  key={a.id}
-                  className={`flex items-center gap-3 px-4 sm:px-5 py-3 cursor-pointer transition-colors ${
-                    parentChecked
-                      ? "bg-navy/[0.03]"
-                      : "hover:bg-gray-50/60"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={parentChecked}
-                    onChange={() => toggleParent(a.id)}
-                    className="accent-navy shrink-0"
-                  />
-                  {heroImage && (
-                    <ThumbButton
-                      src={heroImage}
-                      alt={a.name}
-                      size={40}
-                      onOpen={() => setZoom({ src: heroImage, alt: a.name })}
-                    />
-                  )}
-                  <span className="text-[14px] text-navy leading-snug font-medium">
-                    {a.name}
-                  </span>
-                  <span className="ml-auto text-[11px] uppercase tracking-widest text-gray-400">
-                    no SKU subdivisions
-                  </span>
-                </label>
-              );
-            }
-
-            // Appliance with SKUs — render a header that toggles open
-            // and a sub-grid of SKU checkboxes when open.
             return (
               <div key={a.id}>
+                {/* HEADER — uniform for all appliances */}
                 <div
                   className={`flex items-center gap-3 px-4 sm:px-5 py-3 transition-colors ${
                     totalChecked > 0
@@ -273,102 +232,126 @@ export default function ApplianceSelector({
                     </span>
                   )}
                   <span className="text-[11.5px] text-gray-400">
-                    {items.length} item{items.length === 1 ? "" : "s"}
+                    {hasItems
+                      ? `${items.length} item${items.length === 1 ? "" : "s"}`
+                      : "configure"}
                   </span>
                 </div>
 
+                {/* EXPANDED PANEL */}
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-4 pt-1 bg-gray-50/40 border-t border-gray-100">
-                    <label
-                      className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 cursor-pointer mb-1 ${
-                        parentChecked ? "bg-white" : "hover:bg-white/70"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={parentChecked}
-                        onChange={() => toggleParent(a.id)}
-                        className="accent-navy shrink-0"
-                      />
-                      <span className="text-[13px] text-gray-700 italic">
-                        General inquiry — no specific SKU
-                      </span>
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                      {items.map((it, i) => {
-                        const code = it.code ?? `__${a.id}_${i}__`;
-                        const itemName = it.name;
-                        const skuKey = `${a.id}:${code}`;
-                        const checked = selectedKeys.has(skuKey);
-                        return (
-                          <label
-                            key={skuKey}
-                            className={`flex items-start gap-2.5 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors ${
-                              checked
-                                ? "bg-white border border-navy/20"
-                                : "hover:bg-white/70 border border-transparent"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={() =>
-                                toggleSku(a.id, code, itemName)
-                              }
-                              className="mt-0.5 accent-navy shrink-0"
+                  <div className="px-4 sm:px-5 pb-4 pt-1 bg-gray-50/40 border-t border-gray-100 space-y-3">
+                    {hasItems ? (
+                      <>
+                        <label
+                          className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 cursor-pointer ${
+                            parentChecked ? "bg-white" : "hover:bg-white/70"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={parentChecked}
+                            onChange={() => toggleParent(a.id)}
+                            className="accent-navy shrink-0"
+                          />
+                          <span className="text-[13px] text-gray-700 italic">
+                            General inquiry — no specific SKU
+                          </span>
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                          {items.map((it, i) => {
+                            const code = it.code ?? `__${a.id}_${i}__`;
+                            const itemName = it.name;
+                            const skuKey = `${a.id}:${code}`;
+                            const checked = selectedKeys.has(skuKey);
+                            return (
+                              <label
+                                key={skuKey}
+                                className={`flex items-start gap-2.5 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors ${
+                                  checked
+                                    ? "bg-white border border-navy/20"
+                                    : "hover:bg-white/70 border border-transparent"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() =>
+                                    toggleSku(a.id, code, itemName)
+                                  }
+                                  className="mt-0.5 accent-navy shrink-0"
+                                />
+                                {it.image && (
+                                  <ThumbButton
+                                    src={it.image}
+                                    alt={`${it.code ? `${it.code} ` : ""}${itemName}`}
+                                    size={48}
+                                    onOpen={() =>
+                                      setZoom({
+                                        src: it.image!,
+                                        alt: `${it.code ? `${it.code} ` : ""}${itemName}`,
+                                      })
+                                    }
+                                  />
+                                )}
+                                <span className="text-[13px] text-navy leading-snug min-w-0">
+                                  {it.code && (
+                                    <span className="text-brandOrange font-semibold mr-1.5">
+                                      {it.code}
+                                    </span>
+                                  )}
+                                  {itemName}
+                                  {it.note && (
+                                    <span className="block text-[11px] text-gray-500 mt-0.5">
+                                      {it.note}
+                                    </span>
+                                  )}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </>
+                    ) : (
+                      // Appliances WITHOUT SKUs: a single inline checkbox to
+                      // include the appliance, surfaced inside the expansion
+                      // alongside the dynamic configuration.
+                      <label
+                        className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 cursor-pointer ${
+                          parentChecked ? "bg-white" : "hover:bg-white/70"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={parentChecked}
+                          onChange={() => toggleParent(a.id)}
+                          className="accent-navy shrink-0"
+                        />
+                        <span className="text-[13px] text-gray-700 italic">
+                          Include this appliance in the order
+                        </span>
+                      </label>
+                    )}
+
+                    {/* INLINE configuration for each selected entry */}
+                    {configsForThis.length > 0 && (
+                      <div className="space-y-3 pt-2">
+                        {configsForThis.map((c) => {
+                          const key = applianceConfigKey(c);
+                          return (
+                            <ApplianceDetails
+                              key={key}
+                              config={c}
+                              onChange={(next) => updateConfig(key, next)}
+                              onRemove={() => removeConfig(key)}
                             />
-                            {it.image && (
-                              <ThumbButton
-                                src={it.image}
-                                alt={`${it.code ? `${it.code} ` : ""}${itemName}`}
-                                size={48}
-                                onOpen={() =>
-                                  setZoom({
-                                    src: it.image!,
-                                    alt: `${it.code ? `${it.code} ` : ""}${itemName}`,
-                                  })
-                                }
-                              />
-                            )}
-                            <span className="text-[13px] text-navy leading-snug min-w-0">
-                              {it.code && (
-                                <span className="text-brandOrange font-semibold mr-1.5">
-                                  {it.code}
-                                </span>
-                              )}
-                              {itemName}
-                              {it.note && (
-                                <span className="block text-[11px] text-gray-500 mt-0.5">
-                                  {it.note}
-                                </span>
-                              )}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {!readOnly && selected.length > 0 && (
-        <div className="space-y-3">
-          <div className="text-[11px] uppercase tracking-widest text-gray-500">
-            Configure each {archLabel.toLowerCase()} appliance
-          </div>
-          {selected.map((c) => {
-            const key = applianceConfigKey(c);
-            return (
-              <ApplianceDetails
-                key={key}
-                config={c}
-                onChange={(next) => updateConfig(key, next)}
-                onRemove={() => removeConfig(key)}
-              />
             );
           })}
         </div>

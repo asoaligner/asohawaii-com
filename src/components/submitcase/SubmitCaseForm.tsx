@@ -360,7 +360,13 @@ export function SubmitCaseForm() {
 
       <div className="mb-8">
         {step === 1 && <Step1Practice state={state} setState={setState} />}
-        {step === 2 && <Step2Appliance state={state} setState={setState} />}
+        {step === 2 && (
+          <Step2Appliance
+            state={state}
+            setState={setState}
+            pinnedApplianceId={initialPrefill?.applianceId}
+          />
+        )}
         {step === 3 && (
           <Step3FilesDelivery state={state} setState={setState} />
         )}

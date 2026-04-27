@@ -21,6 +21,11 @@ type Props = {
   /** Initial set of expanded appliance ids — used by URL prefill so a
    *  ?product=...&item=... link auto-opens the right section. */
   initiallyExpanded?: string[];
+  /** When set, only this appliance is shown initially; the rest of the
+   *  catalogue is collapsed behind a "See other products" button. Used
+   *  when the user arrives from a product page so the form opens
+   *  focused on what they clicked. */
+  pinnedApplianceId?: string;
 };
 
 type ZoomState = { src: string; alt: string } | null;
@@ -82,11 +87,21 @@ export default function ApplianceSelector({
   onChange,
   readOnly = false,
   initiallyExpanded = [],
+  pinnedApplianceId,
 }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(initiallyExpanded)
   );
   const [zoom, setZoom] = useState<ZoomState>(null);
+  const hasValidPin =
+    !!pinnedApplianceId &&
+    APPLIANCES.some((a) => a.id === pinnedApplianceId);
+  const [showOthers, setShowOthers] = useState<boolean>(!hasValidPin);
+  const visibleAppliances =
+    !showOthers && hasValidPin
+      ? APPLIANCES.filter((a) => a.id === pinnedApplianceId)
+      : APPLIANCES;
+  const hiddenCount = APPLIANCES.length - visibleAppliances.length;
   const selectedKeys = new Set(selected.map(applianceConfigKey));
 
   useEffect(() => {
@@ -157,7 +172,9 @@ export default function ApplianceSelector({
           {archLabel} appliance(s)
         </div>
         <div className="text-[11.5px] text-gray-500">
-          {APPLIANCES.length} products · click to expand
+          {!showOthers && hasValidPin
+            ? `1 of ${APPLIANCES.length} products · click to expand`
+            : `${APPLIANCES.length} products · click to expand`}
         </div>
       </div>
 
@@ -168,7 +185,7 @@ export default function ApplianceSelector({
         </div>
       ) : (
         <div className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100 overflow-hidden">
-          {APPLIANCES.map((a) => {
+          {visibleAppliances.map((a) => {
             const items = applianceItems(a.id);
             const heroImage = applianceHeroImage(a.id);
             const hasItems = items.length > 0;
@@ -354,6 +371,26 @@ export default function ApplianceSelector({
               </div>
             );
           })}
+          {!showOthers && hasValidPin && hiddenCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowOthers(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 text-[13px] font-medium text-navy hover:bg-gray-50/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandOrange/40 transition-colors"
+            >
+              <span>See other products ({hiddenCount} more)</span>
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 6l4 4 4-4" />
+              </svg>
+            </button>
+          )}
         </div>
       )}
 

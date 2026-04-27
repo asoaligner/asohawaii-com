@@ -11,9 +11,18 @@ const inputClass =
 type Props = {
   state: FormState;
   setState: (next: FormState) => void;
+  /** When the user arrives via /submit-case?product=<slug>, this is the
+   *  matching appliance id. The selector hides the rest of the
+   *  catalogue behind a "See other products" button so the form opens
+   *  focused on the product the user just clicked. */
+  pinnedApplianceId?: string;
 };
 
-export default function Step2Appliance({ state, setState }: Props) {
+export default function Step2Appliance({
+  state,
+  setState,
+  pinnedApplianceId,
+}: Props) {
   function setArches(arches: Arches) {
     // When switching to a single-arch view, drop the unused arch's
     // selections so the form output stays consistent with the user's
@@ -150,6 +159,7 @@ export default function Step2Appliance({ state, setState }: Props) {
           archLabel="Upper"
           selected={state.upperAppliances}
           onChange={setUpper}
+          pinnedApplianceId={pinnedApplianceId}
           initiallyExpanded={Array.from(
             new Set(state.upperAppliances.map((c) => c.applianceId))
           )}
@@ -163,6 +173,7 @@ export default function Step2Appliance({ state, setState }: Props) {
           selected={state.lowerAppliances}
           onChange={setLower}
           readOnly={state.arches === "both" && state.archSync}
+          pinnedApplianceId={pinnedApplianceId}
           initiallyExpanded={Array.from(
             new Set(state.lowerAppliances.map((c) => c.applianceId))
           )}

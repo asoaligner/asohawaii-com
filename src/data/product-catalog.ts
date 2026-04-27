@@ -285,16 +285,18 @@ export const productCatalog: ProductTile[] = [
     name: "ASO ALIGNER",
     tag: "aso_aligner",
     slug: "aso-aligner",
-    blurb: "In-office clear aligner system — ASO's signature digital product.",
+    blurb:
+      "ASO's signature digital aligner system — five tiers from minor refinement to comprehensive treatment.",
     description:
-      "A transparent, thin, aesthetically pleasing mouthpiece-type orthodontic appliance. AsoAligner Digital is available in 1-step, 3-step (recommended), and 5-step packages — designed in ASO's CAD pipeline and the first fully systemized clear aligner solution in Japan (2005).",
+      "A transparent, thin, aesthetically pleasing mouthpiece-type appliance — available in Basic, Advance, 3in1, 5in1, and Complete by LuxCreo packages. Designed in ASO's CAD pipeline and the first fully systemized clear aligner solution in Japan (2005).",
     category: "aligner",
     bullets: [
-      "Soft · Medium · Hard materials",
-      "1-step / 3-step (recommended) / 5-step packages",
+      "Soft · Medium · Hard materials (0.5 / 0.6 / 0.8 mm)",
+      "Five package tiers: Basic / Advance / 3in1 / 5in1 / Complete by LuxCreo",
       "Wear time: Soft/Medium 140–200 hrs (7–10 days)",
       "Hard wear time: ~250 hrs (~2 weeks)",
       "Ideal: relapse, MTM (mainly 3–3), mild crowding ≤4 mm",
+      "Comprehensive option available with Complete by LuxCreo",
       "Not recommended: extraction cases, Angle II/III, skeletal, open bite",
     ],
     fallback: "/images/aso/aso-aligner-package.png",
@@ -305,22 +307,32 @@ export const productCatalog: ProductTile[] = [
     items: [
       {
         name: "Basic",
-        note: "Entry-level package for minor relapse / mild MTM cases.",
+        note:
+          "Soft + Hard. Entry-level package for minor relapse / mild MTM cases.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
         name: "Advance",
-        note: "Mid-tier — broader movement scope, additional refinement.",
+        note:
+          "Soft + Medium + Hard. Mid-tier — broader movement scope, additional refinement.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
         name: "3in1",
-        note: "Three-step package — most common, recommended starting tier.",
+        note:
+          "Three-step package — most common, recommended starting tier.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
-        name: "Step",
-        note: "Step-up packages (1 / 3 / 5-step variants).",
+        name: "5in1",
+        note:
+          "Five-step package — for complex cases. LuxCreo direct-print, 2-week lead time.",
+        image: "/images/aso/aso-aligner-package.png",
+      },
+      {
+        name: "Complete by LuxCreo",
+        note:
+          "Full comprehensive treatment with unlimited refinements. Quote required, 2-week lead time.",
         image: "/images/aso/aso-aligner-package.png",
       },
     ],

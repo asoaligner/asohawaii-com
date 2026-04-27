@@ -41,6 +41,29 @@ export function generateMetadata({
 }): Metadata {
   const product = findProductBySlug(params.slug);
   if (!product) return { title: "Product · ASO Hawaii" };
+  // Custom title/description for ASO ALIGNER — five-package framing reads
+  // better in search results than the generic "<name> · ASO Hawaii" pattern.
+  if (product.slug === "aso-aligner") {
+    return {
+      title: "ASO ALIGNER | Five Package Tiers | ASO Hawaii",
+      description:
+        "ASO ALIGNER digital aligner system — Basic, Advance, 3in1, 5in1, and Complete by LuxCreo packages. From minor refinement to comprehensive treatment. Made for orthodontic practices in Hawaii since 2005.",
+      alternates: { canonical: `/product/${product.slug}/` },
+      openGraph: {
+        title: "ASO ALIGNER — Five Package Tiers",
+        description:
+          "ASO's signature clear aligner system, five tiers from minor refinement to comprehensive treatment with Complete by LuxCreo.",
+        images: [
+          {
+            url: "/images/aso/aso-aligner-package.png",
+            width: 1200,
+            height: 630,
+            alt: "AsoAligner Digital retail packaging",
+          },
+        ],
+      },
+    };
+  }
   const hasColorCustomization =
     product.slug !== null && COLOR_CUSTOMIZABLE_SLUGS.has(product.slug);
   const description = hasColorCustomization
@@ -55,37 +78,132 @@ export function generateMetadata({
 
 const SITE_URL = "https://asohawaii.com";
 
+/** ASO ALIGNER plan tiers — the source of truth for the brochure
+ *  Packages section, JSON-LD hasVariant, and the Indications "Recommended
+ *  Plan" column. */
+type AlignerPlan = {
+  name: string;
+  tagline: string;
+  leadTime: "Same day" | "2 weeks";
+  description: string;
+  badge?: { label: string; tone: "orange" | "navy" };
+};
+
+const ASO_ALIGNER_PLANS: AlignerPlan[] = [
+  {
+    name: "Basic",
+    tagline: "Two-stage hardness",
+    leadTime: "Same day",
+    description:
+      "Soft + Hard system per step. Entry-level package for minor relapse and mild MTM cases.",
+  },
+  {
+    name: "Advance",
+    tagline: "Three-stage hardness",
+    leadTime: "Same day",
+    description:
+      "Soft + Medium + Hard system per step. Refined progression for mid-tier cases with broader movement scope.",
+  },
+  {
+    name: "3in1",
+    tagline: "3-step package",
+    leadTime: "Same day",
+    description:
+      "Three-step package — most common, recommended starting tier for moderate cases.",
+    badge: { label: "Recommended", tone: "orange" },
+  },
+  {
+    name: "5in1",
+    tagline: "5-step extended",
+    leadTime: "2 weeks",
+    description:
+      "Five-step package for complex cases requiring extended treatment with LuxCreo direct-print precision.",
+  },
+  {
+    name: "Complete by LuxCreo",
+    tagline: "Comprehensive treatment",
+    leadTime: "2 weeks",
+    description:
+      "Full comprehensive treatment plan with unlimited refinements. Premium LuxCreo direct-print technology for ideal occlusion.",
+    badge: { label: "Premium", tone: "navy" },
+  },
+];
+
 export default function ProductDetailPage({ params }: { params: Params }) {
   const product = findProductBySlug(params.slug);
   if (!product || product.slug === "new-products" || product.slug === null)
     notFound();
 
+  // ASO ALIGNER is rendered as a brochure/intro page rather than a tile
+  // catalog — its "variants" are wear schedules + material grades, not
+  // discrete SKUs with individual photos, so the lineup layout
+  // (generic /product/[slug] default) reads wrong for it.
+  const isAligner = product.slug === "aso-aligner";
+
   // Product JSON-LD for Google rich-results. Uses the page hero image and
   // points back to the ASO organization node defined in the root layout.
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: `${SITE_URL}${product.heroImage}`,
-    category: product.category,
-    brand: {
-      "@type": "Brand",
-      name: "ASO International Hawaii",
-    },
-    manufacturer: { "@id": `${SITE_URL}/#organization` },
-    offers: {
-      "@type": "Offer",
-      availability: "https://schema.org/InStock",
-      priceCurrency: "USD",
-      url: `${SITE_URL}/product/${product.slug}/`,
-      priceSpecification: {
-        "@type": "PriceSpecification",
-        description: "Quote on request",
-      },
-    },
-    url: `${SITE_URL}/product/${product.slug}/`,
-  };
+  // For ASO ALIGNER we expose the five package tiers as hasVariant
+  // sub-products and switch to AggregateOffer.
+  const productJsonLd = isAligner
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: product.description,
+        image: `${SITE_URL}${product.heroImage}`,
+        category: product.category,
+        brand: { "@type": "Brand", name: "ASO International Hawaii" },
+        manufacturer: { "@id": `${SITE_URL}/#organization` },
+        hasVariant: ASO_ALIGNER_PLANS.map((p) => ({
+          "@type": "Product",
+          name: `ASO ALIGNER ${p.name}`,
+          description: p.description,
+          offers: {
+            "@type": "Offer",
+            availability: "https://schema.org/InStock",
+            priceCurrency: "USD",
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              description: "Quote on request",
+            },
+          },
+        })),
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            description: "Quote on request",
+          },
+          offerCount: ASO_ALIGNER_PLANS.length,
+        },
+        url: `${SITE_URL}/product/${product.slug}/`,
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: product.description,
+        image: `${SITE_URL}${product.heroImage}`,
+        category: product.category,
+        brand: {
+          "@type": "Brand",
+          name: "ASO International Hawaii",
+        },
+        manufacturer: { "@id": `${SITE_URL}/#organization` },
+        offers: {
+          "@type": "Offer",
+          availability: "https://schema.org/InStock",
+          priceCurrency: "USD",
+          url: `${SITE_URL}/product/${product.slug}/`,
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            description: "Quote on request",
+          },
+        },
+        url: `${SITE_URL}/product/${product.slug}/`,
+      };
 
   // Prefer the curated cross-category related list when we have one;
   // otherwise fall back to same-category siblings. Most products now
@@ -105,12 +223,6 @@ export default function ProductDetailPage({ params }: { params: Params }) {
             p.category === product.category
         )
         .slice(0, 3);
-
-  // ASO ALIGNER is rendered as a brochure/intro page rather than a tile
-  // catalog — its "variants" are wear schedules + material grades, not
-  // discrete SKUs with individual photos, so the lineup layout
-  // (generic /product/[slug] default) reads wrong for it.
-  const isAligner = product.slug === "aso-aligner";
 
   // Slugs whose hero/lineup images are arch-shaped (U-form) renders or
   // logos that get visibly cropped by object-cover in a 4:3 frame.
@@ -385,6 +497,31 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                         Mild crowding ≤ 4 mm
                       </li>
                     </ul>
+                  </div>
+                  <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-7">
+                    <div className="text-[11px] uppercase tracking-widest font-semibold text-brandOrange mb-4">
+                      Recommended Plan
+                    </div>
+                    <dl className="divide-y divide-gray-100 text-[14.5px]">
+                      <div className="flex items-baseline justify-between gap-4 py-3 first:pt-0">
+                        <dt className="font-medium text-navy">Mild</dt>
+                        <dd className="text-gray-600 text-right">
+                          {ASO_ALIGNER_PLANS[0].name} / {ASO_ALIGNER_PLANS[1].name}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-4 py-3">
+                        <dt className="font-medium text-navy">Moderate</dt>
+                        <dd className="text-gray-600 text-right">
+                          {ASO_ALIGNER_PLANS[2].name}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-4 py-3 last:pb-0">
+                        <dt className="font-medium text-navy">Moderate–Severe</dt>
+                        <dd className="text-gray-600 text-right">
+                          {ASO_ALIGNER_PLANS[3].name} / {ASO_ALIGNER_PLANS[4].name}
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
                   <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-7">
                     <div className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 mb-4">

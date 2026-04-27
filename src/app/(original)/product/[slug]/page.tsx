@@ -313,7 +313,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
             </div>
           </section>
 
-          {/* ——— Packages: 1 / 3 / 5 step ——— */}
+          {/* ——— Packages: 5 tiers (Basic / Advance / 3in1 / 5in1 / Complete) ——— */}
           <section className="py-20 md:py-24 bg-white border-t border-gray-200/60">
             <div className="container-narrow">
               <div className="max-w-2xl mb-14">
@@ -321,66 +321,63 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   Packages
                 </div>
                 <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
-                  Three pre-staged <span className="italic">series.</span>
+                  Five package <span className="italic">tiers.</span>
                 </h2>
                 <p className="mt-4 text-gray-600 leading-relaxed text-[15px]">
-                  Every AsoAligner Digital case ships as a staged sequence of
-                  trays. Pick the length that matches your treatment plan.
+                  From minor relapse to full comprehensive treatment with
+                  LuxCreo direct-print — pick the tier that matches your case.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    steps: "1",
-                    name: "1 step",
-                    blurb:
-                      "Single-stage workflow — minor corrections and orthodontic relapse.",
-                  },
-                  {
-                    steps: "3",
-                    name: "3 steps",
-                    blurb:
-                      "Recommended package. Progressive tooth movement for mild-to-moderate cases.",
-                    featured: true,
-                  },
-                  {
-                    steps: "5",
-                    name: "5 steps",
-                    blurb:
-                      "Extended series for more complex cases within aligner indications.",
-                  },
-                ].map((p) => (
-                  <div
-                    key={p.steps}
-                    className={`rounded-2xl p-8 border transition-colors ${
-                      p.featured
-                        ? "border-brandOrange/40 bg-brandOrange/5"
-                        : "border-gray-200 bg-white hover:border-navy/30"
-                    }`}
-                  >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+                {ASO_ALIGNER_PLANS.map((p) => {
+                  const featured = p.badge?.tone === "orange";
+                  const premium = p.badge?.tone === "navy";
+                  return (
                     <div
-                      className={`text-[11px] uppercase tracking-widest font-semibold mb-3 ${
-                        p.featured ? "text-brandOrange" : "text-gray-400"
+                      key={p.name}
+                      className={`rounded-2xl p-6 border transition-colors flex flex-col ${
+                        featured
+                          ? "border-brandOrange/40 bg-brandOrange/5"
+                          : premium
+                            ? "border-navy/30 bg-navy/[0.03]"
+                            : "border-gray-200 bg-white hover:border-navy/30"
                       }`}
                     >
-                      {p.featured ? "Recommended" : `Package ${p.steps}`}
+                      <div
+                        className={`text-[11px] uppercase tracking-widest font-semibold mb-3 ${
+                          featured
+                            ? "text-brandOrange"
+                            : premium
+                              ? "text-navy"
+                              : "text-gray-400"
+                        }`}
+                      >
+                        {p.badge?.label ?? "Package"}
+                      </div>
+                      <h3 className="font-serif text-2xl text-navy leading-tight">
+                        {p.name}
+                      </h3>
+                      <p className="mt-1 text-[13px] text-gray-500 italic">
+                        {p.tagline}
+                      </p>
+                      <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
+                        {p.description}
+                      </p>
+                      <div className="mt-auto pt-5">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-[11px] text-gray-600">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              p.leadTime === "Same day"
+                                ? "bg-emerald-500"
+                                : "bg-amber-500"
+                            }`}
+                          />
+                          {p.leadTime}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-5xl text-navy leading-none">
-                        {p.steps}
-                      </span>
-                      <span className="font-serif text-lg text-gray-500 italic">
-                        step{p.steps === "1" ? "" : "s"}
-                      </span>
-                    </div>
-                    <h3 className="mt-5 font-serif text-xl text-navy">
-                      AsoAligner Digital · {p.name}
-                    </h3>
-                    <p className="mt-3 text-[14.5px] text-gray-600 leading-relaxed">
-                      {p.blurb}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

@@ -35,7 +35,8 @@ export type ApplianceFieldType =
   | "print_form"
   | "denture_type"
   | "denture_stages"
-  | "shade_color";
+  | "shade_color"
+  | "tooth_position";
 
 export interface ApplianceField {
   /** Field key — used as the FormData key suffix. */
@@ -206,6 +207,20 @@ export const APPLIANCES: Appliance[] = [
         required: true,
         label: "Material",
         options: MATERIAL_OPTIONS,
+      },
+      {
+        key: "tooth_position",
+        type: "tooth_position",
+        required: false,
+        label: "Pontic position",
+        hint: "e.g. UR1, UL2, #21 — leave blank if no pontic",
+      },
+      {
+        key: "shade_color",
+        type: "shade_color",
+        required: false,
+        label: "Shade",
+        hint: "e.g. Vita A1, A2 — only needed for pontics",
       },
       {
         key: "free_text",

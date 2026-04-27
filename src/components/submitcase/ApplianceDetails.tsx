@@ -293,6 +293,25 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
             />
           </div>
         );
+      case "tooth_position":
+        return (
+          <div key={field.key}>
+            <label className={labelClass}>
+              {field.label}
+              {field.required && (
+                <span className="text-brandOrange ml-1">*</span>
+              )}
+            </label>
+            <input
+              type="text"
+              value={config.tooth_position ?? ""}
+              onChange={(e) => update("tooth_position", e.target.value)}
+              placeholder={field.hint ?? ""}
+              required={field.required}
+              className={inputClass}
+            />
+          </div>
+        );
     }
   }
 

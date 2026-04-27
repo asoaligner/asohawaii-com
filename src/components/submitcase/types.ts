@@ -39,6 +39,8 @@ export type ApplianceConfig = {
   denture_stages?: string[];
   /** Shade colour text (e.g. Vita A1, A2). */
   shade_color?: string;
+  /** Tooth position / location text (e.g. "UR1", "#21"). */
+  tooth_position?: string;
 };
 
 export function applianceConfigKey(c: ApplianceConfig): string {

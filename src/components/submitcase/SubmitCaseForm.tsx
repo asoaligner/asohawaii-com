@@ -92,6 +92,8 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
     if (c.denture_type) lines.push(`    Denture type: ${c.denture_type}`);
     if (c.denture_stages && c.denture_stages.length > 0)
       lines.push(`    Stage(s): ${c.denture_stages.join(", ")}`);
+    if (c.tooth_position?.trim())
+      lines.push(`    Position: ${c.tooth_position.trim()}`);
     if (c.shade_color?.trim())
       lines.push(`    Shade: ${c.shade_color.trim()}`);
     if (c.rpe_size) lines.push(`    Size: ${c.rpe_size}`);

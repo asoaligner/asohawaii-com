@@ -87,7 +87,7 @@ type AlignerPlan = {
   code: string;
   name: string;
   tagline: string;
-  leadTime: "Same day" | "1 week" | "2 weeks";
+  leadTime: "Approx. 1 week" | "Approx. 2 weeks";
   description: string;
   badge?: { label: string; tone: "orange" | "navy" };
 };
@@ -97,7 +97,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
     code: "BASIC",
     name: "Basic",
     tagline: "Two-stage hardness",
-    leadTime: "Same day",
+    leadTime: "Approx. 1 week",
     description:
       "Soft + Hard system per step. Entry-level package for minor relapse and mild MTM cases.",
   },
@@ -105,7 +105,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
     code: "ADVANCE",
     name: "Advance",
     tagline: "Three-stage hardness",
-    leadTime: "1 week",
+    leadTime: "Approx. 1 week",
     description:
       "Soft + Medium + Hard system per step. Refined progression for mid-tier cases with broader movement scope.",
   },
@@ -113,7 +113,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
     code: "3IN1",
     name: "3in1",
     tagline: "3-step package",
-    leadTime: "2 weeks",
+    leadTime: "Approx. 2 weeks",
     description:
       "Three-step package — most common, recommended starting tier for moderate cases.",
     badge: { label: "Recommended", tone: "orange" },
@@ -122,7 +122,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
     code: "5IN1",
     name: "5in1",
     tagline: "5-step extended",
-    leadTime: "2 weeks",
+    leadTime: "Approx. 2 weeks",
     description:
       "Five-step package for complex cases requiring extended treatment with LuxCreo direct-print precision.",
   },
@@ -130,7 +130,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
     code: "COMPLETE",
     name: "Complete by LuxCreo",
     tagline: "Comprehensive treatment",
-    leadTime: "2 weeks",
+    leadTime: "Approx. 2 weeks",
     description:
       "Full comprehensive treatment plan with unlimited refinements. Premium LuxCreo direct-print technology for ideal occlusion.",
     badge: { label: "Premium", tone: "navy" },
@@ -278,6 +278,20 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                     in 2005 and refined every year since.
                   </p>
 
+                  <div className="mt-5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-navy text-xs font-medium">
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                    >
+                      <circle cx="8" cy="8" r="6.25" />
+                      <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
+                    </svg>
+                    Lead time: Approx. 1–2 weeks (varies by package)
+                  </div>
+
                   <div className="mt-10 flex flex-col sm:flex-row gap-3">
                     <Link
                       href="/get-a-quote"
@@ -375,11 +389,9 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-[11px] text-gray-600">
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              p.leadTime === "Same day"
-                                ? "bg-emerald-500"
-                                : p.leadTime === "1 week"
-                                  ? "bg-amber-400"
-                                  : "bg-amber-500"
+                              p.leadTime === "Approx. 1 week"
+                                ? "bg-amber-400"
+                                : "bg-amber-500"
                             }`}
                           />
                           {p.leadTime}
@@ -470,134 +482,100 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                     Best for — and{" "}
                     <span className="italic">not ideal for.</span>
                   </h2>
-                  <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-7">
-                    <div className="text-[11px] uppercase tracking-widest font-semibold text-brandOrange mb-4">
-                      Ideal cases
-                    </div>
-                    <ul className="space-y-3 text-[15px] text-gray-700">
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-3 h-3"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
-                          >
-                            <path d="M3 8l3 3 7-7" />
-                          </svg>
-                        </span>
-                        Post-treatment relapse
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-3 h-3"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
-                          >
-                            <path d="M3 8l3 3 7-7" />
-                          </svg>
-                        </span>
-                        Minor tooth movement (mainly 3–3)
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-3 h-3"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
-                          >
-                            <path d="M3 8l3 3 7-7" />
-                          </svg>
-                        </span>
-                        Mild crowding ≤ 4 mm
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-7">
-                    <div className="text-[11px] uppercase tracking-widest font-semibold text-brandOrange mb-4">
-                      Recommended Plan
-                    </div>
-                    <dl className="divide-y divide-gray-100 text-[14.5px]">
-                      <div className="flex items-baseline justify-between gap-4 py-3 first:pt-0">
-                        <dt className="font-medium text-navy">Mild</dt>
-                        <dd className="text-gray-600 text-right">
-                          {ASO_ALIGNER_PLANS[0].name} / {ASO_ALIGNER_PLANS[1].name}
-                        </dd>
+                  <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    {/* LEFT: Ideal cases × Recommended plan */}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-7">
+                      <div className="flex items-baseline justify-between gap-3 mb-5">
+                        <div className="text-[11px] uppercase tracking-widest font-semibold text-brandOrange">
+                          Ideal cases
+                        </div>
+                        <div className="text-[10.5px] uppercase tracking-widest font-semibold text-gray-400">
+                          Recommended plan
+                        </div>
                       </div>
-                      <div className="flex items-baseline justify-between gap-4 py-3">
-                        <dt className="font-medium text-navy">Moderate</dt>
-                        <dd className="text-gray-600 text-right">
-                          {ASO_ALIGNER_PLANS[2].name}
-                        </dd>
-                      </div>
-                      <div className="flex items-baseline justify-between gap-4 py-3 last:pb-0">
-                        <dt className="font-medium text-navy">Moderate–Severe</dt>
-                        <dd className="text-gray-600 text-right">
-                          {ASO_ALIGNER_PLANS[3].name} / {ASO_ALIGNER_PLANS[4].name}
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                  <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-7">
-                    <div className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 mb-4">
-                      Not recommended
+                      <ul className="divide-y divide-gray-100">
+                        {[
+                          {
+                            label: "Post-treatment relapse",
+                            plans: "Basic, Advance",
+                          },
+                          {
+                            label: "Minor tooth movement (mainly 3–3)",
+                            plans: "Basic, Advance, 3in1",
+                          },
+                          {
+                            label: "Mild crowding ≤ 4 mm",
+                            plans: "Advance, 3in1",
+                          },
+                          {
+                            label: "Moderate cases",
+                            plans: "3in1, 5in1",
+                          },
+                          {
+                            label: "Comprehensive treatment",
+                            plans: "Complete by LuxCreo",
+                          },
+                        ].map((row) => (
+                          <li
+                            key={row.label}
+                            className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                          >
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center">
+                                <svg
+                                  className="w-3 h-3"
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.25"
+                                  strokeLinecap="round"
+                                >
+                                  <path d="M3 8l3 3 7-7" />
+                                </svg>
+                              </span>
+                              <span className="text-[14.5px] text-gray-700 leading-snug">
+                                {row.label}
+                              </span>
+                            </div>
+                            <span className="shrink-0 text-[12.5px] text-gray-500 text-right leading-snug">
+                              {row.plans}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-3 text-[15px] text-gray-600">
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-2.5 h-2.5"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
+                    {/* RIGHT: Not recommended */}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-7">
+                      <div className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 mb-5">
+                        Not recommended
+                      </div>
+                      <ul className="space-y-3 text-[15px] text-gray-600">
+                        {[
+                          "Extraction cases",
+                          "Severe Angle Class II / III",
+                          "Skeletal discrepancies, open bite",
+                        ].map((item) => (
+                          <li
+                            key={item}
+                            className="flex items-start gap-3"
                           >
-                            <path d="M4 4l8 8M12 4L4 12" />
-                          </svg>
-                        </span>
-                        Extraction cases
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-2.5 h-2.5"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
-                          >
-                            <path d="M4 4l8 8M12 4L4 12" />
-                          </svg>
-                        </span>
-                        Severe Angle Class II / III
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mt-0.5">
-                          <svg
-                            className="w-2.5 h-2.5"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.25"
-                            strokeLinecap="round"
-                          >
-                            <path d="M4 4l8 8M12 4L4 12" />
-                          </svg>
-                        </span>
-                        Skeletal discrepancies, open bite
-                      </li>
-                    </ul>
+                            <span className="shrink-0 w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mt-0.5">
+                              <svg
+                                className="w-2.5 h-2.5"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.25"
+                                strokeLinecap="round"
+                              >
+                                <path d="M4 4l8 8M12 4L4 12" />
+                              </svg>
+                            </span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -624,6 +602,22 @@ export default function ProductDetailPage({ params }: { params: Params }) {
               <p className="mt-4 text-[15px] text-gray-500 leading-relaxed">
                 {product.description}
               </p>
+
+              {product.leadTime && (
+                <div className="mt-5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-navy text-xs font-medium">
+                  <svg
+                    className="w-3 h-3"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                  >
+                    <circle cx="8" cy="8" r="6.25" />
+                    <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
+                  </svg>
+                  Lead time: {product.leadTime}
+                </div>
+              )}
 
               <ul className="mt-8 space-y-3">
                 {product.bullets.map((b) => (
@@ -808,6 +802,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
               items={product.items}
               containCards={containHero}
               productSlug={product.slug ?? undefined}
+              productLeadTime={product.leadTime}
             />
 
           </div>
@@ -907,6 +902,67 @@ export default function ProductDetailPage({ params }: { params: Params }) {
           </div>
         </div>
       </section>
+
+      {(product.leadTime || isAligner) && (
+        <section className="py-14 md:py-16 bg-stone-50/60 border-t border-gray-200/60">
+          <div className="container-narrow">
+            <div className="max-w-3xl">
+              <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-4">
+                Production Specifications
+              </div>
+              <h3 className="font-serif text-2xl md:text-3xl leading-[1.15] tracking-tightest text-navy">
+                Lead time &amp; delivery.
+              </h3>
+              <ul className="mt-6 space-y-3 text-[14.5px] text-gray-700">
+                <li className="flex items-start gap-2.5">
+                  <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center">
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                    >
+                      <circle cx="8" cy="8" r="6.25" />
+                      <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <span>
+                    Lead time:{" "}
+                    <span className="font-medium text-navy">
+                      {isAligner
+                        ? "Approx. 1–2 weeks (varies by package)"
+                        : product.leadTime}
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-brandOrange/15 text-brandOrange flex items-center justify-center">
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 8h10M9 4l4 4-4 4" />
+                    </svg>
+                  </span>
+                  <span>
+                    Notification: we will inform you of any expected delays.
+                  </span>
+                </li>
+              </ul>
+              <p className="mt-5 text-[12px] text-gray-500 italic leading-relaxed">
+                *Lead times are approximate and may vary based on case
+                complexity, US holidays, or high-volume periods.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="py-20 md:py-24 bg-gray-50/60 border-y border-gray-200/60">
@@ -1017,7 +1073,17 @@ export default function ProductDetailPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <section className="py-12 text-center">
+      <section className="pt-10 pb-6">
+        <div className="container-narrow">
+          <p className="text-[11px] text-stone-500 italic leading-relaxed text-center max-w-2xl mx-auto">
+            *All production lead times are approximate. Actual times may vary
+            based on case complexity and US holidays. We will notify you of
+            any expected delays.
+          </p>
+        </div>
+      </section>
+
+      <section className="pb-12 text-center">
         <Link
           href="/product"
           className="text-sm text-gray-500 hover:text-navy transition-colors"

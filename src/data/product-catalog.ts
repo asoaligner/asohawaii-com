@@ -7,6 +7,10 @@ export type CatalogItem = {
   note?: string;
   /** Full path under /public when the item has its own photo */
   image?: string;
+  /** Per-item lead time override. Used by ASO ALIGNER where each
+   *  package tier has its own production time; for other products
+   *  the parent ProductTile.leadTime applies to all items. */
+  leadTime?: "Approx. 1 week" | "Approx. 2 weeks";
 };
 
 export type ProductTile = {
@@ -25,6 +29,11 @@ export type ProductTile = {
   items?: CatalogItem[];
   /** Optional promotional callout */
   promo?: { label: string; body: string };
+  /** Approximate production lead time. Shown in Hero badge,
+   *  Specifications section, and on each catalog grid card.
+   *  ASO ALIGNER omits this (per-plan lead times in
+   *  ASO_ALIGNER_PLANS instead). */
+  leadTime?: "Approx. 1 week" | "Approx. 2 weeks";
 };
 
 function imagesFor(
@@ -46,6 +55,7 @@ type Meta = {
   category: string;
   bullets: string[];
   fallback: string;
+  leadTime?: "Approx. 1 week" | "Approx. 2 weeks";
   /**
    * Fallback catalog items used ONLY when the Wix-gallery parser returns
    * no items for this slug (e.g. aso-aligner, flat-occlusal-splint).
@@ -162,6 +172,7 @@ function build(meta: Meta): ProductTile {
     gallery: preferredGallery,
     items,
     promo: meta.promo,
+    leadTime: meta.leadTime,
   };
 }
 
@@ -188,6 +199,7 @@ export const productCatalog: ProductTile[] = [
     name: "Plate Type Retainer",
     tag: "plate_type_retainer",
     slug: "plate-type-retainer-expansion",
+    leadTime: "Approx. 2 weeks",
     blurb:
       "Acrylic Hawley-style retainers with stainless steel retention wires.",
     description:
@@ -236,6 +248,7 @@ export const productCatalog: ProductTile[] = [
     name: "Plate Expansion",
     tag: "plate_expansion",
     slug: "plate-expansion",
+    leadTime: "Approx. 2 weeks",
     blurb:
       "Removable acrylic expansion appliances with midline expansion screws.",
     description:
@@ -254,6 +267,7 @@ export const productCatalog: ProductTile[] = [
     name: "Band Appliance",
     tag: "band_appliance",
     slug: "band-appliance",
+    leadTime: "Approx. 2 weeks",
     blurb:
       "Fixed banded appliances — space maintainers, lingual arch, Nance, TPA.",
     description:
@@ -311,6 +325,7 @@ export const productCatalog: ProductTile[] = [
         note:
           "Soft + Hard. Entry-level package for minor relapse / mild MTM cases.",
         image: "/images/aso/aso-aligner-package.png",
+        leadTime: "Approx. 1 week",
       },
       {
         code: "ADVANCE",
@@ -318,6 +333,7 @@ export const productCatalog: ProductTile[] = [
         note:
           "Soft + Medium + Hard. Mid-tier — broader movement scope, additional refinement.",
         image: "/images/aso/aso-aligner-package.png",
+        leadTime: "Approx. 1 week",
       },
       {
         code: "3IN1",
@@ -325,20 +341,23 @@ export const productCatalog: ProductTile[] = [
         note:
           "Three-step package — most common, recommended starting tier.",
         image: "/images/aso/aso-aligner-package.png",
+        leadTime: "Approx. 2 weeks",
       },
       {
         code: "5IN1",
         name: "5in1",
         note:
-          "Five-step package — for complex cases. LuxCreo direct-print, 2-week lead time.",
+          "Five-step package — for complex cases. LuxCreo direct-print.",
         image: "/images/aso/aso-aligner-package.png",
+        leadTime: "Approx. 2 weeks",
       },
       {
         code: "COMPLETE",
         name: "Complete by LuxCreo",
         note:
-          "Full comprehensive treatment with unlimited refinements. Quote required, 2-week lead time.",
+          "Full comprehensive treatment with unlimited refinements. Quote required.",
         image: "/images/aso/aso-aligner-package.png",
+        leadTime: "Approx. 2 weeks",
       },
     ],
   }),
@@ -346,6 +365,7 @@ export const productCatalog: ProductTile[] = [
     name: "Flat Occlusal Splint",
     tag: "occlusal_splint",
     slug: "flat-occlusal-splint",
+    leadTime: "Approx. 2 weeks",
     blurb: "Bruxism guards, occlusal splints, NTI, and flat-plane deprogrammers.",
     description:
       "Standard 2 mm thickness with custom options available. Each splint mounted on an articulator. Canine guidance available on request. Ideal for protecting implants and prosthetic restorations.",
@@ -387,6 +407,7 @@ export const productCatalog: ProductTile[] = [
     name: "Lingual Retainer",
     tag: "lingual_retainer",
     slug: "lingual-retainer",
+    leadTime: "Approx. 2 weeks",
     blurb: "Bonded lingual retainers for long-term post-treatment retention.",
     description:
       "Stainless steel and 3D-printed metal lingual retainers bonded to the palatal/lingual surface of the anterior teeth. Braided, flossable, and FSW variants — designed from your intraoral scan.",
@@ -419,6 +440,7 @@ export const productCatalog: ProductTile[] = [
     name: "Invisible Retainer",
     tag: "invisible_retainer",
     slug: "invisible-retainer",
+    leadTime: "Approx. 1 week",
     blurb: "Thermoformed & direct-print clear retainers.",
     description:
       "Standard Co-Polyester through premium Zendura VIVA. Direct-printed LuxCreo available in five gauges. Optional pontics and scallop-cut finish.",
@@ -470,6 +492,7 @@ export const productCatalog: ProductTile[] = [
     name: "Press-Type Appliance",
     tag: "press_type",
     slug: "press-type-appliance",
+    leadTime: "Approx. 1 week",
     blurb: "Custom-fit mouthguards, bite splints, sports guards, and bleaching trays.",
     description:
       "Press-formed appliances for bruxism protection, sports safety, and at-home whitening. Night guards in Hard, Soft, and Hard-and-Soft constructions across five thicknesses. Sports mouthguards in 3.0 / 5.0 mm with strap + color options. Whitening and bleaching trays fabricated from your Rx.",
@@ -546,6 +569,7 @@ export const productCatalog: ProductTile[] = [
     name: "Study Model",
     tag: "study_model",
     slug: "study-model",
+    leadTime: "Approx. 2 weeks",
     blurb: "Printed or traditional study models from your scans or impressions.",
     description:
       "Diagnostic study models fabricated from intraoral scans (3D-printed) or traditional stone pour-ups from impressions. Includes RAIKA plastic models and miniature diagnostic models.",
@@ -568,6 +592,7 @@ export const productCatalog: ProductTile[] = [
     name: "Digital Print-Only Service",
     tag: "digital_print",
     slug: "digital-print-only-service",
+    leadTime: "Approx. 1 week",
     blurb: "Send STL → receive printed model. Print-only service for your lab.",
     description:
       "Lab-to-lab service: send us an STL/PLY and we'll run it on our calibrated SLA printers. Great for practices without in-house printing capacity.",
@@ -598,6 +623,7 @@ export const productCatalog: ProductTile[] = [
     name: "Sleep Apnea & Snoring Appliances",
     tag: "sleep_apnea",
     slug: "sleep-apnea",
+    leadTime: "Approx. 2 weeks",
     blurb: "MAD, tongue-retaining, and telescoping sleep appliances.",
     description:
       "A range of custom-made oral appliances designed to help manage snoring and obstructive sleep apnea. Each device is fabricated to fit the patient precisely and selected based on clinical needs — balancing comfort, stability, and controlled mandibular advancement.",
@@ -663,6 +689,7 @@ export const productCatalog: ProductTile[] = [
     name: "IDB",
     tag: "idb",
     slug: "idb",
+    leadTime: "Approx. 2 weeks",
     blurb: "Indirect Bonding trays — bracket placement from your treatment plan.",
     description:
       "Indirect Bonding (IDB) trays fabricated from your digital treatment plan. Bracket positions locked in 3D, trays printed for chairside bonding. Lingual and labial options — cosmetically preferred treatment since brackets can be set on the lingual side of teeth.",
@@ -693,6 +720,7 @@ export const productCatalog: ProductTile[] = [
     name: "Flipper / Immediate Denture",
     tag: "flipper",
     slug: "flipper-immediate-denture",
+    leadTime: "Approx. 2 weeks",
     blurb: "Esthetic acrylic flippers and immediate dentures for interim use.",
     description:
       "Interim removable partials and flippers for missing anterior teeth. Useful as esthetic placeholders during implant healing, or as a transitional appliance while implants integrate.",
@@ -728,6 +756,7 @@ export const productCatalog: ProductTile[] = [
     name: "Functional Appliances",
     tag: "functional_appliances",
     slug: "functional-appliances",
+    leadTime: "Approx. 2 weeks",
     blurb: "Twin-blocks, Bionators, Frankels, Bimlers — functional therapy.",
     description:
       "Removable and fixed functional appliances for skeletal correction in growing patients — 25 variants across Activator, Bionator, Bimler, Frankel, Twin Block, Herbst, Muh, Biobloc Stages I–IV, and Vestibular Appliance. Designed and fabricated from your Rx.",

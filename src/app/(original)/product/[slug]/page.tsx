@@ -82,15 +82,19 @@ const SITE_URL = "https://asohawaii.com";
  *  Packages section, JSON-LD hasVariant, and the Indications "Recommended
  *  Plan" column. */
 type AlignerPlan = {
+  /** Catalog item code — used to deep-link a specific tier into the
+   *  Submit Case form via /submit-case/?product=aso-aligner&item=<code>. */
+  code: string;
   name: string;
   tagline: string;
-  leadTime: "Same day" | "2 weeks";
+  leadTime: "Same day" | "1 week" | "2 weeks";
   description: string;
   badge?: { label: string; tone: "orange" | "navy" };
 };
 
 const ASO_ALIGNER_PLANS: AlignerPlan[] = [
   {
+    code: "BASIC",
     name: "Basic",
     tagline: "Two-stage hardness",
     leadTime: "Same day",
@@ -98,21 +102,24 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
       "Soft + Hard system per step. Entry-level package for minor relapse and mild MTM cases.",
   },
   {
+    code: "ADVANCE",
     name: "Advance",
     tagline: "Three-stage hardness",
-    leadTime: "Same day",
+    leadTime: "1 week",
     description:
       "Soft + Medium + Hard system per step. Refined progression for mid-tier cases with broader movement scope.",
   },
   {
+    code: "3IN1",
     name: "3in1",
     tagline: "3-step package",
-    leadTime: "Same day",
+    leadTime: "2 weeks",
     description:
       "Three-step package — most common, recommended starting tier for moderate cases.",
     badge: { label: "Recommended", tone: "orange" },
   },
   {
+    code: "5IN1",
     name: "5in1",
     tagline: "5-step extended",
     leadTime: "2 weeks",
@@ -120,6 +127,7 @@ const ASO_ALIGNER_PLANS: AlignerPlan[] = [
       "Five-step package for complex cases requiring extended treatment with LuxCreo direct-print precision.",
   },
   {
+    code: "COMPLETE",
     name: "Complete by LuxCreo",
     tagline: "Comprehensive treatment",
     leadTime: "2 weeks",
@@ -363,17 +371,36 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                       <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
                         {p.description}
                       </p>
-                      <div className="mt-auto pt-5">
+                      <div className="mt-auto pt-5 flex items-center justify-between gap-3 flex-wrap">
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-[11px] text-gray-600">
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
                               p.leadTime === "Same day"
                                 ? "bg-emerald-500"
-                                : "bg-amber-500"
+                                : p.leadTime === "1 week"
+                                  ? "bg-amber-400"
+                                  : "bg-amber-500"
                             }`}
                           />
                           {p.leadTime}
                         </div>
+                        <Link
+                          href={`/submit-case/?product=aso-aligner&item=${p.code}`}
+                          className="inline-flex items-center gap-1 text-[12px] font-medium text-navy hover:text-brandOrange transition-colors"
+                        >
+                          Submit case
+                          <svg
+                            className="w-3 h-3"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 8h10M9 4l4 4-4 4" />
+                          </svg>
+                        </Link>
                       </div>
                     </div>
                   );

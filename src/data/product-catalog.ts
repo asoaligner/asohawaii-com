@@ -306,30 +306,35 @@ export const productCatalog: ProductTile[] = [
     heroImageOverride: "/images/aso/aso-aligner-package.png",
     items: [
       {
+        code: "BASIC",
         name: "Basic",
         note:
           "Soft + Hard. Entry-level package for minor relapse / mild MTM cases.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
+        code: "ADVANCE",
         name: "Advance",
         note:
           "Soft + Medium + Hard. Mid-tier — broader movement scope, additional refinement.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
+        code: "3IN1",
         name: "3in1",
         note:
           "Three-step package — most common, recommended starting tier.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
+        code: "5IN1",
         name: "5in1",
         note:
           "Five-step package — for complex cases. LuxCreo direct-print, 2-week lead time.",
         image: "/images/aso/aso-aligner-package.png",
       },
       {
+        code: "COMPLETE",
         name: "Complete by LuxCreo",
         note:
           "Full comprehensive treatment with unlimited refinements. Quote required, 2-week lead time.",

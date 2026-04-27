@@ -146,15 +146,8 @@ export const APPLIANCES: Appliance[] = [
     name: "ASO ALIGNER",
     category: "aligner",
     description:
-      "ASO custom aligner. Pick the package SKU (Basic / Advance / 3in1 / Step) above; configure material and notes here.",
+      "ASO custom aligner. Pick the package SKU above; add treatment plan notes here. Material (Soft / Medium / Hard) is fixed by the package.",
     fields: [
-      {
-        key: "material",
-        type: "material",
-        required: true,
-        label: "Material",
-        options: MATERIAL_OPTIONS,
-      },
       {
         key: "free_text",
         type: "free_text",

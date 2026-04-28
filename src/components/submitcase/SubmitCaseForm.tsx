@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { findAppliance } from "@/data/appliances";
 import { findColor } from "@/data/colors";
 import { FORMSPREE_ENDPOINT, FORMSPREE_READY } from "@/data/config";
@@ -11,7 +11,6 @@ import { findSticker } from "@/data/stickers";
 import Step1Practice, { step1IsValid } from "./Step1Practice";
 import Step2Appliance, { step2IsValid } from "./Step2Appliance";
 import Step3FilesDelivery, { step3IsValid } from "./Step3FilesDelivery";
-import StepIndicator from "./StepIndicator";
 import {
   INITIAL_FORM_STATE,
   type ApplianceConfig,
@@ -19,9 +18,7 @@ import {
 } from "./types";
 
 /** Best-effort mapping from product slug → appliance id used by the
- *  Stage A form. Lets `?product=<catalog-slug>` URLs preselect a row.
- *  Keys here mirror the slugs in src/data/product-catalog.ts; values
- *  are the appliance ids in src/data/appliances.ts. */
+ *  Stage A form. Lets `?product=<catalog-slug>` URLs preselect a row. */
 const SLUG_TO_APPLIANCE_ID: Record<string, string> = {
   "plate-type-retainer-expansion": "plate_type_retainer",
   "plate-expansion": "plate_expansion",
@@ -40,7 +37,6 @@ const SLUG_TO_APPLIANCE_ID: Record<string, string> = {
 };
 
 type Status = "idle" | "submitting" | "success" | "error";
-type Step = 1 | 2 | 3;
 
 function generateReference() {
   const ts = Date.now().toString(36).toUpperCase();
@@ -109,17 +105,15 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
 export function SubmitCaseForm() {
   const params = useSearchParams();
   const [state, setState] = useState<FormState>(INITIAL_FORM_STATE);
-  const [step, setStep] = useState<Step>(1);
-  const [visited, setVisited] = useState<Set<number>>(new Set([1]));
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [reference, setReference] = useState<string>("");
   const [submittedDoctor, setSubmittedDoctor] = useState<string>("");
 
-  // Preselect appliance(s) from URL on mount. When `?item=<code>`
-  // is also present we look up the SKU under the matching product
-  // catalog and pin it to itemCode/itemName so the parent opens
-  // pre-checked.
+  const section1Ref = useRef<HTMLDivElement>(null);
+  const section2Ref = useRef<HTMLDivElement>(null);
+  const section3Ref = useRef<HTMLDivElement>(null);
+
   const initialPrefill = useMemo(() => {
     const slug = params?.get("product");
     const code = params?.get("item");
@@ -136,7 +130,6 @@ export function SubmitCaseForm() {
   useEffect(() => {
     if (!initialPrefill) return;
     setState((prev) => {
-      // Only preselect if both arches are still empty (don't clobber user edits).
       if (
         prev.upperAppliances.length === 0 &&
         prev.lowerAppliances.length === 0
@@ -154,42 +147,32 @@ export function SubmitCaseForm() {
     });
   }, [initialPrefill]);
 
-  function go(next: Step) {
-    setStep(next);
-    setVisited((s) => new Set(s).add(next));
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }
-
-  function nextStep() {
-    setErrorMsg(null);
-    if (step === 1) {
-      if (!step1IsValid(state)) {
-        setErrorMsg("Please fill in all required practice information.");
-        return;
-      }
-      go(2);
-      return;
-    }
-    if (step === 2) {
-      const v = step2IsValid(state);
-      if (!v.ok) {
-        setErrorMsg(v.message ?? "Please review the appliance selection.");
-        return;
-      }
-      go(3);
-      return;
-    }
+  function scrollTo(ref: React.RefObject<HTMLDivElement>) {
+    if (typeof window === "undefined" || !ref.current) return;
+    ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function handleSubmit() {
     setErrorMsg(null);
-    const v3 = step3IsValid(state);
-    if (!v3.ok) {
-      setErrorMsg(v3.message ?? "Please review the final step.");
+
+    if (!step1IsValid(state)) {
+      setErrorMsg("Please fill in all required practice information.");
+      scrollTo(section1Ref);
       return;
     }
+    const v2 = step2IsValid(state);
+    if (!v2.ok) {
+      setErrorMsg(v2.message ?? "Please review the appliance selection.");
+      scrollTo(section2Ref);
+      return;
+    }
+    const v3 = step3IsValid(state);
+    if (!v3.ok) {
+      setErrorMsg(v3.message ?? "Please review files and delivery.");
+      scrollTo(section3Ref);
+      return;
+    }
+
     setStatus("submitting");
     const ref = generateReference();
     const data = new FormData();
@@ -202,19 +185,16 @@ export function SubmitCaseForm() {
     );
     data.append("reference_id", ref);
 
-    // Practice
     data.append("practice_name", state.practice.name);
     data.append("doctor_name", state.practice.doctor);
     data.append("email", state.practice.email);
     data.append("phone", state.practice.phone);
     data.append("easyrx_user", state.practice.easyRxUser ? "Yes" : "No");
 
-    // Patient + arches
     data.append("patient_reference", state.patient.reference);
     data.append("arches", state.arches);
     data.append("arch_sync", state.archSync ? "Yes" : "No");
 
-    // Appliances — append a JSON blob and a human-readable summary
     data.append(
       "appliances_json",
       JSON.stringify({
@@ -229,25 +209,21 @@ export function SubmitCaseForm() {
     if (lowerText) summaryParts.push(lowerText);
     data.append("appliances_summary", summaryParts.join("\n\n"));
 
-    // Tooth selection
     data.append("dentition", state.toothSelection.dentition);
     data.append("teeth_upper", state.toothSelection.upper.join(","));
     data.append("teeth_lower", state.toothSelection.lower.join(","));
 
-    // Files
     for (const f of state.files.stl) data.append("stl_files", f, f.name);
     for (const f of state.files.photos) data.append("photos", f, f.name);
     for (const f of state.files.rxPdf) data.append("rx_pdf", f, f.name);
 
-    // Delivery
     data.append("due_date", state.delivery.dueDate);
     data.append("delivery_method", state.delivery.method);
-    if (state.delivery.method !== "Pickup")
+    if (state.delivery.address.trim())
       data.append("shipping_address", state.delivery.address);
     if (state.delivery.instructions)
       data.append("special_instructions", state.delivery.instructions);
 
-    // Consent
     data.append("hipaa_acknowledgment", state.consent.hipaa ? "Yes" : "No");
     data.append("newsletter_optin", state.consent.newsletter ? "Yes" : "No");
 
@@ -261,6 +237,9 @@ export function SubmitCaseForm() {
         setReference(ref);
         setSubmittedDoctor(state.practice.doctor || "Doctor");
         setStatus("success");
+        if (typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       } else {
         const body = await res.json().catch(() => null);
         setErrorMsg(body?.error ?? `Request failed (${res.status}).`);
@@ -311,7 +290,9 @@ export function SubmitCaseForm() {
             <span className="text-[12px] uppercase tracking-widest text-gray-500">
               Reference
             </span>
-            <code className="text-[13.5px] text-navy font-mono">{reference}</code>
+            <code className="text-[13.5px] text-navy font-mono">
+              {reference}
+            </code>
           </div>
         </div>
         <div className="mt-9 flex flex-wrap gap-3 justify-center">
@@ -319,8 +300,6 @@ export function SubmitCaseForm() {
             type="button"
             onClick={() => {
               setState(INITIAL_FORM_STATE);
-              setStep(1);
-              setVisited(new Set([1]));
               setStatus("idle");
               setReference("");
               setSubmittedDoctor("");
@@ -350,65 +329,40 @@ export function SubmitCaseForm() {
         </div>
       )}
 
-      <div className="mb-8">
-        <StepIndicator
-          current={step}
-          visited={visited}
-          onJump={(s) => go(s)}
+      <div ref={section1Ref} className="scroll-mt-24">
+        <Step1Practice state={state} setState={setState} />
+      </div>
+
+      <div ref={section2Ref} className="scroll-mt-24 mt-12 pt-10 border-t border-gray-200">
+        <Step2Appliance
+          state={state}
+          setState={setState}
+          pinnedApplianceId={initialPrefill?.applianceId}
         />
       </div>
 
-      <div className="mb-8">
-        {step === 1 && <Step1Practice state={state} setState={setState} />}
-        {step === 2 && (
-          <Step2Appliance
-            state={state}
-            setState={setState}
-            pinnedApplianceId={initialPrefill?.applianceId}
-          />
-        )}
-        {step === 3 && (
-          <Step3FilesDelivery state={state} setState={setState} />
-        )}
+      <div ref={section3Ref} className="scroll-mt-24 mt-12 pt-10 border-t border-gray-200">
+        <Step3FilesDelivery state={state} setState={setState} />
       </div>
 
       {errorMsg && (
-        <div className="mb-5 text-[13px] text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">
+        <div
+          role="alert"
+          className="mt-6 text-[13px] text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2"
+        >
           {errorMsg}
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {step > 1 ? (
-          <button
-            type="button"
-            onClick={() => go((step - 1) as Step)}
-            className="inline-flex items-center gap-2 bg-white text-navy border border-gray-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-navy transition-colors"
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M13 8H3M7 4L3 8l4 4" />
-            </svg>
-            Back
-          </button>
-        ) : (
-          <span />
-        )}
-
-        {step < 3 ? (
-          <button
-            type="button"
-            onClick={nextStep}
-            className="inline-flex items-center gap-2 bg-navy text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-navy-light transition-colors"
-          >
-            Next
+      <div className="mt-8 flex justify-end">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={status === "submitting"}
+          className="inline-flex items-center gap-2 bg-brandOrange text-white px-7 py-3.5 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {status === "submitting" ? "Submitting…" : "Submit case"}
+          {status !== "submitting" && (
             <svg
               className="w-3.5 h-3.5"
               viewBox="0 0 16 16"
@@ -420,30 +374,8 @@ export function SubmitCaseForm() {
             >
               <path d="M3 8h10M9 4l4 4-4 4" />
             </svg>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={status === "submitting"}
-            className="inline-flex items-center gap-2 bg-brandOrange text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {status === "submitting" ? "Submitting…" : "Submit case"}
-            {status !== "submitting" && (
-              <svg
-                className="w-3.5 h-3.5"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 8h10M9 4l4 4-4 4" />
-              </svg>
-            )}
-          </button>
-        )}
+          )}
+        </button>
       </div>
     </div>
   );

@@ -22,9 +22,6 @@ export default function Step1Practice({ state, setState }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-2">
-          Step 1 of 3
-        </div>
         <h2 className="font-serif text-3xl text-navy leading-tight tracking-tightest">
           Practice information
         </h2>

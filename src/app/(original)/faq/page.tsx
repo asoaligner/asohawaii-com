@@ -6,7 +6,7 @@ import { useState } from "react";
 const faqs = [
   {
     q: "What is the typical turnaround time for ASO Hawaii products?",
-    a: "Standard turnaround is 7–10 business days. Customized products and clear aligner cases may vary — contact us for a specific quote on complex cases.",
+    a: "Lead time is approx. 1 week for invisible retainers, pressed appliances, and ASO ALIGNER Basic / Advance; approx. 2 weeks for most other appliances and ASO ALIGNER 3in1 / 5in1 / Complete by LuxCreo. Rush service is available on request — contact us for a specific quote on complex cases.",
   },
   {
     q: "Do you offer pick-up and delivery?",

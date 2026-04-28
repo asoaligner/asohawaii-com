@@ -1,9 +1,16 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import FileUploadField from "./FileUploadField";
 import ReviewSummary from "./ReviewSummary";
 import ToothChart from "./ToothChart";
 import { DELIVERY_METHODS, type FormState } from "./types";
+import {
+  calculateMinDueDate,
+  formatIsoDate,
+  formatLongDate,
+  getMaxLeadTime,
+} from "@/utils/leadTimeCalculator";
 
 const labelClass = "block text-xs uppercase tracking-widest text-gray-500 mb-2";
 const inputClass =
@@ -19,18 +26,42 @@ type Props = {
   setState: (next: FormState) => void;
 };
 
-function minDueDate(): string {
-  const d = new Date();
-  let added = 0;
-  while (added < 5) {
-    d.setDate(d.getDate() + 1);
-    const dow = d.getDay();
-    if (dow !== 0 && dow !== 6) added += 1;
-  }
-  return d.toISOString().slice(0, 10);
+function selectedAppliances(state: FormState) {
+  return [...state.upperAppliances, ...state.lowerAppliances];
+}
+
+function computeMinDueDate(state: FormState): Date {
+  const configs = selectedAppliances(state);
+  const lead = getMaxLeadTime(configs);
+  return calculateMinDueDate(lead);
 }
 
 export default function Step3FilesDelivery({ state, setState }: Props) {
+  const minDate = useMemo(() => computeMinDueDate(state), [
+    state.upperAppliances,
+    state.lowerAppliances,
+  ]);
+  const minDateIso = formatIsoDate(minDate);
+  const minDateLong = formatLongDate(minDate);
+  const leadKey = useMemo(
+    () => getMaxLeadTime(selectedAppliances(state)),
+    [state.upperAppliances, state.lowerAppliances]
+  );
+  const leadLabel = leadKey === "2weeks" ? "approx. 2 weeks" : "approx. 1 week";
+
+  // If the appliance selection changes and the previously chosen due
+  // date is now earlier than the new minimum, clear it so the user
+  // re-picks rather than silently submitting an under-lead-time date.
+  useEffect(() => {
+    if (state.delivery.dueDate && state.delivery.dueDate < minDateIso) {
+      setState({
+        ...state,
+        delivery: { ...state.delivery, dueDate: "" },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minDateIso]);
+
   function setDelivery<K extends keyof FormState["delivery"]>(
     key: K,
     value: FormState["delivery"][K]
@@ -44,6 +75,9 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
   ) {
     setState({ ...state, consent: { ...state.consent, [key]: value } });
   }
+
+  const dueDateBeforeMin =
+    !!state.delivery.dueDate && state.delivery.dueDate < minDateIso;
 
   return (
     <div className="space-y-8">
@@ -127,16 +161,52 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           <input
             id="d-due"
             type="date"
+            lang="en"
             required
             value={state.delivery.dueDate}
-            min={minDueDate()}
+            min={minDateIso}
             onChange={(e) => setDelivery("dueDate", e.target.value)}
             className={inputClass}
           />
-          <p className="mt-2 text-[12px] text-gray-600">
-            Earliest available: {minDueDate()}. We recommend at least 2 weeks
-            for most appliances.
+          <p className="mt-2 text-[13px] text-gray-700">
+            Standard lead time for the selected appliance(s):{" "}
+            <strong>{leadLabel}</strong>. Earliest available date:{" "}
+            <strong>{minDateLong}</strong>.
           </p>
+          <p className="mt-1 text-[13px] text-brandOrange">
+            Need it sooner? Contact us for Rush Case handling:{" "}
+            <a
+              href="tel:8089570111"
+              className="underline underline-offset-2 hover:no-underline"
+            >
+              📞 808-957-0111
+            </a>{" "}
+            or{" "}
+            <a
+              href="mailto:aso-digital@outlook.com"
+              className="underline underline-offset-2 hover:no-underline"
+            >
+              📧 aso-digital@outlook.com
+            </a>
+          </p>
+          {dueDateBeforeMin && (
+            <div
+              role="alert"
+              className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700 leading-snug"
+            >
+              ⚠️ This date is before our standard lead time for the selected
+              appliance(s). For Rush Case service, please contact us directly
+              at{" "}
+              <a href="tel:8089570111" className="underline">
+                808-957-0111
+              </a>{" "}
+              or{" "}
+              <a href="mailto:aso-digital@outlook.com" className="underline">
+                aso-digital@outlook.com
+              </a>
+              .
+            </div>
+          )}
         </div>
         <div>
           <span className={labelClass}>
@@ -246,13 +316,16 @@ export function step3IsValid(state: FormState): {
   ok: boolean;
   message?: string;
 } {
+  const minIso = formatIsoDate(computeMinDueDate(state));
   if (!state.delivery.dueDate)
     return { ok: false, message: "Pick a due date." };
-  if (state.delivery.dueDate < minDueDate())
+  if (state.delivery.dueDate < minIso) {
     return {
       ok: false,
-      message: `Due date must be on or after ${minDueDate()}.`,
+      message:
+        "Due date is earlier than the standard lead time for the selected appliance(s). Contact us at 808-957-0111 for Rush Case service.",
     };
+  }
   if (state.delivery.method !== "Pickup" && !state.delivery.address.trim()) {
     return { ok: false, message: "Shipping address required." };
   }

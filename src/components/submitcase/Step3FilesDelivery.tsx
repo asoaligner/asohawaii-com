@@ -5,7 +5,7 @@ import DueDatePicker from "./DueDatePicker";
 import FileUploadField from "./FileUploadField";
 import ReviewSummary from "./ReviewSummary";
 import ToothChart from "./ToothChart";
-import { DELIVERY_METHODS, type FormState } from "./types";
+import { type FormState } from "./types";
 import {
   calculateMinDueDate,
   formatIsoDate,
@@ -206,54 +206,19 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           )}
         </div>
         <div>
-          <span className={labelClass}>
-            Delivery method <span className="text-brandOrange ml-1">*</span>
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {DELIVERY_METHODS.map((m) => {
-              const checked = state.delivery.method === m.value;
-              return (
-                <label
-                  key={m.value}
-                  className={`flex items-start gap-3 cursor-pointer rounded-xl border px-4 py-3 transition-colors ${
-                    checked
-                      ? "border-navy bg-navy/[0.03]"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="delivery_method"
-                    value={m.value}
-                    checked={checked}
-                    onChange={() => setDelivery("method", m.value)}
-                    required
-                    className="mt-1 accent-navy"
-                  />
-                  <span className="text-[14px] text-navy leading-snug">
-                    {m.label}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+          <label htmlFor="d-ship" className={labelClass}>
+            Shipping address <span className="text-brandOrange ml-1">*</span>
+          </label>
+          <textarea
+            id="d-ship"
+            required
+            rows={3}
+            value={state.delivery.address}
+            onChange={(e) => setDelivery("address", e.target.value)}
+            placeholder="Street address, City, State, ZIP code"
+            className={`${inputClass} resize-y`}
+          />
         </div>
-        {state.delivery.method !== "Pickup" && (
-          <div>
-            <label htmlFor="d-ship" className={labelClass}>
-              Shipping address <span className="text-brandOrange ml-1">*</span>
-            </label>
-            <textarea
-              id="d-ship"
-              required
-              rows={3}
-              value={state.delivery.address}
-              onChange={(e) => setDelivery("address", e.target.value)}
-              placeholder="Street address, City, State, ZIP code"
-              className={`${inputClass} resize-y`}
-            />
-          </div>
-        )}
         <div>
           <label htmlFor="d-notes" className={labelClass}>
             Special instructions{" "}

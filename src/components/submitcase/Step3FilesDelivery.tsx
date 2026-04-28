@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import DueDatePicker from "./DueDatePicker";
 import FileUploadField from "./FileUploadField";
 import ReviewSummary from "./ReviewSummary";
 import ToothChart from "./ToothChart";
@@ -158,15 +159,11 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           <label htmlFor="d-due" className={labelClass}>
             Due Date <span className="text-brandOrange ml-1">*</span>
           </label>
-          <input
-            id="d-due"
-            type="date"
-            lang="en"
-            required
+          <DueDatePicker
+            inputId="d-due"
             value={state.delivery.dueDate}
-            min={minDateIso}
-            onChange={(e) => setDelivery("dueDate", e.target.value)}
-            className={inputClass}
+            minDate={minDate}
+            onChange={(iso) => setDelivery("dueDate", iso)}
           />
           <p className="mt-2 text-[13px] text-gray-700">
             Standard lead time for the selected appliance(s):{" "}

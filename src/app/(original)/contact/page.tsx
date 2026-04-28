@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import FileUploadField from "@/components/submitcase/FileUploadField";
 import { OriginalForm, OrigField } from "@/components/OriginalForm";
+
+const MB = 1024 * 1024;
+const ATTACHMENT_LIMIT = 50 * MB;
 
 // Content mirrors asohawaii.com/contact-us verbatim. Design is the
 // polished Original style (Fraunces-free, Source Serif 4 headings).
@@ -12,6 +17,7 @@ const INSTAGRAM_URL =
   "https://www.instagram.com/aso.orthodonticslab.honolulu/";
 
 export default function ContactPage() {
+  const [attachments, setAttachments] = useState<File[]>([]);
   return (
     <>
       {/* HERO */}
@@ -171,6 +177,8 @@ export default function ContactPage() {
                   formType="General Inquiry"
                   submitLabel="Send message"
                   successBody="Thanks for submitting! Our team will reply within one business day."
+                  extraFiles={{ fieldName: "attachment", files: attachments }}
+                  onResetExtras={() => setAttachments([])}
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <OrigField
@@ -206,20 +214,15 @@ export default function ContactPage() {
                     as="textarea"
                     required
                   />
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
-                      Upload File{" "}
-                      <span className="text-gray-400 normal-case tracking-normal">
-                        · STL / ZIP optional
-                      </span>
-                    </label>
-                    <input
-                      name="attachment"
-                      type="file"
-                      accept=".stl,.zip,.ply,.obj,.pdf"
-                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-navy file:text-white hover:file:bg-navy-light file:cursor-pointer"
-                    />
-                  </div>
+                  <FileUploadField
+                    label="Attachment · optional"
+                    description="STL / ZIP / PLY / OBJ / PDF · up to 50 MB each"
+                    multiple
+                    accept=".stl,.zip,.ply,.obj,.pdf"
+                    maxSize={ATTACHMENT_LIMIT}
+                    files={attachments}
+                    onChange={setAttachments}
+                  />
                 </OriginalForm>
               </div>
             </div>

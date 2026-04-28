@@ -10,12 +10,21 @@ export function OriginalForm({
   submitLabel,
   successTitle = "Thanks — we'll be in touch.",
   successBody = "Our team will review your request and reply within one business day.",
+  extraFiles,
+  onResetExtras,
   children,
 }: {
   formType: string;
   submitLabel: string;
   successTitle?: string;
   successBody?: string;
+  /** State-managed files (e.g. from FileUploadField) appended to the
+   *  outgoing FormData under the given fieldName. Lets pages use the
+   *  drag-and-drop uploader instead of the OS-localized native input. */
+  extraFiles?: { fieldName: string; files: File[] };
+  /** Called after a successful submit so the parent can clear any
+   *  state-managed extras (e.g. the files list). */
+  onResetExtras?: () => void;
   children: React.ReactNode;
 }) {
   const [status, setStatus] = useState<Status>("idle");
@@ -29,6 +38,11 @@ export function OriginalForm({
     const data = new FormData(form);
     data.append("_formType", formType);
     data.append("_subject", `[ASO Hawaii] ${formType}`);
+    if (extraFiles) {
+      for (const f of extraFiles.files) {
+        data.append(extraFiles.fieldName, f, f.name);
+      }
+    }
     try {
       const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
@@ -38,6 +52,7 @@ export function OriginalForm({
       if (res.ok) {
         setStatus("success");
         form.reset();
+        onResetExtras?.();
       } else {
         const body = await res.json().catch(() => null);
         setErrorMsg(body?.error ?? `Request failed (${res.status}).`);

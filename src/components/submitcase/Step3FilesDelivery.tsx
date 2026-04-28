@@ -83,6 +83,9 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
   return (
     <div className="space-y-8">
       <div>
+        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-2">
+          Step 3 of 3
+        </div>
         <h2 className="font-serif text-3xl text-navy leading-tight tracking-tightest">
           Tooth chart, files &amp; delivery
         </h2>

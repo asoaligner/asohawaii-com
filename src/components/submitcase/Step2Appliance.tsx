@@ -65,6 +65,9 @@ export default function Step2Appliance({
   return (
     <div className="space-y-7">
       <div>
+        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-2">
+          Step 2 of 3
+        </div>
         <h2 className="font-serif text-3xl text-navy leading-tight tracking-tightest">
           Appliance selection
         </h2>

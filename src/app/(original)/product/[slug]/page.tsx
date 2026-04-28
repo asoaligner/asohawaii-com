@@ -821,7 +821,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
               </h3>
               <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
                 STL/PLY exports from any major scanner, or traditional stone
-                models. Typical turnaround 7–10 business days.
+                models. Lead time {product.leadTime ?? "approx. 1–2 weeks"}.
               </p>
               <Link
                 href="/how-to-order"

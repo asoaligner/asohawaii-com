@@ -89,7 +89,7 @@ const sections = [
     title: "Third-Party Services",
     body: (
       <>
-        We may use third-party services (e.g. Wix Forms, Google Forms, EasyRx)
+        We may use third-party services (e.g. Formspree, Google Forms, EasyRx)
         to support our operations. Each of these providers has its own privacy
         policy, which we encourage you to review.
       </>

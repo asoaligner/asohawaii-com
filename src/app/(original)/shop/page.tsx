@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ASO Miniature Collection — Hand-crafted Orthodontic Models",
     description:
-      "Hand-crafted miniature orthodontic models, made by the same technicians who craft real appliances for 150+ Hawaii dental practices.",
+      "Hand-crafted miniature orthodontic models from the ASO brand — perfect as keepsakes, dental graduation gifts, or office decor.",
     images: [
       {
         url: "/images/aso/miniature/miniature-set.jpg",
@@ -67,7 +67,7 @@ const productJsonLd = [
     "@type": "Product",
     name: "ASO Miniature Collection — Complete Set of 5",
     description:
-      "Five hand-crafted miniature orthodontic models displayed in a premium clear acrylic case with subtle ASO branding. Made with real dental resin by the same technicians who craft real appliances for Hawaii dental practices.",
+      "Five hand-crafted miniature orthodontic models displayed in a premium clear acrylic case with subtle ASO branding. Made with real dental resin and the same precision techniques used for full-size orthodontic appliances.",
     image: `${SITE_URL}/images/aso/miniature/miniature-set.jpg`,
     brand: { "@type": "Brand", name: "ASO International Hawaii" },
     manufacturer: { "@id": `${SITE_URL}/#organization` },
@@ -191,11 +191,10 @@ export default function ShopPage() {
                 <span className="italic">bigger craft.</span>
               </h2>
               <p className="mt-6 text-[16px] text-gray-700 leading-relaxed">
-                Each miniature is hand-crafted by the same dental technicians
-                who create real orthodontic appliances for clinics across
-                Hawaii. Using actual dental resin and the same precision
-                techniques honed over 40+ years, every piece is a celebration of
-                the art of orthodontics.
+                Each miniature is hand-crafted using the same dental resin and
+                precision techniques honed over 40+ years of orthodontic
+                manufacture — a small tribute to the craft, by the team behind
+                ASO.
               </p>
               <p className="mt-5 text-[15px] text-gray-600 leading-relaxed">
                 <span className="text-navy font-medium">Perfect for:</span>{" "}

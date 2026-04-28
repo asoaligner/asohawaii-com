@@ -241,8 +241,7 @@ export function SubmitCaseForm() {
 
     // Delivery
     data.append("due_date", state.delivery.dueDate);
-    data.append("delivery_method", state.delivery.method);
-    if (state.delivery.method !== "Pickup")
+    if (state.delivery.address.trim())
       data.append("shipping_address", state.delivery.address);
     if (state.delivery.instructions)
       data.append("special_instructions", state.delivery.instructions);

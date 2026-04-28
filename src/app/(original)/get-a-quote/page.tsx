@@ -1,11 +1,17 @@
 "use client";
 
+import { useState } from "react";
+import FileUploadField from "@/components/submitcase/FileUploadField";
 import { OriginalForm, OrigField } from "@/components/OriginalForm";
 
 const DROPBOX_UPLOAD_URL =
   "https://www.dropbox.com/request/qyzCwOz9KVlxBTerdIoU";
 
+const MB = 1024 * 1024;
+const ATTACHMENT_LIMIT = 50 * MB;
+
 export default function GetAQuotePage() {
+  const [attachments, setAttachments] = useState<File[]>([]);
   return (
     <>
       <section className="relative hero-gradient overflow-hidden">
@@ -84,7 +90,12 @@ export default function GetAQuotePage() {
             </div>
             <div className="lg:col-span-7">
               <div className="rounded-3xl bg-gray-50/60 border border-gray-200 p-7 sm:p-9">
-                <OriginalForm formType="Get a Quote" submitLabel="Send request">
+                <OriginalForm
+                  formType="Get a Quote"
+                  submitLabel="Send request"
+                  extraFiles={{ fieldName: "attachment", files: attachments }}
+                  onResetExtras={() => setAttachments([])}
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <OrigField
                       id="q-fn"
@@ -105,13 +116,21 @@ export default function GetAQuotePage() {
                     label="Clinic Name"
                     required
                   />
-                  <OrigField
-                    id="q-email"
-                    name="email"
-                    type="email"
-                    label="Email Address"
-                    required
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <OrigField
+                      id="q-email"
+                      name="email"
+                      type="email"
+                      label="Email Address"
+                      required
+                    />
+                    <OrigField
+                      id="q-phone"
+                      name="phone"
+                      type="tel"
+                      label="Phone Number"
+                    />
+                  </div>
                   <OrigField
                     id="q-msg"
                     name="message"
@@ -120,31 +139,26 @@ export default function GetAQuotePage() {
                     required
                     placeholder="What are you quoting? Appliance type, quantity, rush service, special requirements…"
                   />
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
-                      Upload File{" "}
-                      <span className="text-gray-400 normal-case tracking-normal">
-                        · STL / ZIP optional
-                      </span>
-                    </label>
-                    <input
-                      name="attachment"
-                      type="file"
-                      accept=".stl,.zip,.ply,.obj"
-                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-navy file:text-white hover:file:bg-navy-light file:cursor-pointer"
-                    />
-                    <p className="mt-3 text-[12.5px] text-gray-500">
-                      Larger scans or multiple files?{" "}
-                      <a
-                        href={DROPBOX_UPLOAD_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-2 text-navy hover:text-brandOrange transition-colors"
-                      >
-                        Upload via Dropbox →
-                      </a>
-                    </p>
-                  </div>
+                  <FileUploadField
+                    label="Attachments · optional"
+                    description="STL / ZIP / PLY / OBJ · up to 50 MB each"
+                    multiple
+                    accept=".stl,.zip,.ply,.obj"
+                    maxSize={ATTACHMENT_LIMIT}
+                    files={attachments}
+                    onChange={setAttachments}
+                  />
+                  <p className="mt-1 text-[12.5px] text-gray-500">
+                    Larger scans or many files?{" "}
+                    <a
+                      href={DROPBOX_UPLOAD_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 text-navy hover:text-brandOrange transition-colors"
+                    >
+                      Upload via Dropbox →
+                    </a>
+                  </p>
                 </OriginalForm>
               </div>
             </div>

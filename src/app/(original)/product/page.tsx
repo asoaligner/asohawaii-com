@@ -184,8 +184,9 @@ export default function ProductPage() {
             </h2>
             <p className="mt-6 text-lg text-gray-600 leading-relaxed">
               We&apos;re happy to explain how our orthodontic appliances can
-              support your treatment. Typical turnaround: 7–10 business days,
-              with rush service available on request.
+              support your treatment. Lead times are approx. 1–2 weeks
+              depending on appliance type, with rush service available on
+              request.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
               <Link

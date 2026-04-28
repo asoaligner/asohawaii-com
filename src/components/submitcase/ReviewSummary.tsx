@@ -262,19 +262,14 @@ export default function ReviewSummary({ state }: Props) {
             <dt className="w-20 text-gray-500 shrink-0">Due</dt>
             <dd>{state.delivery.dueDate || "—"}</dd>
           </div>
-          <div className="flex gap-2">
-            <dt className="w-20 text-gray-500 shrink-0">Method</dt>
-            <dd>{state.delivery.method}</dd>
-          </div>
-          {state.delivery.method !== "Pickup" &&
-            state.delivery.address.trim() && (
-              <div className="flex gap-2 sm:col-span-2">
-                <dt className="w-20 text-gray-500 shrink-0">Ship to</dt>
-                <dd className="whitespace-pre-line">
-                  {state.delivery.address}
-                </dd>
-              </div>
-            )}
+          {state.delivery.address.trim() && (
+            <div className="flex gap-2 sm:col-span-2">
+              <dt className="w-20 text-gray-500 shrink-0">Ship to</dt>
+              <dd className="whitespace-pre-line">
+                {state.delivery.address}
+              </dd>
+            </div>
+          )}
           {state.delivery.instructions.trim() && (
             <div className="flex gap-2 sm:col-span-2">
               <dt className="w-20 text-gray-500 shrink-0">Notes</dt>

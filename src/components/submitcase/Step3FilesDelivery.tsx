@@ -288,7 +288,7 @@ export function step3IsValid(state: FormState): {
         "Due date is earlier than the standard lead time for the selected appliance(s). Contact us at 808-957-0111 for Rush Case service.",
     };
   }
-  if (state.delivery.method !== "Pickup" && !state.delivery.address.trim()) {
+  if (!state.delivery.address.trim()) {
     return { ok: false, message: "Shipping address required." };
   }
   if (!state.consent.hipaa) {

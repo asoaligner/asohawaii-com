@@ -53,7 +53,7 @@ export default function FAQ() {
               >
                 full FAQ
               </Link>{" "}
-              for all 8. Or call{" "}
+              for all 10. Or call{" "}
               <a
                 href="tel:8089570111"
                 className="text-navy font-medium hover:text-brandOrange transition-colors"
@@ -120,7 +120,7 @@ export default function FAQ() {
                 href="/faq"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:text-brandOrange transition-colors"
               >
-                See all 8 FAQ
+                See all 10 FAQ
                 <svg
                   className="w-3.5 h-3.5"
                   viewBox="0 0 16 16"

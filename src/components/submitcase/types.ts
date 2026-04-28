@@ -77,7 +77,6 @@ export type FormState = {
   };
   delivery: {
     dueDate: string;
-    method: string;
     address: string;
     instructions: string;
   };
@@ -104,18 +103,9 @@ export const INITIAL_FORM_STATE: FormState = {
   files: { stl: [], photos: [], rxPdf: [] },
   delivery: {
     dueDate: "",
-    method: "USPS Priority Mail",
     address: "",
     instructions: "",
   },
   consent: { hipaa: false, newsletter: false },
 };
 
-export const DELIVERY_METHODS: { value: string; label: string }[] = [
-  { value: "Pickup", label: "Pickup at ASO Hawaii (Honolulu only)" },
-  {
-    value: "Local Delivery",
-    label: "Local delivery (Honolulu area, some remote zones excluded)",
-  },
-  { value: "USPS Priority Mail", label: "USPS Priority Mail" },
-];

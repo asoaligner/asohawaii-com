@@ -135,6 +135,8 @@ export function OrigField({
   required = false,
   placeholder,
   as = "input",
+  min,
+  max,
 }: {
   id: string;
   name: string;
@@ -143,6 +145,9 @@ export function OrigField({
   required?: boolean;
   placeholder?: string;
   as?: "input" | "textarea";
+  /** Forwarded to the underlying <input> — useful for date min/max. */
+  min?: string;
+  max?: string;
 }) {
   return (
     <div>
@@ -169,6 +174,8 @@ export function OrigField({
           type={type}
           required={required}
           placeholder={placeholder}
+          min={min}
+          max={max}
           className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors"
         />
       )}

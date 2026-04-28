@@ -1,9 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { OriginalForm, OrigField } from "@/components/OriginalForm";
 
+function todayIso() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export default function PickUpPage() {
+  const [minDate] = useState(todayIso);
   return (
     <>
       <section className="relative hero-gradient overflow-hidden">
@@ -107,6 +117,7 @@ export default function PickUpPage() {
                   type="date"
                   label="Pick-Up Date"
                   required
+                  min={minDate}
                 />
               </div>
               <OrigField

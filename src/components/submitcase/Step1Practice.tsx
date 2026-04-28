@@ -93,24 +93,6 @@ export default function Step1Practice({ state, setState }: Props) {
         </div>
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3.5 hover:border-gray-300 transition-colors">
-        <input
-          type="checkbox"
-          checked={state.practice.easyRxUser}
-          onChange={(e) => update("easyRxUser", e.target.checked)}
-          className="mt-1 accent-navy"
-        />
-        <span className="text-[14px] text-gray-700 leading-snug">
-          Yes, I have an EasyRx account
-        </span>
-      </label>
-      {state.practice.easyRxUser && (
-        <div className="rounded-md bg-brandOrange/5 border border-brandOrange/20 px-4 py-3 text-[13px] text-gray-700 leading-relaxed">
-          <span className="font-medium text-navy">Tip:</span> EasyRx submissions
-          are faster end-to-end and give you full case traceability. This
-          form is great when you want to send a one-off without logging in.
-        </div>
-      )}
     </div>
   );
 }

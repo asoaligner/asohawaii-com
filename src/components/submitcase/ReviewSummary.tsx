@@ -159,12 +159,6 @@ export default function ReviewSummary({ state }: Props) {
             <dt className="w-20 text-gray-500 shrink-0">Phone</dt>
             <dd>{state.practice.phone || "—"}</dd>
           </div>
-          {state.practice.easyRxUser && (
-            <div className="flex gap-2 sm:col-span-2">
-              <dt className="w-20 text-gray-500 shrink-0">EasyRx</dt>
-              <dd>Account confirmed</dd>
-            </div>
-          )}
         </dl>
       </section>
 

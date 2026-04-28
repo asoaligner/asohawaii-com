@@ -60,7 +60,6 @@ export type FormState = {
     doctor: string;
     email: string;
     phone: string;
-    easyRxUser: boolean;
   };
   patient: {
     reference: string;
@@ -92,7 +91,6 @@ export const INITIAL_FORM_STATE: FormState = {
     doctor: "",
     email: "",
     phone: "",
-    easyRxUser: false,
   },
   patient: { reference: "" },
   arches: "both",

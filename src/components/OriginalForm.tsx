@@ -12,6 +12,7 @@ export function OriginalForm({
   successBody = "Our team will review your request and reply within one business day.",
   extraFiles,
   onResetExtras,
+  validate,
   children,
 }: {
   formType: string;
@@ -25,6 +26,11 @@ export function OriginalForm({
   /** Called after a successful submit so the parent can clear any
    *  state-managed extras (e.g. the files list). */
   onResetExtras?: () => void;
+  /** Optional pre-submit validator. Return a string to abort and show
+   *  it as the error, or null/undefined to proceed. Useful for
+   *  state-managed fields the native form can't validate (e.g. the
+   *  state-driven date picker). */
+  validate?: () => string | null | undefined;
   children: React.ReactNode;
 }) {
   const [status, setStatus] = useState<Status>("idle");
@@ -32,8 +38,16 @@ export function OriginalForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus("submitting");
     setErrorMsg(null);
+    if (validate) {
+      const v = validate();
+      if (v) {
+        setErrorMsg(v);
+        setStatus("error");
+        return;
+      }
+    }
+    setStatus("submitting");
     const form = e.currentTarget;
     const data = new FormData(form);
     data.append("_formType", formType);

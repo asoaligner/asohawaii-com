@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type Matcher } from "react-day-picker";
 import { enUS } from "date-fns/locale";
 import "./day-picker.css";
 import {
@@ -16,6 +16,14 @@ type Props = {
   /** Earliest selectable day (inclusive). */
   minDate: Date;
   inputId?: string;
+  /** Placeholder shown on the trigger button when no date is picked. */
+  placeholder?: string;
+  /** Additional disabled-day matchers (combined with the before-minDate rule).
+   *  e.g. `[{ dayOfWeek: [0, 6] }, ...holidayDates]` to block weekends + holidays. */
+  disabledExtra?: Matcher[];
+  /** When set, also renders a <input type="hidden" name=...> mirroring the
+   *  ISO value so a parent <form> picks it up via FormData. */
+  name?: string;
 };
 
 /**
@@ -32,6 +40,9 @@ export default function DueDatePicker({
   onChange,
   minDate,
   inputId,
+  placeholder = "Select a date",
+  disabledExtra,
+  name,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -58,6 +69,10 @@ export default function DueDatePicker({
   }, [open]);
 
   const selected = value ? new Date(`${value}T00:00:00`) : undefined;
+  const disabledMatchers: Matcher[] = [
+    { before: minDate },
+    ...(disabledExtra ?? []),
+  ];
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -70,19 +85,19 @@ export default function DueDatePicker({
         className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-left text-navy hover:border-navy/40 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors flex items-center justify-between"
       >
         <span className={selected ? "" : "text-gray-400"}>
-          {selected ? formatLongDate(selected) : "Select a due date"}
+          {selected ? formatLongDate(selected) : placeholder}
         </span>
         <span aria-hidden className="text-gray-400">
           📅
         </span>
       </button>
+      {name && <input type="hidden" name={name} value={value} />}
       {open && (
         <div
           role="dialog"
-          aria-label="Pick a due date"
+          aria-label="Pick a date"
           className="absolute z-50 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-3"
           style={{
-            // Brand accent on selected day / today
             ["--rdp-accent-color" as string]: "#0a2540",
             ["--rdp-accent-background-color" as string]: "#0a25400d",
             ["--rdp-today-color" as string]: "#ec6927",
@@ -98,7 +113,7 @@ export default function DueDatePicker({
                 setOpen(false);
               }
             }}
-            disabled={{ before: minDate }}
+            disabled={disabledMatchers}
             defaultMonth={selected ?? minDate}
             showOutsideDays
             captionLayout="label"

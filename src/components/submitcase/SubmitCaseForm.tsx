@@ -207,7 +207,6 @@ export function SubmitCaseForm() {
     data.append("doctor_name", state.practice.doctor);
     data.append("email", state.practice.email);
     data.append("phone", state.practice.phone);
-    data.append("easyrx_user", state.practice.easyRxUser ? "Yes" : "No");
 
     // Patient + arches
     data.append("patient_reference", state.patient.reference);

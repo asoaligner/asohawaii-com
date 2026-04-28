@@ -17,6 +17,7 @@ type PrimaryLink = {
 const primary: PrimaryLink[] = [
   { label: "Home", href: "/" },
   { label: "Product", href: "/product" },
+  { label: "New Products", href: "/new-products" },
   { label: "About Us", href: "/about" },
   {
     label: "How to Order",
@@ -41,10 +42,8 @@ const rightLinks = [
   { label: "Get a Quote", href: "/get-a-quote" },
 ];
 
-// Items only surfaced in the mobile menu (already represented in the top
-// utility bar or right-side CTAs on desktop).
+// Items only surfaced in the mobile menu.
 const mobileExtras = [
-  { label: "New Products", href: "/new-products" },
   { label: "Pick Up Request", href: "/pick-up" },
 ];
 

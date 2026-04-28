@@ -1,19 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import DueDatePicker from "@/components/submitcase/DueDatePicker";
 import { OriginalForm, OrigField } from "@/components/OriginalForm";
+import { ASO_HOLIDAYS } from "@/data/holidays";
 
-function todayIso() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
+const labelClass = "block text-xs uppercase tracking-widest text-gray-500 mb-2";
 
 export default function PickUpPage() {
-  const [minDate] = useState(todayIso);
+  const [pickupDate, setPickupDate] = useState("");
+
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const disabledExtra = useMemo(
+    () => [
+      { dayOfWeek: [0, 6] }, // Sunday + Saturday
+      ...ASO_HOLIDAYS.map((h) => new Date(`${h.date}T00:00:00`)),
+    ],
+    []
+  );
+
   return (
     <>
       <section className="relative hero-gradient overflow-hidden">
@@ -76,6 +87,10 @@ export default function PickUpPage() {
               formType="Pick-Up Request"
               submitLabel="Submit pick-up request"
               successBody="Our courier team will contact you to confirm the pickup window within one business day (or sooner if it's a same-day request phoned in)."
+              onResetExtras={() => setPickupDate("")}
+              validate={() =>
+                pickupDate ? null : "Please select a pick-up date."
+              }
             >
               <OrigField
                 id="pu-doc"
@@ -111,14 +126,23 @@ export default function PickUpPage() {
                   label="Phone Number"
                   required
                 />
-                <OrigField
-                  id="pu-date"
-                  name="pickup_date"
-                  type="date"
-                  label="Pick-Up Date"
-                  required
-                  min={minDate}
-                />
+                <div>
+                  <label htmlFor="pu-date" className={labelClass}>
+                    Pick-Up Date <span className="text-brandOrange ml-1">*</span>
+                  </label>
+                  <DueDatePicker
+                    inputId="pu-date"
+                    name="pickup_date"
+                    value={pickupDate}
+                    onChange={setPickupDate}
+                    minDate={minDate}
+                    disabledExtra={disabledExtra}
+                    placeholder="Select a weekday"
+                  />
+                  <p className="mt-1.5 text-[12px] text-gray-500">
+                    Mon–Fri only · weekends &amp; federal holidays unavailable.
+                  </p>
+                </div>
               </div>
               <OrigField
                 id="pu-notes"

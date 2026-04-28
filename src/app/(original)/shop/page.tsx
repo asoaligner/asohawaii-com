@@ -25,15 +25,6 @@ export const metadata: Metadata = {
   },
 };
 
-const setIncludes = [
-  "Plaster impression model",
-  "Functional appliance (blue)",
-  "Plate type appliance (green)",
-  "Hawley retainer (clear)",
-  "Expander appliance (yellow)",
-  "Premium acrylic display case",
-];
-
 const howItWorks = [
   {
     n: "01",
@@ -44,11 +35,6 @@ const howItWorks = [
     n: "02",
     title: "We send a payment link",
     body: "Within 24 hours we email you a secure payment link with the final total including shipping.",
-  },
-  {
-    n: "03",
-    title: "Hand-crafted & shipped",
-    body: "Your piece is hand-crafted in our Honolulu lab and ships within 5–7 business days via USPS Priority Mail.",
   },
 ];
 
@@ -63,7 +49,7 @@ const faqs = [
   },
   {
     q: "How long does delivery take?",
-    a: "We typically ship within 5–7 business days. US domestic delivery takes 3–5 business days via USPS Priority Mail.",
+    a: "We typically ship within 2 weeks of order confirmation.",
   },
   {
     q: "Do you offer wholesale pricing for clinics?",
@@ -266,25 +252,9 @@ export default function ShopPage() {
                   orthodontic appliance types, displayed in a premium clear
                   acrylic case with subtle ASO branding.
                 </p>
-                <div className="mt-6 rounded-2xl bg-gray-50/80 border border-gray-200/70 p-5">
-                  <div className="text-xs uppercase tracking-widest text-gray-500 font-medium mb-3">
-                    What&apos;s included
-                  </div>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-[14px] text-gray-700">
-                    {setIncludes.map((it) => (
-                      <li
-                        key={it}
-                        className="flex items-start gap-2 leading-snug"
-                      >
-                        <span
-                          aria-hidden
-                          className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brandOrange shrink-0"
-                        />
-                        {it}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
+                  Choose from a variety of appliance types.
+                </p>
                 <div className="mt-7">
                   <Link
                     href="/shop/order/?item=set"
@@ -331,32 +301,9 @@ export default function ShopPage() {
                   A single hand-crafted miniature, perfect as a keepsake or
                   gift. Choose your favorite appliance type.
                 </p>
-                <div className="mt-6 rounded-2xl bg-gray-50/80 border border-gray-200/70 p-5">
-                  <div className="text-xs uppercase tracking-widest text-gray-500 font-medium mb-3">
-                    Available colors
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-[12.5px] text-gray-600">
-                    {[
-                      ["Blue", "#3B82F6"],
-                      ["Green", "#22C55E"],
-                      ["Yellow", "#EAB308"],
-                      ["Clear", "#E5E7EB"],
-                      ["White", "#F8FAFC"],
-                    ].map(([name, color]) => (
-                      <span
-                        key={name}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1"
-                      >
-                        <span
-                          aria-hidden
-                          className="w-2.5 h-2.5 rounded-full border border-gray-300/60"
-                          style={{ background: color }}
-                        />
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
+                  Choose from a variety of appliance types.
+                </p>
                 <div className="mt-7">
                   <Link
                     href="/shop/order/?item=single"
@@ -394,7 +341,7 @@ export default function ShopPage() {
               <span className="italic">your hands.</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {howItWorks.map((s) => (
               <div
                 key={s.n}
@@ -425,8 +372,6 @@ export default function ShopPage() {
               </div>
               <p className="text-[15px] text-gray-700 leading-relaxed">
                 <span className="font-medium text-navy">$15 flat rate</span>
-                <br />
-                USPS Priority Mail · 3–5 business days
               </p>
             </div>
             <div>
@@ -489,7 +434,7 @@ export default function ShopPage() {
             </span>
           </h2>
           <p className="mt-5 text-white/70 leading-relaxed">
-            Hand-crafted in Honolulu, shipped within 5–7 business days.
+            Ships within 2 weeks of order confirmation.
           </p>
           <div className="mt-8">
             <Link

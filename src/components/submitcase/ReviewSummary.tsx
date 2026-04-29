@@ -61,6 +61,9 @@ function ApplianceLine({ config }: { config: ApplianceConfig }) {
       case "canine_guidance":
         v = config.canine_guidance ? "Yes" : "No";
         break;
+      case "mouthguard_color":
+        v = config.mouthguard_color ?? "—";
+        break;
       case "shade_color":
         v = config.shade_color?.trim() || "—";
         break;

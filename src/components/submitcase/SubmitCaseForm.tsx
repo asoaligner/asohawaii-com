@@ -103,6 +103,8 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
     if (c.splint_thickness)
       lines.push(`    Bite thickness: ${c.splint_thickness}`);
     if (c.canine_guidance) lines.push(`    Canine guidance: Yes`);
+    if (c.mouthguard_color)
+      lines.push(`    Mouthguard color: ${c.mouthguard_color}`);
     if (c.free_text?.trim())
       lines.push(`    Notes: ${c.free_text.trim()}`);
   }

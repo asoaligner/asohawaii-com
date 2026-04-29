@@ -45,6 +45,8 @@ export type ApplianceConfig = {
   splint_thickness?: string;
   /** Flat Occlusal Splint canine guidance opt-in. */
   canine_guidance?: boolean;
+  /** Sports Mouthguard color choice (Press-Type Appliance · Sports SKUs only). */
+  mouthguard_color?: string;
 };
 
 export function applianceConfigKey(c: ApplianceConfig): string {

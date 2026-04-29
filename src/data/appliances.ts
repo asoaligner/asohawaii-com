@@ -38,7 +38,8 @@ export type ApplianceFieldType =
   | "shade_color"
   | "tooth_position"
   | "splint_thickness"
-  | "canine_guidance";
+  | "canine_guidance"
+  | "mouthguard_color";
 
 export interface ApplianceField {
   /** Field key — used as the FormData key suffix. */
@@ -241,7 +242,29 @@ export const APPLIANCES: Appliance[] = [
         label: "Type / Variant",
         hint: "e.g. Hard 1.5 mm, Hard 2.0 mm, Hard-and-Soft 2.0 / 3.0 mm, sports guard",
       },
-      { key: "color", type: "color", required: false, label: "Color" },
+      // mouthguard_color renders only when the picked SKU starts with
+      // "Sports Mouthguard" — see ApplianceDetails. Night guards / soft
+      // guards / bleaching trays are clear and don't expose the picker.
+      {
+        key: "mouthguard_color",
+        type: "mouthguard_color",
+        required: false,
+        label: "Sports mouthguard color",
+        options: [
+          "Red",
+          "Blue",
+          "White",
+          "Pink",
+          "Orange",
+          "Yellow",
+          "Green",
+          "Black",
+          "Purple",
+          "Red / White / Blue",
+          "Yellow / Blue",
+          "Custom (specify in notes)",
+        ],
+      },
     ],
   },
   {

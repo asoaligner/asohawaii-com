@@ -1,9 +1,30 @@
 "use client";
 
+import Image from "next/image";
 import { findAppliance, type ApplianceField } from "@/data/appliances";
 import ColorPicker from "./ColorPicker";
 import StickerPicker from "./StickerPicker";
 import type { ApplianceConfig, ColorChoice } from "./types";
+
+/**
+ * Per-SKU field gate. Returns true if the field should be rendered for
+ * the currently configured SKU. Used to hide mouthguard_color on
+ * non-Sports Press-Type SKUs and to suppress any other SKU-specific
+ * fields without splitting the schema.
+ */
+function isFieldVisible(
+  field: ApplianceField,
+  config: ApplianceConfig
+): boolean {
+  if (
+    config.applianceId === "press_type" &&
+    field.type === "mouthguard_color"
+  ) {
+    const name = config.itemName ?? "";
+    return name.toLowerCase().startsWith("sports mouthguard");
+  }
+  return true;
+}
 
 type Props = {
   config: ApplianceConfig;
@@ -217,6 +238,53 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
             </label>
           </div>
         );
+      case "mouthguard_color":
+        return (
+          <div key={field.key}>
+            <div className={labelClass}>
+              {field.label}
+              {field.required && (
+                <span className="text-brandOrange ml-1">*</span>
+              )}
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50/40 p-3 mb-3">
+              <Image
+                src="/images/aso/press-type/sports-mouthguard-colors.png"
+                alt="Sports mouthguard color reference"
+                width={1280}
+                height={920}
+                sizes="(max-width: 768px) 100vw, 480px"
+                className="w-full h-auto rounded"
+              />
+              <p className="mt-2 text-[11.5px] text-gray-500 leading-snug">
+                Reference photo. Pick the closest swatch — patterns
+                (e.g. Red / White / Blue) come laminated.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(field.options ?? []).map((opt) => {
+                const checked = config.mouthguard_color === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() =>
+                      update("mouthguard_color", checked ? undefined : opt)
+                    }
+                    aria-pressed={checked}
+                    className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition-colors ${
+                      checked
+                        ? "bg-navy text-white"
+                        : "bg-white text-gray-600 border border-gray-200 hover:border-navy"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
       case "free_text":
         return (
           <div key={field.key}>
@@ -386,7 +454,9 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
       </div>
 
       <div className="space-y-4">
-        {appliance.fields.map((f) => renderField(f))}
+        {appliance.fields
+          .filter((f) => isFieldVisible(f, config))
+          .map((f) => renderField(f))}
       </div>
     </div>
   );

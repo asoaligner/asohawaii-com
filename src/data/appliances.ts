@@ -129,16 +129,7 @@ export const APPLIANCES: Appliance[] = [
     name: "Band Appliance",
     category: "band",
     description: "Banded rapid palatal expander or fixed band appliance.",
-    fields: [
-      {
-        key: "rpe_size",
-        type: "rpe_size",
-        required: false,
-        label: "Expander Size",
-        options: ["8 mm", "10 mm", "12 mm"],
-      },
-      METAL_FIELD,
-    ],
+    fields: [METAL_FIELD],
   },
   {
     id: "aso_aligner",

@@ -4,7 +4,6 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import CustomOralAppliances from "@/components/CustomOralAppliances";
 import ConsultationBand from "@/components/ConsultationBand";
 import EasyRxIntro from "@/components/EasyRxIntro";
-import HowToSubmit from "@/components/HowToSubmit";
 import FAQ from "@/components/FAQ";
 import CTAForm from "@/components/CTAForm";
 import MiniatureCollectionBand from "@/components/MiniatureCollectionBand";
@@ -21,7 +20,6 @@ export default function Home() {
       <MiniatureCollectionBand />
       <ConsultationBand />
       <EasyRxIntro />
-      <HowToSubmit />
       <FAQ />
       <CTAForm />
     </>

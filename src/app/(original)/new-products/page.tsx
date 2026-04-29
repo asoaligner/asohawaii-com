@@ -104,7 +104,7 @@ const tiles: Tile[] = [
     blurb:
       "Crack-resistant, clarity-preserving clear retainer material.",
     category: "retainer",
-    image: "/images/aso/wix/e724a4_3ad43298f7574f9cb1fc21fd8c6c8f63.png",
+    image: "/images/aso/product-7.jpg",
     submitSlug: "invisible-retainer",
     submitItem: "Zendura A",
   },

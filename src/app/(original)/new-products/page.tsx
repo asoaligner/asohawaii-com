@@ -1,26 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import NewProductsGrid, {
+  type Tile,
+} from "./_components/NewProductsGrid";
 
 export const metadata: Metadata = {
   title: "New Products · ASO Hawaii — Latest appliance lineup",
   description:
     "ASO Hawaii's newest appliances: SomnoDent sleep devices, MSE/MARPE expanders, LuxCreo 3D-printed aligners, Zendura A retainers, SYMPHONY, SHU-Lider, and more.",
   alternates: { canonical: "/new-products/" },
-};
-
-type Tile = {
-  name: string;
-  blurb: string;
-  category: "sleep" | "expander" | "retainer" | "aligner" | "other";
-  image: string;
-  /** When set, "Submit order" deep-links to /submit-case?product=<slug>
-   *  so the form opens with this appliance pre-selected. Falls back to
-   *  /submit-case when omitted. Slugs match src/data/product-catalog.ts. */
-  submitSlug?: string;
-  /** Specific catalog item to pre-check inside the appliance — matched
-   *  against `code` first, then case-insensitive `name`. */
-  submitItem?: string;
 };
 
 // Each tile explicitly paired with its photo (no index-based assignment).
@@ -162,14 +150,6 @@ const tiles: Tile[] = [
   },
 ];
 
-function submitOrderHref(t: Tile): string {
-  if (!t.submitSlug) return "/submit-case";
-  const params = new URLSearchParams();
-  params.set("product", t.submitSlug);
-  if (t.submitItem) params.set("item", t.submitItem);
-  return `/submit-case?${params.toString()}`;
-}
-
 const catLabel: Record<Tile["category"], string> = {
   sleep: "Sleep",
   expander: "Expander",
@@ -204,62 +184,7 @@ export default function NewProductsPage() {
 
       <section className="py-20 md:py-24 bg-white">
         <div className="container-narrow">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tiles.map((t) => (
-              <div
-                key={t.name}
-                className="group rounded-2xl overflow-hidden border border-gray-200 bg-white hover:border-navy/30 hover:shadow-[0_12px_40px_-12px_rgba(15,41,66,0.15)] transition-all flex flex-col"
-              >
-                <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-                  <Image
-                    src={t.image}
-                    alt={t.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center text-[10px] uppercase tracking-widest font-medium bg-white/90 backdrop-blur-sm text-navy px-2.5 py-1 rounded-full">
-                      {catLabel[t.category]}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-serif text-xl text-navy leading-snug tracking-tight">
-                    {t.name}
-                  </h3>
-                  <p className="mt-2 text-[14.5px] text-gray-600 leading-relaxed flex-grow">
-                    {t.blurb}
-                  </p>
-                  <div className="mt-5 flex flex-wrap items-center gap-3">
-                    <Link
-                      href={submitOrderHref(t)}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium bg-navy text-white px-4 py-2 rounded-full hover:bg-navy-light transition-colors"
-                    >
-                      Submit order
-                      <svg
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 8h10M9 4l4 4-4 4" />
-                      </svg>
-                    </Link>
-                    <Link
-                      href="/get-a-quote"
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-navy group-hover:text-brandOrange transition-colors"
-                    >
-                      Request quote →
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <NewProductsGrid tiles={tiles} catLabel={catLabel} />
         </div>
       </section>
 

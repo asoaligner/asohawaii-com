@@ -136,7 +136,7 @@ export const APPLIANCES: Appliance[] = [
     name: "ASO ALIGNER",
     category: "aligner",
     description:
-      "ASO custom aligner. Pick the package SKU above; add treatment plan notes here. Material (Soft / Medium / Hard) is fixed by the package.",
+      "ASO custom aligner. Pick the package SKU above; add treatment plan notes here.",
     fields: [
       {
         key: "free_text",

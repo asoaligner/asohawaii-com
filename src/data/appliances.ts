@@ -68,7 +68,16 @@ const METAL_FIELD: ApplianceField = {
   type: "metal_components",
   required: false,
   label: "Metal Components",
-  options: ["Regular Bands", "Brackets", "3D Bands", "No Brackets"],
+  // Two pairs displayed side-by-side in the form: bands first, then
+  // the with/without choice for Bracket & Tube. Order matters — the
+  // ApplianceDetails grid renders 2 columns, so this groups Regular /
+  // 3D Bands on the first row and the Bracket & Tube pair on the second.
+  options: [
+    "Regular Bands",
+    "3D Bands",
+    "Bracket & Tube",
+    "No Bracket & Tube",
+  ],
 };
 
 const ACTIVATION_FIELD: ApplianceField = {
@@ -137,9 +146,7 @@ export const APPLIANCES: Appliance[] = [
         label: "Expander Size",
         options: ["8 mm", "10 mm", "12 mm"],
       },
-      ACTIVATION_FIELD,
       METAL_FIELD,
-      ...COLOR_STICKERS_FIELDS,
     ],
   },
   {

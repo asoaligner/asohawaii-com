@@ -114,7 +114,7 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
         return (
           <div key={field.key}>
             <div className={labelClass}>{field.label}</div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {(field.options ?? []).map((opt) => {
                 const checked = selected.includes(opt);
                 return (

@@ -123,9 +123,144 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* MAIN CONTACT FORM */}
+      {/* EASYRX INVITATION FORM */}
       <section
         id="invitation"
+        className="py-20 md:py-24 bg-gradient-to-br from-brandOrange/5 via-white to-brandOrange/5 border-y border-brandOrange/15 scroll-mt-24"
+      >
+        <div className="container-narrow">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 items-start">
+            <div className="lg:col-span-5">
+              <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-5">
+                EasyRx invitation
+              </div>
+              <h2 className="font-serif text-4xl sm:text-5xl leading-[1.1] tracking-tightest text-navy text-balance">
+                Get set up on{" "}
+                <span className="italic">EasyRx.</span>
+              </h2>
+              <p className="mt-6 text-lg text-gray-600 leading-relaxed">
+                Free for our practices. We&apos;ll verify your office and
+                send a secure invitation email — usually within one business
+                day. No software to install.
+              </p>
+              <ul className="mt-8 space-y-2.5 text-[14.5px] text-gray-700">
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  $0 per case · no monthly fees
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  Works in any browser — laptop, iPad, desktop
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  iTero · Medit · 3Shape TRIOS · Primescan · DEXIS · Shining 3D
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span aria-hidden className="text-brandOrange mt-0.5">
+                    ✓
+                  </span>
+                  HIPAA compliant · encrypted · audit-tracked
+                </li>
+              </ul>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="rounded-3xl bg-white border border-gray-200 p-7 sm:p-9 shadow-[0_8px_40px_-16px_rgba(15,41,66,0.12)]">
+                <OriginalForm
+                  formType="EasyRx Invitation Request"
+                  submitLabel="Request invitation"
+                  successTitle="Invitation request received."
+                  successBody="We'll verify your practice and email you a secure EasyRx activation link, usually within one business day."
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <OrigField
+                      id="i-fn"
+                      name="first_name"
+                      label="First Name"
+                      required
+                    />
+                    <OrigField
+                      id="i-ln"
+                      name="last_name"
+                      label="Last Name"
+                      required
+                    />
+                  </div>
+                  <OrigField
+                    id="i-clinic"
+                    name="clinic_name"
+                    label="Practice / Clinic Name"
+                    required
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <OrigField
+                      id="i-email"
+                      name="email"
+                      type="email"
+                      label="Email Address"
+                      required
+                    />
+                    <OrigField
+                      id="i-phone"
+                      name="phone"
+                      type="tel"
+                      label="Phone Number"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="i-scanner"
+                      className="block text-xs uppercase tracking-widest text-gray-500 mb-2"
+                    >
+                      Primary intraoral scanner{" "}
+                      <span className="text-gray-400 normal-case tracking-normal">
+                        · optional
+                      </span>
+                    </label>
+                    <select
+                      id="i-scanner"
+                      name="primary_scanner"
+                      defaultValue=""
+                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-navy focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors"
+                    >
+                      <option value="">Select a scanner…</option>
+                      <option value="iTero">iTero</option>
+                      <option value="Medit">Medit</option>
+                      <option value="3Shape TRIOS">3Shape TRIOS</option>
+                      <option value="Primescan">Primescan</option>
+                      <option value="DEXIS">DEXIS</option>
+                      <option value="Shining 3D">Shining 3D</option>
+                      <option value="Other">Other</option>
+                      <option value="None / impressions only">
+                        None — impressions only
+                      </option>
+                    </select>
+                  </div>
+                  <OrigField
+                    id="i-notes"
+                    name="notes"
+                    label="Notes"
+                    as="textarea"
+                    placeholder="Anything we should know — multiple users, branch offices, preferred contact time…"
+                  />
+                </OriginalForm>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GENERAL INQUIRY FORM */}
+      <section
+        id="general-inquiry"
         className="py-20 md:py-24 bg-white scroll-mt-24"
       >
         <div className="container-narrow">

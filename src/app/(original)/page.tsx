@@ -3,6 +3,7 @@ import IosAcceptanceBand from "@/components/IosAcceptanceBand";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import CustomOralAppliances from "@/components/CustomOralAppliances";
 import ConsultationBand from "@/components/ConsultationBand";
+import EasyRxIntro from "@/components/EasyRxIntro";
 import HowToSubmit from "@/components/HowToSubmit";
 import FAQ from "@/components/FAQ";
 import CTAForm from "@/components/CTAForm";
@@ -19,6 +20,7 @@ export default function Home() {
       <CustomOralAppliances />
       <MiniatureCollectionBand />
       <ConsultationBand />
+      <EasyRxIntro />
       <HowToSubmit />
       <FAQ />
       <CTAForm />

@@ -80,14 +80,6 @@ const METAL_FIELD: ApplianceField = {
   ],
 };
 
-const ACTIVATION_FIELD: ApplianceField = {
-  key: "activation",
-  type: "activation",
-  required: false,
-  label: "Activation",
-  options: ["Pre-activated", "Patient-activated"],
-};
-
 const MATERIAL_OPTIONS = [
   "Standard",
   "Zendura A",
@@ -123,7 +115,6 @@ export const APPLIANCES: Appliance[] = [
     description: "Acrylic plate with expansion screw.",
     fields: [
       ...COLOR_STICKERS_FIELDS,
-      ACTIVATION_FIELD,
       {
         key: "free_text",
         type: "free_text",

@@ -138,9 +138,15 @@ export default function ApplianceSelector({
     }
   }
 
-  function toggleSku(applianceId: string, code: string, name: string) {
+  function toggleSku(
+    applianceId: string,
+    code: string | undefined,
+    name: string
+  ) {
     if (readOnly) return;
-    const key = `${applianceId}:${code}`;
+    const key = code
+      ? `${applianceId}:${code}`
+      : `${applianceId}:name:${name}`;
     if (selectedKeys.has(key)) {
       onChange(selected.filter((c) => applianceConfigKey(c) !== key));
     } else {
@@ -276,10 +282,11 @@ export default function ApplianceSelector({
                           </span>
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                          {items.map((it, i) => {
-                            const code = it.code ?? `__${a.id}_${i}__`;
+                          {items.map((it) => {
                             const itemName = it.name;
-                            const skuKey = `${a.id}:${code}`;
+                            const skuKey = it.code
+                              ? `${a.id}:${it.code}`
+                              : `${a.id}:name:${itemName}`;
                             const checked = selectedKeys.has(skuKey);
                             return (
                               <label
@@ -294,7 +301,7 @@ export default function ApplianceSelector({
                                   type="checkbox"
                                   checked={checked}
                                   onChange={() =>
-                                    toggleSku(a.id, code, itemName)
+                                    toggleSku(a.id, it.code, itemName)
                                   }
                                   className="mt-0.5 accent-navy shrink-0"
                                 />

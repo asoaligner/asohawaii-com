@@ -18,6 +18,9 @@ type Tile = {
    *  so the form opens with this appliance pre-selected. Falls back to
    *  /submit-case when omitted. Slugs match src/data/product-catalog.ts. */
   submitSlug?: string;
+  /** Specific catalog item to pre-check inside the appliance — matched
+   *  against `code` first, then case-insensitive `name`. */
+  submitItem?: string;
 };
 
 // Each tile explicitly paired with its photo (no index-based assignment).
@@ -31,6 +34,7 @@ const tiles: Tile[] = [
     category: "expander",
     image: "/images/aso/wix/e724a4_22d23e4a4f8a4cb69d43d5885b75c6fe.jpg",
     submitSlug: "band-appliance",
+    submitItem: "Keyless Expander",
   },
   {
     name: "MSE / MARPE",
@@ -39,6 +43,7 @@ const tiles: Tile[] = [
     category: "expander",
     image: "/images/aso/wix/e724a4_55c75e2ae23242f292fd3859437b2bad.png",
     submitSlug: "band-appliance",
+    submitItem: "MSE/MARPE",
   },
   {
     name: "3D Metal Lingual Retainer",
@@ -47,6 +52,7 @@ const tiles: Tile[] = [
     category: "retainer",
     image: "/images/aso/wix/e724a4_93c8cf01becb4c9aafbec0535ba8dd8a.jpg",
     submitSlug: "lingual-retainer",
+    submitItem: "3D Metal Lingual Retainer",
   },
   {
     name: "EMA Sleep Appliance",
@@ -55,6 +61,7 @@ const tiles: Tile[] = [
     category: "sleep",
     image: "/images/aso/wix/e724a4_a4a45caa785843bf91c3a9bb1cf73767.png",
     submitSlug: "sleep-apnea",
+    submitItem: "EMA",
   },
   {
     name: "SomnoDent Flex",
@@ -63,6 +70,7 @@ const tiles: Tile[] = [
     category: "sleep",
     image: "/images/aso/wix/e724a4_76fb08407abd470d8a3c571f051615b8.png",
     submitSlug: "sleep-apnea",
+    submitItem: "SomnoDent Flex",
   },
   {
     name: "SomnoDent Avant",
@@ -71,6 +79,7 @@ const tiles: Tile[] = [
     category: "sleep",
     image: "/images/aso/wix/e724a4_4db1add57fbf4808a5d1c315f6c950f3.jpg",
     submitSlug: "sleep-apnea",
+    submitItem: "SomnoDent Avant",
   },
   {
     name: "SomnoDent HAE",
@@ -79,6 +88,7 @@ const tiles: Tile[] = [
     category: "sleep",
     image: "/images/aso/wix/e724a4_10e33fb6969e435097d4e0343603233f.jpg",
     submitSlug: "sleep-apnea",
+    submitItem: "SomnoDent HAE",
   },
   {
     name: "SomnoDent Fusion",
@@ -87,6 +97,7 @@ const tiles: Tile[] = [
     category: "sleep",
     image: "/images/aso/wix/e724a4_0183e18246234931bf68dabf3e38b007.png",
     submitSlug: "sleep-apnea",
+    submitItem: "SomnoDent Fusion",
   },
   {
     name: "Zendura A Clear Retainer",
@@ -95,6 +106,7 @@ const tiles: Tile[] = [
     category: "retainer",
     image: "/images/aso/wix/e724a4_3ad43298f7574f9cb1fc21fd8c6c8f63.png",
     submitSlug: "invisible-retainer",
+    submitItem: "Zendura A",
   },
   {
     // Merged "Lux Creo Direct Printed Aligner" + "LuxCreo Direct Print" into
@@ -105,6 +117,7 @@ const tiles: Tile[] = [
     category: "aligner",
     image: "/images/aso/wix/e724a4_9c6f80d6b09240ce8403b15b8eb62d87.png",
     submitSlug: "aso-aligner",
+    submitItem: "COMPLETE",
   },
   {
     name: "MARPE",
@@ -113,6 +126,7 @@ const tiles: Tile[] = [
     category: "expander",
     image: "/images/aso/wix/e724a4_ead0b5562944490991f8052f49f8feb6.png",
     submitSlug: "band-appliance",
+    submitItem: "MSE/MARPE",
   },
   {
     name: "MSE",
@@ -121,6 +135,7 @@ const tiles: Tile[] = [
     category: "expander",
     image: "/images/aso/wix/e724a4_b1665132987b48ff8c427a6e9c394a5b.png",
     submitSlug: "band-appliance",
+    submitItem: "MSE/MARPE",
   },
   {
     name: "SHU-Lider",
@@ -146,6 +161,14 @@ const tiles: Tile[] = [
     submitSlug: "lingual-retainer",
   },
 ];
+
+function submitOrderHref(t: Tile): string {
+  if (!t.submitSlug) return "/submit-case";
+  const params = new URLSearchParams();
+  params.set("product", t.submitSlug);
+  if (t.submitItem) params.set("item", t.submitItem);
+  return `/submit-case?${params.toString()}`;
+}
 
 const catLabel: Record<Tile["category"], string> = {
   sleep: "Sleep",
@@ -210,11 +233,7 @@ export default function NewProductsPage() {
                   </p>
                   <div className="mt-5 flex flex-wrap items-center gap-3">
                     <Link
-                      href={
-                        t.submitSlug
-                          ? `/submit-case?product=${t.submitSlug}`
-                          : "/submit-case"
-                      }
+                      href={submitOrderHref(t)}
                       className="inline-flex items-center gap-1.5 text-sm font-medium bg-navy text-white px-4 py-2 rounded-full hover:bg-navy-light transition-colors"
                     >
                       Submit order

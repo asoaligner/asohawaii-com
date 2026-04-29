@@ -116,19 +116,27 @@ export function SubmitCaseForm() {
   const [reference, setReference] = useState<string>("");
   const [submittedDoctor, setSubmittedDoctor] = useState<string>("");
 
-  // Preselect appliance(s) from URL on mount. When `?item=<code>`
+  // Preselect appliance(s) from URL on mount. When `?item=<value>`
   // is also present we look up the SKU under the matching product
   // catalog and pin it to itemCode/itemName so the parent opens
-  // pre-checked.
+  // pre-checked. The value matches `code` first (e.g. "301", "COMPLETE")
+  // and falls back to a case-insensitive `name` match (e.g. "Keyless
+  // Expander", "SomnoDent Flex") so deep-links from New Products tiles
+  // — whose items typically don't have numeric codes — still resolve.
   const initialPrefill = useMemo(() => {
     const slug = params?.get("product");
-    const code = params?.get("item");
+    const itemParam = params?.get("item");
     if (!slug) return null;
     const applianceId = SLUG_TO_APPLIANCE_ID[slug];
     if (!applianceId) return null;
-    if (!code) return { applianceId };
+    if (!itemParam) return { applianceId };
     const product = productCatalog.find((p) => p.slug === slug);
-    const item = product?.items?.find((it) => it.code === code);
+    const needle = itemParam.toLowerCase();
+    const item = product?.items?.find(
+      (it) =>
+        (it.code && it.code === itemParam) ||
+        (it.name && it.name.toLowerCase() === needle)
+    );
     if (!item) return { applianceId };
     return { applianceId, itemCode: item.code, itemName: item.name };
   }, [params]);

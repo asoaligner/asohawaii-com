@@ -44,7 +44,9 @@ export type ApplianceConfig = {
 };
 
 export function applianceConfigKey(c: ApplianceConfig): string {
-  return c.itemCode ? `${c.applianceId}:${c.itemCode}` : c.applianceId;
+  if (c.itemCode) return `${c.applianceId}:${c.itemCode}`;
+  if (c.itemName) return `${c.applianceId}:name:${c.itemName}`;
+  return c.applianceId;
 }
 
 export type ToothSelection = {

@@ -150,15 +150,8 @@ export const APPLIANCES: Appliance[] = [
     id: "flat_splint",
     name: "Flat Occlusal Splint",
     category: "splint",
-    description:
-      "Hard / Hard-and-Soft / NTI. Hard Acrylic available in any colour.",
+    description: "Hard / Hard-and-Soft / NTI.",
     fields: [
-      {
-        key: "color",
-        type: "color",
-        required: false,
-        label: "Color (Hard Acrylic)",
-      },
       {
         key: "free_text",
         type: "free_text",

@@ -34,7 +34,45 @@ about our orthodontic laboratory services.
 
 # Turnaround & pickup
 
-- Standard turnaround: 7–10 business days.
+Standard lead time depends on the appliance type:
+
+**Approx. 1 week** (≈ 5 business days):
+- Invisible Retainer (a.k.a. Clear Retainer, Essix Retainer, Essix,
+  クリアリテーナー, エシックス, クリア リテーナー) — all variants:
+  Standard Co-Polyester, C+ High-Strength, LuxCreo Direct-Print,
+  Zendura A / FLX / VIVA, Invisible Retainer with Pontic.
+- Press-Type Appliance (Night Guards, Sports Mouthguard, Bleaching Tray).
+- ASO ALIGNER — Basic and Advance packages.
+
+**Approx. 2 weeks** (≈ 10 business days):
+- Plate Type Retainer (Hawley, Wrap-Around, QCM, Spring, Clear Bow,
+  Modified, Slim).
+- Plate Expansion (Transverse, Fan, Sagittal, Y-Type, etc.).
+- Band Appliance (Lingual Arch, Nance, TPA, Quad Helix, MSE/MARPE,
+  Keyless Expander, Hyrax/Haas/Fan Rapid Expansion, etc.).
+- Lingual Retainer (Fixed, FSW, Braided, Flossable, 3D Metal).
+- Flat Occlusal Splint (Hard, Hard-and-Soft, NTI).
+- Sleep Apnea & Snoring Appliances (SomnoDent Flex / Avant / HAE / Fusion,
+  EMA, Snore Guard).
+- IDB (Indirect Bonding) trays.
+- Flipper / Immediate Denture / Full Denture.
+- Functional Appliances (Twin Block, Bionator, Bimler, Frankel, Herbst).
+- Study Model.
+- ASO ALIGNER — 3in1, 5in1, and Complete by LuxCreo packages.
+
+When asked "when will my [appliance name] be delivered" or "how long does
+[X] take", ALWAYS map the user's term to the correct product line above —
+including common alternate names (Essix → Invisible Retainer, Hawley →
+Plate Type Retainer, Bionator → Functional Appliance, etc.) — and quote
+the matching 1-week or 2-week figure. If the order date is given, count
+forward from that date in calendar days for the 2-week answer (or 5
+business days for 1-week), and mention that weekends and federal holidays
+may push the date further out.
+
+If the appliance is unrecognized or sits between categories, give the
+conservative 2-week answer and offer to confirm by phone (808-957-0111).
+
+Other turnaround/pickup details:
 - Rush service is available on request (call 808-957-0111 for case-specific
   pricing and timing).
 - Oahu pickup: Monday–Friday, 1:00 PM – 4:00 PM. Driver arrives
@@ -43,6 +81,39 @@ about our orthodontic laboratory services.
   For same-day requests after noon, the caller should phone 808-957-0111.
 - Mainland practices can ship UPS or FedEx to the Honolulu address above.
 - Pickup request form: /pick-up
+
+# Product name aliases (important for matching user questions)
+
+When users ask about a product they may use any of these alternate names.
+Always recognize them as the same product line:
+
+- **Invisible Retainer** = Clear Retainer · Essix · Essix Retainer ·
+  Thermoformed Retainer · Vacuum-Formed Retainer · クリアリテーナー ·
+  エシックス · エシックスリテーナー · 透明リテーナー · ホーレー以外の
+  クリアタイプ
+- **Plate Type Retainer** = Hawley · Hawley Retainer · Wrap-Around ·
+  Begg · QCM · Spring Retainer · Clear Bow Retainer · 床タイプ ·
+  ホーレー · ホーリーリテーナー
+- **Lingual Retainer** = Bonded Retainer · Fixed Retainer · Twist Wire ·
+  Flossable Retainer · 固定式リテーナー · リンガルリテーナー
+- **ASO ALIGNER** = Clear Aligner · ASO Clear Aligner · LuxCreo Aligner
+  (when packaged as Complete by LuxCreo) · アライナー · クリアアライナー
+- **Flat Occlusal Splint** = Night Guard (the rigid acrylic kind) ·
+  Bruxism Splint · Bite Splint · NTI · Occlusal Guard ·
+  オクルーザルスプリント · スプリント · ナイトガード（硬性）
+- **Press-Type Appliance** = Pressed Night Guard · Soft Night Guard ·
+  Sports Mouthguard · Mouth Guard · プレスタイプ · ナイトガード（圧接型）
+- **Band Appliance** = Banded Expander · MSE · MARPE · Keyless Expander ·
+  Quad Helix · TPA · Nance · Lingual Arch · Hyrax · Haas · 帯環装置
+- **Sleep Apnea Appliance** = MAD · Mandibular Advancement Device ·
+  SomnoDent · EMA · Snore Guard · OSA Appliance · 睡眠時無呼吸装置 ·
+  いびき防止装置
+- **Functional Appliance** = Twin Block · Bionator · Bimler · Frankel ·
+  Herbst · Activator · FKO · 機能的矯正装置
+- **IDB** = Indirect Bonding · Bonding Tray · Bracket Placement Tray ·
+  間接ボンディング
+- **Flipper / Immediate Denture** = Temporary Tooth · Acrylic Flipper ·
+  Stayplate · Immediate Partial · 仮歯 · 義歯
 
 # How to submit cases
 

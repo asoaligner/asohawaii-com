@@ -41,6 +41,10 @@ export type ApplianceConfig = {
   shade_color?: string;
   /** Tooth position / location text (e.g. "UR1", "#21"). */
   tooth_position?: string;
+  /** Flat Occlusal Splint bite thickness (e.g. "Standard 2 mm"). */
+  splint_thickness?: string;
+  /** Flat Occlusal Splint canine guidance opt-in. */
+  canine_guidance?: boolean;
 };
 
 export function applianceConfigKey(c: ApplianceConfig): string {

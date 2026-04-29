@@ -173,6 +173,50 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
             </div>
           </div>
         );
+      case "splint_thickness":
+        return (
+          <div key={field.key}>
+            <div className={labelClass}>{field.label}</div>
+            <div className="flex flex-wrap gap-2">
+              {(field.options ?? []).map((opt) => {
+                const checked = config.splint_thickness === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => update("splint_thickness", opt)}
+                    aria-pressed={checked}
+                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
+                      checked
+                        ? "bg-navy text-white"
+                        : "bg-white text-gray-600 border border-gray-200 hover:border-navy"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      case "canine_guidance":
+        return (
+          <div key={field.key}>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={config.canine_guidance ?? false}
+                onChange={(e) =>
+                  update("canine_guidance", e.target.checked)
+                }
+                className="accent-navy"
+              />
+              <span className="text-[13.5px] text-navy leading-snug">
+                {field.label}
+              </span>
+            </label>
+          </div>
+        );
       case "free_text":
         return (
           <div key={field.key}>

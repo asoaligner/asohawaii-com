@@ -55,6 +55,12 @@ function ApplianceLine({ config }: { config: ApplianceConfig }) {
       case "free_text":
         v = config.free_text?.trim() || "—";
         break;
+      case "splint_thickness":
+        v = config.splint_thickness ?? "—";
+        break;
+      case "canine_guidance":
+        v = config.canine_guidance ? "Yes" : "No";
+        break;
       case "shade_color":
         v = config.shade_color?.trim() || "—";
         break;

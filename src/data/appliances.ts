@@ -36,7 +36,9 @@ export type ApplianceFieldType =
   | "denture_type"
   | "denture_stages"
   | "shade_color"
-  | "tooth_position";
+  | "tooth_position"
+  | "splint_thickness"
+  | "canine_guidance";
 
 export interface ApplianceField {
   /** Field key — used as the FormData key suffix. */
@@ -153,11 +155,24 @@ export const APPLIANCES: Appliance[] = [
     description: "Hard / Hard-and-Soft / NTI.",
     fields: [
       {
+        key: "splint_thickness",
+        type: "splint_thickness",
+        required: false,
+        label: "Bite thickness",
+        options: ["Standard 2 mm", "Thick 3 mm"],
+      },
+      {
+        key: "canine_guidance",
+        type: "canine_guidance",
+        required: false,
+        label: "Canine guidance",
+      },
+      {
         key: "free_text",
         type: "free_text",
         required: false,
         label: "Type & specifications",
-        hint: "e.g. Hard type, Hard-and-Soft, NTI. Note thickness and any special design.",
+        hint: "e.g. Hard type, Hard-and-Soft, NTI. Note any special design.",
       },
     ],
   },

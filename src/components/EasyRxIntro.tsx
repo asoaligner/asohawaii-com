@@ -72,37 +72,33 @@ export default function EasyRxIntro() {
             </div>
           </div>
 
-          <div className="lg:col-span-7">
-            <div className="rounded-2xl border border-gray-200 bg-gray-50/40 p-6 md:p-8">
-              <div className="flex items-start gap-5 mb-6">
-                <div className="shrink-0 w-14 h-14 rounded-xl bg-white border border-gray-200 p-2 flex items-center justify-center">
-                  <Image
-                    src="/images/aso/easyrx-logo.png"
-                    alt="EasyRx logo"
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <p className="text-[14px] text-gray-700 leading-relaxed pt-1">
-                  Built specifically for orthodontic labs &amp; practices —
-                  the same platform 600+ U.S. labs use for digital case
-                  intake.
-                </p>
-              </div>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                {bullets.map((b) => (
-                  <div key={b.label}>
-                    <dt className="font-serif text-[16.5px] text-navy leading-snug tracking-tight">
-                      {b.label}
-                    </dt>
-                    <dd className="mt-1 text-[13.5px] text-gray-600 leading-relaxed">
-                      {b.body}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+          <div className="lg:col-span-7 space-y-6">
+            <div className="relative rounded-2xl bg-white border border-gray-200 p-5 sm:p-7 shadow-[0_12px_32px_-16px_rgba(15,41,66,0.18)]">
+              <Image
+                src="/images/aso/easyrx-logo.png"
+                alt="EasyRx — connecting practices, labs, and patients"
+                width={400}
+                height={400}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: 280,
+                  objectFit: "contain",
+                }}
+              />
             </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+              {bullets.map((b) => (
+                <div key={b.label}>
+                  <dt className="font-serif text-[16.5px] text-navy leading-snug tracking-tight">
+                    {b.label}
+                  </dt>
+                  <dd className="mt-1 text-[13.5px] text-gray-600 leading-relaxed">
+                    {b.body}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
       </div>

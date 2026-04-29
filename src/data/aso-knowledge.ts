@@ -117,13 +117,26 @@ Always recognize them as the same product line:
 
 # How to submit cases
 
-Two paths:
-1. Digital (preferred) — STL/PLY export from any major intraoral scanner,
-   routed through EasyRx for HIPAA-compliant transmission and full case
-   history.
-2. Stone models — ship Type III hard stone (or higher). We also accept
-   impressions and can pour them in-house on request (additional charges
-   may apply).
+Three paths:
+
+1. **EasyRx (preferred for digital)** — STL/PLY export from any major
+   intraoral scanner, routed through EasyRx for HIPAA-compliant
+   transmission and full case history. EasyRx is **free** for our
+   practices ($0 setup, $0 monthly, $0 per-case). Browser-based, no
+   software install. Most practices send their first case within one
+   business day of requesting an invitation. To request an invitation:
+   /contact#invitation.
+
+2. **Quick Order Form (no-login)** — for practices not yet on EasyRx,
+   or when sending a one-off without logging in. Online wizard at
+   /submit-case lets you attach STL files, photos, and Rx PDF in one
+   submission. The form auto-validates lead time, asks for due date and
+   shipping address, and sends to our digital intake email. No
+   registration required.
+
+3. **Stone models** — ship Type III hard stone (or higher). We also
+   accept impressions and can pour them in-house on request (additional
+   charges may apply).
 
 Scanners supported (each has a step-by-step setup guide at /how-to-order):
 - **3Shape TRIOS** — via EasyRx. 3Shape must NOT use 3Shape Communicate
@@ -166,7 +179,17 @@ asohawaii@hotmail.com or 808-957-0111.
 5. **ASO ALIGNER** (clear aligner) — Thin, transparent mouthpiece-style
    orthodontic appliance. Japan's first fully-systemized clear aligner
    solution (ASO introduced 2005).
-   - Packages: 1-step / 3-step (recommended) / 5-step.
+   - Five packages:
+     - **Basic** — Soft + Hard. Entry-level for minor relapse / mild
+       MTM. ~1 week lead time.
+     - **Advance** — Soft + Medium + Hard. Mid-tier, broader movement
+       scope. ~1 week lead time.
+     - **3in1** — Three-step package, recommended starting tier.
+       ~2 weeks lead time.
+     - **5in1** — Five-step package for complex cases, LuxCreo
+       direct-print. ~2 weeks lead time.
+     - **Complete by LuxCreo** — Comprehensive treatment with
+       unlimited refinements. Quote required. ~2 weeks lead time.
    - Materials: Soft 0.5mm, Medium 0.6mm, Hard 0.8mm.
    - Wear times: Soft/Medium 140–200 hrs (7–10 days) per tray.
      Hard ~250 hrs (~2 weeks) per tray.
@@ -225,8 +248,24 @@ asohawaii@hotmail.com or 808-957-0111.
 15. **Press-Type Appliance / Mouth Guard / Night Guard** — Press-formed
     appliances. 12 variants: Hard Night Guard (1.5 / 2.0 mm), Hard-and-
     Soft Night Guard (2.0 / 3.0 / 3.5 / 4.0 mm), Soft Night Guard
-    (2.0 / 3.0 mm), Sports Mouthguard (3.0 / 5.0 mm with strap + colors),
-    Whitening Tray, Bleaching Tray.
+    (2.0 / 3.0 mm), Sports Mouthguard (3.0 / 5.0 mm with strap + colors —
+    Red, Blue, White, Pink, Orange, Yellow, Green, Black, Purple, plus
+    laminated patterns Red/White/Blue and Yellow/Blue), Whitening Tray,
+    Bleaching Tray.
+
+# Shop — ASO Miniature Collection
+
+Separate from the orthodontic appliance lineup above, the lab also
+sells decorative **miniature orthodontic models** through /shop:
+- **Complete Set of 5** — $220, in a clear acrylic case.
+- **Individual Model** — $48, choose from a variety of appliance types.
+- Lead time: ships within 2 weeks of order confirmation.
+- Ideal for dental hygienist graduations, office decor, or patient
+  milestone gifts.
+- These are decorative items, NOT functional dental devices.
+- The miniatures are produced by the ASO group; they are not made in
+  the Honolulu lab — only the real orthodontic appliances above are.
+  Don't claim Hawaii manufacture for the miniatures.
 
 # Pricing policy
 
@@ -237,8 +276,8 @@ We do not publish prices. Every appliance is quoted case-by-case based on:
 - Rush vs standard turnaround
 
 To get a quote: /get-a-quote (response within one business day) or call
-808-957-0111. Attach STL/ZIP files in the form, or use the secure Dropbox
-upload link.
+808-957-0111. Attach STL / ZIP / PLY / OBJ / PDF files (up to 50 MB each)
+directly inside the form using the drag-and-drop uploader.
 
 # Downloads available at /download
 

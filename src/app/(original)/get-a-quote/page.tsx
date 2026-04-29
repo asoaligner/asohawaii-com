@@ -4,9 +4,6 @@ import { useState } from "react";
 import FileUploadField from "@/components/submitcase/FileUploadField";
 import { OriginalForm, OrigField } from "@/components/OriginalForm";
 
-const DROPBOX_UPLOAD_URL =
-  "https://www.dropbox.com/request/qyzCwOz9KVlxBTerdIoU";
-
 const MB = 1024 * 1024;
 const ATTACHMENT_LIMIT = 50 * MB;
 
@@ -148,17 +145,6 @@ export default function GetAQuotePage() {
                     files={attachments}
                     onChange={setAttachments}
                   />
-                  <p className="mt-1 text-[12.5px] text-gray-500">
-                    Larger scans or many files?{" "}
-                    <a
-                      href={DROPBOX_UPLOAD_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-2 text-navy hover:text-brandOrange transition-colors"
-                    >
-                      Upload via Dropbox →
-                    </a>
-                  </p>
                 </OriginalForm>
               </div>
             </div>

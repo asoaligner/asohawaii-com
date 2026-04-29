@@ -8,11 +8,6 @@ import { OriginalForm, OrigField } from "@/components/OriginalForm";
 const MB = 1024 * 1024;
 const ATTACHMENT_LIMIT = 50 * MB;
 
-// Content mirrors asohawaii.com/contact-us verbatim. Design is the
-// polished Original style (Fraunces-free, Source Serif 4 headings).
-
-const DROPBOX_UPLOAD_URL =
-  "https://www.dropbox.com/request/qyzCwOz9KVlxBTerdIoU";
 const INSTAGRAM_URL =
   "https://www.instagram.com/aso.orthodonticslab.honolulu/";
 
@@ -277,33 +272,6 @@ export default function ContactPage() {
                 Our team reads every message. Response within one business day.
               </p>
 
-              <div className="mt-10 rounded-2xl bg-brandOrange/5 border border-brandOrange/20 p-6">
-                <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-2">
-                  Need to send files?
-                </div>
-                <p className="text-[15px] text-navy leading-relaxed mb-4">
-                  You can upload STL or ZIP files directly inside the form, or
-                  use our secure Dropbox upload link below.
-                </p>
-                <a
-                  href={DROPBOX_UPLOAD_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:text-brandOrange transition-colors"
-                >
-                  Open Dropbox upload
-                  <svg
-                    className="w-3.5 h-3.5"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                  >
-                    <path d="M5 3h8v8M13 3L3 13" />
-                  </svg>
-                </a>
-              </div>
             </div>
 
             <div className="lg:col-span-7">

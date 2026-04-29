@@ -132,7 +132,11 @@ export default function ApplianceSelector({
     if (selectedKeys.has(id)) {
       onChange(selected.filter((c) => applianceConfigKey(c) !== id));
     } else {
-      onChange([...selected, { applianceId: id }]);
+      // Parent ("General inquiry — no specific SKU") and specific SKUs
+      // for the same appliance are mutually exclusive — clear all
+      // existing entries for this appliance before adding the parent.
+      const filtered = selected.filter((c) => c.applianceId !== id);
+      onChange([...filtered, { applianceId: id }]);
       // Auto-expand when first selected so the user sees the fields.
       setExpanded((s) => new Set(s).add(id));
     }
@@ -150,8 +154,19 @@ export default function ApplianceSelector({
     if (selectedKeys.has(key)) {
       onChange(selected.filter((c) => applianceConfigKey(c) !== key));
     } else {
+      // Drop the parent "General inquiry" row for this appliance, if
+      // present — it stops making sense once a specific SKU is picked
+      // and would otherwise render as a duplicate config block.
+      const filtered = selected.filter(
+        (c) =>
+          !(
+            c.applianceId === applianceId &&
+            !c.itemCode &&
+            !c.itemName
+          )
+      );
       onChange([
-        ...selected,
+        ...filtered,
         { applianceId, itemCode: code, itemName: name },
       ]);
     }

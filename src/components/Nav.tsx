@@ -208,12 +208,11 @@ export default function Nav() {
             </svg>
           </a>
 
-          {/* Log In — desktop */}
-          <a
-            href="https://easyrxcloud.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-navy border border-gray-200 px-3.5 py-1.5 rounded-full hover:border-navy hover:bg-navy hover:text-white transition-colors"
+          {/* ASO Login — desktop (outline / secondary) */}
+          <Link
+            href="/portal"
+            title="Coming Soon"
+            className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-navy border border-gray-300 px-3.5 py-1.5 rounded-full hover:border-navy hover:bg-navy/5 transition-colors"
           >
             <svg
               className="w-3.5 h-3.5"
@@ -227,7 +226,30 @@ export default function Nav() {
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            Log In
+            ASO Login
+          </Link>
+
+          {/* EasyRx Login — desktop (primary, external) */}
+          <a
+            href="https://easyrxcloud.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-white bg-navy border border-navy px-3.5 py-1.5 rounded-full hover:bg-navy-light hover:border-navy-light transition-colors"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            EasyRx Login
+            <span aria-hidden className="text-[11px] leading-none">↗</span>
           </a>
 
           {/* Hamburger */}
@@ -305,6 +327,24 @@ export default function Nav() {
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/portal"
+              className="md:hidden px-3 py-2.5 text-sm text-navy font-medium rounded-lg hover:bg-gray-50 inline-flex items-center gap-1.5"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              ASO Login
+            </Link>
             <a
               href="https://easyrxcloud.com"
               target="_blank"
@@ -323,7 +363,7 @@ export default function Nav() {
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              Log In (EasyRx) ↗
+              EasyRx Login ↗
             </a>
             <Link
               href="/contact#invitation"

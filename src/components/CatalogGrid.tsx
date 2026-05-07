@@ -92,17 +92,8 @@ export default function CatalogGrid({
               )}
               {(item.leadTime ?? productLeadTime) && (
                 <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-gray-500 w-fit">
-                  <svg
-                    className="w-2.5 h-2.5"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                  >
-                    <circle cx="8" cy="8" r="6.25" />
-                    <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
-                  </svg>
-                  {item.leadTime ?? productLeadTime}
+                  <span aria-hidden>📦</span>
+                  Lead time: {item.leadTime ?? productLeadTime}
                 </div>
               )}
               <Link

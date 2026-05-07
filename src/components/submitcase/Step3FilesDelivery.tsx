@@ -170,22 +170,29 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
             <strong>{leadLabel}</strong>. Earliest available date:{" "}
             <strong>{minDateLong}</strong>.
           </p>
-          <p className="mt-1 text-[13px] text-brandOrange">
-            Need it sooner? Contact us for Rush Case handling:{" "}
-            <a
-              href="tel:8089570111"
-              className="underline underline-offset-2 hover:no-underline"
-            >
-              📞 808-957-0111
-            </a>{" "}
-            or{" "}
-            <a
-              href="mailto:aso-digital@outlook.com"
-              className="underline underline-offset-2 hover:no-underline"
-            >
-              📧 aso-digital@outlook.com
-            </a>
-          </p>
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-2">
+            <p className="text-sm text-amber-900 leading-relaxed">
+              <strong>Need it sooner?</strong>
+              <br />
+              Contact us for Rush Case handling:
+              <br />
+              📞{" "}
+              <a
+                href="tel:8089570111"
+                className="underline underline-offset-2 hover:no-underline"
+              >
+                808-957-0111
+              </a>
+              <br />
+              📧{" "}
+              <a
+                href="mailto:aso-digital@outlook.com"
+                className="underline underline-offset-2 hover:no-underline"
+              >
+                aso-digital@outlook.com
+              </a>
+            </p>
+          </div>
           {dueDateBeforeMin && (
             <div
               role="alert"

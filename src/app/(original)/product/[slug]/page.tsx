@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import CatalogGrid from "@/components/CatalogGrid";
 import CompactCustomization from "@/components/CompactCustomization";
 import HeroImageButton from "@/components/HeroImageButton";
+import LeadTimeDisclaimer from "@/components/LeadTimeDisclaimer";
 import { LightboxProvider } from "@/components/LightboxProvider";
 import {
   findProductBySlug,
@@ -279,17 +280,8 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                   </p>
 
                   <div className="mt-5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-navy text-xs font-medium">
-                    <svg
-                      className="w-3 h-3"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                    >
-                      <circle cx="8" cy="8" r="6.25" />
-                      <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
-                    </svg>
-                    Lead time: Approx. 1–2 weeks (varies by package)
+                    <span aria-hidden>📦</span>
+                    Approx. 1–2 weeks lead time (varies by package)
                   </div>
 
                   <div className="mt-10 flex flex-col sm:flex-row gap-3">
@@ -387,13 +379,7 @@ export default function ProductDetailPage({ params }: { params: Params }) {
                       </p>
                       <div className="mt-auto pt-5 flex items-center justify-between gap-3 flex-wrap">
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-[11px] text-gray-600">
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              p.leadTime === "Approx. 1 week"
-                                ? "bg-amber-400"
-                                : "bg-amber-500"
-                            }`}
-                          />
+                          <span aria-hidden>📦</span>
                           {p.leadTime}
                         </div>
                         <Link
@@ -605,17 +591,8 @@ export default function ProductDetailPage({ params }: { params: Params }) {
 
               {product.leadTime && (
                 <div className="mt-5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-navy text-xs font-medium">
-                  <svg
-                    className="w-3 h-3"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                  >
-                    <circle cx="8" cy="8" r="6.25" />
-                    <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
-                  </svg>
-                  Lead time: {product.leadTime}
+                  <span aria-hidden>📦</span>
+                  {product.leadTime} lead time
                 </div>
               )}
 
@@ -1073,17 +1050,9 @@ export default function ProductDetailPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <section className="pt-10 pb-6">
-        <div className="container-narrow">
-          <p className="text-[11px] text-stone-500 italic leading-relaxed text-center max-w-2xl mx-auto">
-            *All production lead times are approximate. Actual times may vary
-            based on case complexity and US holidays. We will notify you of
-            any expected delays.
-          </p>
-        </div>
-      </section>
+      <LeadTimeDisclaimer />
 
-      <section className="pb-12 text-center">
+      <section className="py-12 text-center">
         <Link
           href="/product"
           className="text-sm text-gray-500 hover:text-navy transition-colors"

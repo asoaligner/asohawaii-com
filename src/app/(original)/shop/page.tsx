@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import ShopProductsSection from "@/components/shop/ShopProductsSection";
 
 const SITE_URL = "https://asohawaii.com";
 
@@ -28,17 +29,34 @@ export const metadata: Metadata = {
 const howItWorks = [
   {
     n: "01",
-    title: "Submit your order",
-    body: "Tell us which piece you want, where to ship it, and any special requests. Takes about a minute.",
+    title: "Add to cart",
+    body: "Pick the Complete Collection or choose your favorite Individual Model and appliance type. Adjust quantities, then head to checkout.",
   },
   {
     n: "02",
-    title: "We send a payment link",
-    body: "Within 24 hours we email you a secure payment link with the final total including shipping.",
+    title: "Pay securely with PayPal",
+    body: "Pay with your PayPal balance or any major credit card — PayPal handles checkout. Card details never touch our servers.",
+  },
+  {
+    n: "03",
+    title: "We hand-craft & ship",
+    body: "We make each miniature to order and ship within 2 weeks of payment. You'll receive a tracking number once your piece is on the way.",
   },
 ];
 
 const faqs = [
+  {
+    q: "How do I pay?",
+    a: "Checkout runs on PayPal. Pay with your PayPal balance, or click the credit card option to pay as a guest with any major card. Your card details never touch ASO servers — PayPal handles everything end-to-end.",
+  },
+  {
+    q: "How long does delivery take?",
+    a: "Each piece is hand-crafted to order. We typically ship within 2 weeks of payment, and you'll receive a tracking number once your order is on the way.",
+  },
+  {
+    q: "Do you ship internationally?",
+    a: "Yes. International shipping is a $30 flat rate to most countries (including Japan, Canada, and the EU). For destinations we can't reach with the flat rate, we'll contact you within one business day with a custom quote.",
+  },
   {
     q: "Are these actual orthodontic appliances?",
     a: "They are miniature replicas hand-crafted using real dental resin, following the same precision techniques used to make actual orthodontic appliances. They are decorative items, not functional dental devices.",
@@ -46,10 +64,6 @@ const faqs = [
   {
     q: "Can I customize a set?",
     a: "Yes — contact us with your specific requests for custom configurations.",
-  },
-  {
-    q: "How long does delivery take?",
-    a: "We typically ship within 2 weeks of order confirmation.",
   },
   {
     q: "Do you offer wholesale pricing for clinics?",
@@ -157,10 +171,10 @@ export default function ShopPage() {
                 </svg>
               </Link>
               <Link
-                href="/shop/order/"
+                href="/shop/cart/"
                 className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/25 px-5 py-3 rounded-full text-sm font-medium hover:bg-white/15 transition-colors"
               >
-                Place an order
+                View cart
               </Link>
             </div>
           </div>
@@ -207,126 +221,8 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* PRODUCTS */}
-      <section
-        id="products"
-        className="py-20 md:py-28 bg-gray-50/60 border-y border-gray-200/60 scroll-mt-24"
-      >
-        <div className="container-narrow">
-          <div className="max-w-2xl mb-14">
-            <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-5">
-              The collection
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
-              Two ways to <span className="italic">own a piece.</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* SET */}
-            <div className="lg:col-span-7 rounded-3xl border border-gray-200 bg-white overflow-hidden flex flex-col">
-              <div className="relative aspect-[4/3] bg-gray-50">
-                <Image
-                  src="/images/aso/miniature/miniature-set.jpg"
-                  alt="Complete set of 5 ASO miniature orthodontic models in a clear acrylic display case"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-cover"
-                />
-                <span className="absolute top-4 left-4 inline-flex items-center gap-1 text-[10px] uppercase tracking-widest font-semibold bg-brandOrange/95 text-white px-2.5 py-1 rounded-full">
-                  Bestseller
-                </span>
-              </div>
-              <div className="p-8 md:p-10 flex flex-col flex-grow">
-                <div className="flex items-baseline justify-between gap-4 flex-wrap">
-                  <h3 className="font-serif text-2xl md:text-3xl text-navy leading-snug tracking-tight">
-                    Complete Collection (Set of 5)
-                  </h3>
-                  <div className="font-serif text-3xl text-brandOrange tracking-tight">
-                    $220
-                  </div>
-                </div>
-                <p className="mt-4 text-[15px] text-gray-600 leading-relaxed">
-                  Five hand-crafted miniature models showcasing different
-                  orthodontic appliance types, displayed in a premium clear
-                  acrylic case with subtle ASO branding.
-                </p>
-                <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
-                  Choose from a variety of appliance types.
-                </p>
-                <div className="mt-7">
-                  <Link
-                    href="/shop/order/?item=set"
-                    className="inline-flex items-center justify-center gap-2 bg-navy text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-navy-light transition-colors"
-                  >
-                    Order this set
-                    <svg
-                      className="w-3.5 h-3.5"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 8h10M9 4l4 4-4 4" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* SINGLE */}
-            <div className="lg:col-span-5 rounded-3xl border border-gray-200 bg-white overflow-hidden flex flex-col">
-              <div className="relative aspect-[4/3] bg-gray-50">
-                <Image
-                  src="/images/aso/miniature/miniature-hand.jpg"
-                  alt="Individual ASO miniature orthodontic model"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 42vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-8 md:p-10 flex flex-col flex-grow">
-                <div className="flex items-baseline justify-between gap-4 flex-wrap">
-                  <h3 className="font-serif text-2xl md:text-3xl text-navy leading-snug tracking-tight">
-                    Individual Model
-                  </h3>
-                  <div className="font-serif text-3xl text-brandOrange tracking-tight">
-                    $48
-                  </div>
-                </div>
-                <p className="mt-4 text-[15px] text-gray-600 leading-relaxed flex-grow">
-                  A single hand-crafted miniature, perfect as a keepsake or
-                  gift. Choose your favorite appliance type.
-                </p>
-                <p className="mt-4 text-[14px] text-gray-600 leading-relaxed">
-                  Choose from a variety of appliance types.
-                </p>
-                <div className="mt-7">
-                  <Link
-                    href="/shop/order/?item=single"
-                    className="inline-flex items-center justify-center gap-2 bg-navy text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-navy-light transition-colors"
-                  >
-                    Order single model
-                    <svg
-                      className="w-3.5 h-3.5"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 8h10M9 4l4 4-4 4" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* PRODUCTS — client component (cart context) */}
+      <ShopProductsSection />
 
       {/* HOW IT WORKS */}
       <section className="py-20 md:py-28 bg-white">
@@ -340,7 +236,7 @@ export default function ShopPage() {
               <span className="italic">your hands.</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {howItWorks.map((s) => (
               <div
                 key={s.n}
@@ -364,33 +260,46 @@ export default function ShopPage() {
       {/* SHIPPING */}
       <section className="py-16 md:py-20 bg-gray-50/60 border-y border-gray-200/60">
         <div className="container-narrow">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div>
+          <div className="max-w-2xl mb-12">
+            <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-4">
+              Shipping rates
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl leading-[1.15] tracking-tightest text-navy text-balance">
+              Flat-rate, by{" "}
+              <span className="italic">destination.</span>
+            </h2>
+            <p className="mt-3 text-[15px] text-gray-600 leading-relaxed">
+              Calculated automatically at checkout based on your PayPal
+              shipping address. All items ship from our Kapiolani Blvd lab in
+              Honolulu, Hawai&lsquo;i.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="rounded-2xl border border-gray-200 bg-white p-7">
               <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
-                US Domestic
+                Hawaii
               </div>
-              <p className="text-[15px] text-gray-700 leading-relaxed">
-                <span className="font-medium text-navy">$15 flat rate</span>
+              <p className="font-serif text-3xl text-navy">Free</p>
+              <p className="mt-3 text-[14px] text-gray-600 leading-relaxed">
+                Free shipping for all orders within Hawai&lsquo;i.
               </p>
             </div>
-            <div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-7">
+              <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
+                US Mainland
+              </div>
+              <p className="font-serif text-3xl text-navy">$10</p>
+              <p className="mt-3 text-[14px] text-gray-600 leading-relaxed">
+                Flat rate to all 49 mainland states.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-7">
               <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
                 International
               </div>
-              <p className="text-[15px] text-gray-700 leading-relaxed">
-                <span className="font-medium text-navy">Quoted per order</span>
-                <br />
-                Contact us for shipping rates and timing.
-              </p>
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
-                Origin
-              </div>
-              <p className="text-[15px] text-gray-700 leading-relaxed">
-                <span className="font-medium text-navy">Honolulu, Hawai‘i</span>
-                <br />
-                All items ship from our Kapiolani Blvd lab.
+              <p className="font-serif text-3xl text-navy">$30</p>
+              <p className="mt-3 text-[14px] text-gray-600 leading-relaxed">
+                Flat rate to most countries — Japan, Canada, EU, and more.
               </p>
             </div>
           </div>
@@ -433,14 +342,15 @@ export default function ShopPage() {
             </span>
           </h2>
           <p className="mt-5 text-white/70 leading-relaxed">
-            Ships within 2 weeks of order confirmation.
+            Free shipping in Hawai&lsquo;i · $10 mainland · $30 international.
+            Ships within 2 weeks of payment.
           </p>
           <div className="mt-8">
             <Link
-              href="/shop/order/"
+              href="#products"
               className="inline-flex items-center gap-2 bg-brandOrange text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors"
             >
-              Place your order
+              Shop the collection
               <svg
                 className="w-3.5 h-3.5"
                 viewBox="0 0 16 16"

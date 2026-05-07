@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ShopCartIcon from "@/components/shop/ShopCartIcon";
+import { useShopCartOptional } from "@/contexts/ShopCartContext";
 
 const INSTAGRAM_URL = "https://www.instagram.com/aso.orthodonticslab.honolulu/";
 
@@ -208,6 +210,9 @@ export default function Nav() {
             </svg>
           </a>
 
+          {/* Shop cart — always visible (badge hides at qty 0) */}
+          <ShopCartIcon />
+
           {/* ASO Login — desktop (outline / secondary) */}
           <Link
             href="/portal"
@@ -327,6 +332,7 @@ export default function Nav() {
                 {l.label}
               </Link>
             ))}
+            <MobileCartLink />
             <Link
               href="/portal"
               className="md:hidden px-3 py-2.5 text-sm text-navy font-medium rounded-lg hover:bg-gray-50 inline-flex items-center gap-1.5"
@@ -375,5 +381,39 @@ export default function Nav() {
         </div>
       )}
     </header>
+  );
+}
+
+/** Mobile-menu row that mirrors the desktop ShopCartIcon — same context,
+ *  but rendered inline like the other mobile menu links instead of as a
+ *  pill icon. Hidden when the cart is empty so it doesn't add noise. */
+function MobileCartLink() {
+  const cart = useShopCartOptional();
+  if (!cart || !cart.hydrated || cart.totalQuantity === 0) return null;
+  return (
+    <Link
+      href="/shop/cart/"
+      className="md:hidden px-3 py-2.5 text-sm text-navy font-medium rounded-lg hover:bg-gray-50 inline-flex items-center justify-between gap-1.5"
+    >
+      <span className="inline-flex items-center gap-1.5">
+        <svg
+          className="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 5h2l2.4 11.5a2 2 0 002 1.5h8.6a2 2 0 002-1.5L22 8H6" />
+          <circle cx="9" cy="20.5" r="1.4" />
+          <circle cx="18" cy="20.5" r="1.4" />
+        </svg>
+        Shopping cart
+      </span>
+      <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-brandOrange text-white text-[11px] font-semibold leading-none">
+        {cart.totalQuantity > 99 ? "99+" : cart.totalQuantity}
+      </span>
+    </Link>
   );
 }

@@ -27,10 +27,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useShopCart } from "@/contexts/ShopCartContext";
-import {
-  detectDestination,
-  type ShippingDestination,
-} from "@/components/shop/ShippingCalculator";
+import type { ShippingDestination } from "@/components/shop/ShippingCalculator";
 import {
   sendOrderNotification,
   type PayPalCaptureSummary,
@@ -130,24 +127,18 @@ export default function PayPalCheckout({
           try {
             const details = (await actions.order.capture()) as PayPalCaptureSummary;
 
-            // Best-effort: compare detected destination vs the tier the
-            // buyer chose. Mismatch is tagged but doesn't block capture.
-            const addr = details.purchase_units?.[0]?.shipping?.address;
-            const detected = detectDestination(
-              addr?.country_code,
-              addr?.admin_area_1
-            );
-            const tagged: PayPalCaptureSummary =
-              detected === selectedDestination
-                ? details
-                : ({
-                    ...details,
-                    // attach a synthetic note so the email picks it up
-                    purchase_units: details.purchase_units,
-                  } as PayPalCaptureSummary);
+            // TODO(Phase 2): surface destination-tier mismatch in the lab
+            // notification email. Compare detectDestination() applied to
+            // details.purchase_units[0].shipping.address against
+            // selectedDestination; if they differ, extend
+            // sendOrderNotification to accept the mismatch + selected tier
+            // and emit a "TIER MISMATCH" line in the email body so the lab
+            // can manually refund/upcharge before shipping. Today the
+            // mismatch is silently dropped — capture still succeeds, but
+            // the lab has no signal to reconcile fees.
 
             try {
-              await sendOrderNotification(tagged, items, shippingFee);
+              await sendOrderNotification(details, items, shippingFee);
             } catch (notifyErr) {
               // Don't fail the buyer flow — capture already succeeded.
               // eslint-disable-next-line no-console

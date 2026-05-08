@@ -286,7 +286,7 @@ export default function Nav() {
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-gray-200 bg-white">
+        <div className="lg:hidden border-t border-gray-200 bg-white max-h-[calc(100dvh-12rem)] sm:max-h-[calc(100dvh-13rem)] overflow-y-auto overscroll-contain">
           <div className="container-narrow py-4 grid gap-1">
             {primary.map((l) => (
               <div key={l.href}>

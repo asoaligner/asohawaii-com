@@ -159,7 +159,7 @@ export default function AIChatWidget() {
         <div
           role="dialog"
           aria-label="ASO Hawaii chat assistant"
-          className="fixed bottom-4 right-4 z-[150] w-[min(calc(100vw-2rem),380px)] h-[min(calc(100vh-2rem),600px)] bg-white rounded-2xl shadow-[0_24px_60px_-12px_rgba(15,41,66,0.35)] border border-gray-200 flex flex-col overflow-hidden md:bottom-6 md:right-6"
+          className="fixed bottom-4 right-4 z-[150] w-[min(calc(100vw-2rem),380px)] h-[min(calc(100dvh-2rem),600px)] bg-white rounded-2xl shadow-[0_24px_60px_-12px_rgba(15,41,66,0.35)] border border-gray-200 flex flex-col overflow-hidden md:bottom-6 md:right-6"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 bg-navy text-white">

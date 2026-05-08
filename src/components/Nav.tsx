@@ -18,35 +18,35 @@ type PrimaryLink = {
 
 const primary: PrimaryLink[] = [
   { label: "Home", href: "/" },
-  { label: "Product", href: "/product" },
-  { label: "New Products", href: "/new-products" },
-  { label: "About Us", href: "/about" },
+  { label: "Product", href: "/product/" },
+  { label: "New Products", href: "/new-products/" },
+  { label: "About Us", href: "/about/" },
   {
     label: "How to Order",
-    href: "/how-to-order",
+    href: "/how-to-order/",
     children: [
-      { label: "Ordering Process", href: "/how-to-order" },
+      { label: "Ordering Process", href: "/how-to-order/" },
       {
         label: "Scanner Setup Guides",
-        href: "/how-to-order#scanner-guides",
+        href: "/how-to-order/#scanner-guides",
       },
-      { label: "Submit Case Online", href: "/submit-case" },
+      { label: "Submit Case Online", href: "/submit-case/" },
     ],
   },
-  { label: "Submit Case", href: "/submit-case" },
-  { label: "Shop", href: "/shop" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "Submit Case", href: "/submit-case/" },
+  { label: "Shop", href: "/shop/" },
+  { label: "FAQ", href: "/faq/" },
+  { label: "Contact Us", href: "/contact/" },
 ];
 
 const rightLinks = [
-  { label: "Download", href: "/download" },
-  { label: "Get a Quote", href: "/get-a-quote" },
+  { label: "Download", href: "/download/" },
+  { label: "Get a Quote", href: "/get-a-quote/" },
 ];
 
 // Items only surfaced in the mobile menu.
 const mobileExtras = [
-  { label: "Pick Up Request", href: "/pick-up" },
+  { label: "Pick Up Request", href: "/pick-up/" },
 ];
 
 export default function Nav() {
@@ -70,7 +70,7 @@ export default function Nav() {
       <div className="bg-navy text-white/90">
         <div className="container-narrow flex items-center justify-end h-8 text-[12px] tracking-wide">
           <Link
-            href="/pick-up"
+            href="/pick-up/"
             className="inline-flex items-center gap-1 text-white/85 hover:text-brandOrange transition-colors"
           >
             Pick Up Request
@@ -215,7 +215,7 @@ export default function Nav() {
 
           {/* ASO Login — desktop (outline / secondary) */}
           <Link
-            href="/portal"
+            href="/portal/"
             title="Coming Soon"
             className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-navy border border-gray-300 px-3.5 py-1.5 rounded-full hover:border-navy hover:bg-navy/5 transition-colors"
           >
@@ -334,7 +334,7 @@ export default function Nav() {
             ))}
             <MobileCartLink />
             <Link
-              href="/portal"
+              href="/portal/"
               className="md:hidden px-3 py-2.5 text-sm text-navy font-medium rounded-lg hover:bg-gray-50 inline-flex items-center gap-1.5"
             >
               <svg
@@ -372,7 +372,7 @@ export default function Nav() {
               EasyRx Login ↗
             </a>
             <Link
-              href="/contact#invitation"
+              href="/contact/#invitation"
               className="mx-3 mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-medium bg-navy text-white px-4 py-3 rounded-full"
             >
               Request invitation →

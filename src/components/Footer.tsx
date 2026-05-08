@@ -3,12 +3,12 @@ import Link from "next/link";
 const INSTAGRAM_URL = "https://www.instagram.com/aso.orthodonticslab.honolulu/";
 
 const quickLinks: { label: string; href: string }[] = [
-  { label: "Submit Case", href: "/submit-case" },
-  { label: "Pick-Up Request", href: "/pick-up" },
-  { label: "Get a Quote", href: "/get-a-quote" },
-  { label: "Download", href: "/download" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Submit Case", href: "/submit-case/" },
+  { label: "Pick-Up Request", href: "/pick-up/" },
+  { label: "Get a Quote", href: "/get-a-quote/" },
+  { label: "Download", href: "/download/" },
+  { label: "FAQ", href: "/faq/" },
+  { label: "Privacy Policy", href: "/privacy-policy/" },
 ];
 
 export default function Footer() {

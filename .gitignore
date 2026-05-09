@@ -44,3 +44,11 @@ screenshots/
 **/*-original.jpg
 dentaurum_raw/
 scripts/dentaurum_raw/
+
+# Portal admin seed artifacts (contain bcrypt hashes — generate locally,
+# pipe to wrangler, delete immediately).
+portal-seed.sql
+portal-seed-*.sql
+
+# Portal dummy-data SQL artifacts (regenerate from scripts/seed-portal-orders.mjs).
+portal-orders-seed.sql

@@ -13,6 +13,10 @@ export interface PortalUser {
   role: "member" | "admin" | "aso_staff";
   auth_provider: string | null;
   is_active: boolean;
+  /** True when password_hash is set on the row — used by /portal/profile/
+   *  to decide whether to render the change-password form. Google-only
+   *  accounts get false. */
+  has_password: boolean;
   last_login_at: string | null;
   created_at: string;
 }
@@ -114,4 +118,111 @@ export async function logout(): Promise<void> {
   } catch {
     /* server-side row may stay; cookie still cleared on next /me 401 */
   }
+}
+
+// ─── Profile ───────────────────────────────────────────────────────────
+
+export interface ProfileFetchOk {
+  ok: true;
+  user: PortalUser;
+  clinic: PortalClinic;
+}
+
+export interface ApiErr {
+  ok: false;
+  status: number;
+  error: string;
+}
+
+export async function fetchProfile(): Promise<ProfileFetchOk | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/profile", {
+      credentials: "include",
+      cache: "no-store",
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  const body = (await res.json()) as { user: PortalUser; clinic: PortalClinic };
+  return { ok: true, user: body.user, clinic: body.clinic };
+}
+
+export interface UpdateProfileInput {
+  name?: string | null;
+  phone?: string | null;
+}
+
+export interface UpdateProfileOk {
+  ok: true;
+  user: PortalUser;
+}
+
+export async function updateProfile(
+  input: UpdateProfileInput,
+): Promise<UpdateProfileOk | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/profile", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  const body = (await res.json()) as { user: PortalUser };
+  return { ok: true, user: body.user };
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordOk {
+  ok: true;
+  otherSessionsRevoked: number;
+}
+
+export async function changePassword(
+  input: ChangePasswordInput,
+): Promise<ChangePasswordOk | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/profile/change-password", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  const body = (await res.json()) as {
+    success: boolean;
+    otherSessionsRevoked: number;
+  };
+  return { ok: true, otherSessionsRevoked: body.otherSessionsRevoked };
+}
+
+async function parseError(res: Response): Promise<ApiErr> {
+  let error = "Request failed.";
+  try {
+    const body = (await res.json()) as { error?: string };
+    if (body.error) error = body.error;
+  } catch {
+    /* keep default */
+  }
+  return { ok: false, status: res.status, error };
 }

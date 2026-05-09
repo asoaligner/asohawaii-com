@@ -19,6 +19,7 @@ interface Props {
 
 const NAV_LINKS: { label: string; href: string }[] = [
   { label: "Dashboard", href: "/portal/dashboard/" },
+  { label: "Profile", href: "/portal/profile/" },
 ];
 
 export default function PortalNav({ user, clinic }: Props) {

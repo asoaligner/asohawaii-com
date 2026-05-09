@@ -152,7 +152,11 @@ export async function resolveSession(
   return { user, clinic, session };
 }
 
-/** Strip server-only fields (password_hash) before returning to the client. */
+/** Strip server-only fields (password_hash) before returning to the client.
+ *  has_password mirrors `password_hash IS NOT NULL` so the UI can decide
+ *  whether to render the change-password form (Google-only accounts hide
+ *  it; users who signed up with a password and later linked Google still
+ *  see it). */
 export function publicUser(user: PortalUserRow) {
   return {
     id: user.id,
@@ -163,6 +167,7 @@ export function publicUser(user: PortalUserRow) {
     role: user.role,
     auth_provider: user.auth_provider,
     is_active: user.is_active === 1,
+    has_password: user.password_hash !== null && user.password_hash !== "",
     last_login_at: user.last_login_at,
     created_at: user.created_at,
   };

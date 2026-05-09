@@ -11,10 +11,13 @@
  *     [--clinic-id 1] \
  *     [--ensure-clinic-name "ASO Hawaii Internal"]
  *
- * Then send the output to D1:
+ * Then send the output to D1. On Windows / PowerShell, prefer --out so
+ * the script writes UTF-8 directly (PowerShell 5.1's `>` redirect emits
+ * UTF-16 LE which wrangler silently parses as zero statements):
  *
- *   wrangler d1 execute aso-chat-logs --remote --file=/tmp/portal-admin.sql
- *   # or via stdin:
+ *   node scripts/create-portal-admin.mjs ... --out portal-admin.sql
+ *   wrangler d1 execute aso-chat-logs --remote --file=portal-admin.sql
+ *   # or via stdin (POSIX shells only):
  *   wrangler d1 execute aso-chat-logs --remote --command "$(node scripts/create-portal-admin.mjs ...)"
  *
  * Behaviour:
@@ -30,6 +33,7 @@
  */
 
 import bcrypt from "bcryptjs";
+import { writeFileSync } from "node:fs";
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -65,6 +69,7 @@ const name = (args.name ?? "").trim();
 const role = (args.role ?? "aso_staff").trim();
 const clinicIdArg = args["clinic-id"];
 const ensureClinicName = args["ensure-clinic-name"];
+const outPath = args.out ?? null;
 
 if (!email) die("--email is required");
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) die("--email must be a valid address");
@@ -110,4 +115,15 @@ lines.push(
   `INSERT INTO portal_users (clinic_id, email, name, role, auth_provider, password_hash) VALUES (${clinicId}, ${sqlString(email)}, ${sqlString(name)}, ${sqlString(role)}, 'password', ${sqlString(passwordHash)});`,
 );
 
-process.stdout.write(lines.join("\n") + "\n");
+const sql = lines.join("\n") + "\n";
+if (outPath) {
+  // UTF-8, no BOM. PowerShell 5.1's `>` redirect emits UTF-16 LE which
+  // wrangler silently treats as zero statements; writing directly here
+  // sidesteps the foot-gun.
+  writeFileSync(outPath, sql, { encoding: "utf8" });
+  process.stderr.write(
+    `Wrote ${sql.length} bytes (UTF-8, no BOM) to ${outPath}\n`,
+  );
+} else {
+  process.stdout.write(sql);
+}

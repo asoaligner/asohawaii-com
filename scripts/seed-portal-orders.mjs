@@ -4,10 +4,15 @@
  * dashboard + detail UI can be exercised end-to-end before the real
  * VisualDLP / Shop sync ships.
  *
- * Usage:
- *   node scripts/seed-portal-orders.mjs > portal-orders-seed.sql
+ * Usage (preferred — bypasses PowerShell's UTF-16 redirect quirk):
+ *   node scripts/seed-portal-orders.mjs --count 10 --out portal-orders-seed.sql
  *   wrangler d1 execute aso-chat-logs --remote --file=portal-orders-seed.sql
  *   rm portal-orders-seed.sql
+ *
+ * Or print to stdout (works on POSIX shells; in PowerShell `>` writes
+ * UTF-16 with BOM and wrangler will silently parse zero statements —
+ * use --out instead):
+ *   node scripts/seed-portal-orders.mjs --count 10
  *
  * Defaults:
  *   --clinic-id        1            (ASO Hawaii Internal seeded earlier)
@@ -15,6 +20,7 @@
  *   --start-id         1001         (high enough not to collide with real
  *                                    auto-increment rows; INSERTs use
  *                                    explicit ids)
+ *   --out              <stdout>     (write UTF-8 to this path instead)
  *
  * Each row uses (source, source_order_id) so re-running with the same
  * --start-id is idempotent (UNIQUE constraint blocks duplicates). To
@@ -27,6 +33,8 @@
  *   - some with design_notes, some bare
  *   - one row with internal_memo (aso_staff only sees it)
  */
+
+import { writeFileSync } from "node:fs";
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -57,6 +65,7 @@ function die(msg) {
 const clinicId = Number(args["clinic-id"] ?? 1);
 const count = Number(args.count ?? 10);
 const startId = Number(args["start-id"] ?? 1001);
+const outPath = args.out ?? null;
 
 if (!Number.isInteger(clinicId) || clinicId <= 0) die("--clinic-id must be a positive integer");
 if (!Number.isInteger(count) || count <= 0 || count > 100) die("--count must be 1-100");
@@ -195,4 +204,16 @@ for (let i = 0; i < count; i++) {
   );
 }
 
-process.stdout.write(lines.join("\n"));
+const sql = lines.join("\n");
+if (outPath) {
+  // Write UTF-8 with no BOM. Sidesteps PowerShell 5.1's `>` redirect
+  // (UTF-16 LE) which makes the file unreadable to wrangler's SQL
+  // parser without a peep — it returns "0 queries executed" and
+  // silently no-ops.
+  writeFileSync(outPath, sql, { encoding: "utf8" });
+  process.stderr.write(
+    `Wrote ${sql.length} bytes (UTF-8, no BOM) to ${outPath}\n`,
+  );
+} else {
+  process.stdout.write(sql);
+}

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ASO Hawaii Doctor Portal - Coming Soon",
+  title: "ASO Hawaii Doctor Portal",
   description:
-    "ASO Hawaii is developing a dedicated doctor portal for partner clinics. Currently use EasyRx for case management.",
+    "Sign in to track your case submissions, view delivery dates, and manage your clinic's account with ASO Hawaii.",
   robots: { index: false, follow: false },
   alternates: { canonical: "/portal/" },
 };

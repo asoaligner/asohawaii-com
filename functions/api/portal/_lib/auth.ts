@@ -159,6 +159,7 @@ export function publicUser(user: PortalUserRow) {
     clinic_id: user.clinic_id,
     email: user.email,
     name: user.name,
+    phone: user.phone,
     role: user.role,
     auth_provider: user.auth_provider,
     is_active: user.is_active === 1,

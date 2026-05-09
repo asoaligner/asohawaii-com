@@ -8,6 +8,8 @@ export interface PortalUser {
   clinic_id: number;
   email: string;
   name: string | null;
+  /** Added in Phase 1.3. May be null. */
+  phone: string | null;
   role: "member" | "admin" | "aso_staff";
   auth_provider: string | null;
   is_active: boolean;

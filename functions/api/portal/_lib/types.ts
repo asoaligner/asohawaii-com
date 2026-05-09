@@ -45,6 +45,9 @@ export interface PortalUserRow {
   clinic_id: number;
   email: string;
   name: string | null;
+  /** Added in migration 0002 (Phase 1.3). May be null on rows that pre-
+   *  date the migration if a fresh seed isn't run. */
+  phone: string | null;
   role: "member" | "admin" | "aso_staff";
   auth_provider: string | null;
   google_id: string | null;

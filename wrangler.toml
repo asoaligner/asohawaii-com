@@ -3,18 +3,26 @@ compatibility_date = "2024-12-01"
 pages_build_output_dir = "out"
 
 # D1 binding — same database used by the existing AI-chat tables and
-# the portal_* tables added in migrations/portal/. Production runtime
-# bindings are configured in the Cloudflare Pages dashboard; this file
-# is the source of truth for `wrangler d1 migrations apply` and for
-# local `wrangler pages dev` workflows.
-#
-# To populate database_id locally:
-#   wrangler d1 list                  # find the existing DB id
-# Then paste it below. The Pages dashboard binding still wins at
-# request time in Production / Preview — wrangler.toml is only used
-# for migration / local-dev tooling.
+# the portal_* tables added in migrations/portal/. With wrangler.toml
+# present, Cloudflare Pages treats this file as the source of truth
+# for non-secret bindings + vars; the Dashboard will only manage
+# Secrets going forward. Also used by `wrangler d1 migrations apply`.
 [[d1_databases]]
 binding = "DB"
 database_name = "aso-chat-logs"
 database_id = "43c22dd8-5722-48aa-834c-644e5caec5d1"
 migrations_dir = "migrations/portal"
+
+# Plaintext (non-secret) environment variables for Pages Functions.
+# Cloudflare Pages now requires non-secret vars to live here once a
+# wrangler.toml is present; the Dashboard will only accept Secrets.
+#
+# - GOOGLE_CLIENT_ID is public info (visible in OAuth network calls per
+#   Google's own docs).
+# - GOOGLE_REDIRECT_URI must match an entry registered in Google Cloud
+#   Console > Credentials > OAuth 2.0 Client IDs > Authorized redirect URIs.
+#
+# GOOGLE_CLIENT_SECRET stays a Dashboard Secret — never put it here.
+[vars]
+GOOGLE_CLIENT_ID = "586085526768-sfabmmacvgem6rf8bd323hciuk4m26vg.apps.googleusercontent.com"
+GOOGLE_REDIRECT_URI = "https://asohawaii.com/api/portal/auth/google/callback"

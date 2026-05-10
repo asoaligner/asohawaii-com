@@ -226,3 +226,44 @@ async function parseError(res: Response): Promise<ApiErr> {
   }
   return { ok: false, status: res.status, error };
 }
+
+// ─── Password reset (no auth required) ────────────────────────────────
+
+export async function forgotPassword(email: string): Promise<
+  { ok: true } | ApiErr
+> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  return { ok: true };
+}
+
+export async function resetPassword(input: {
+  token: string;
+  newPassword: string;
+}): Promise<{ ok: true } | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  return { ok: true };
+}

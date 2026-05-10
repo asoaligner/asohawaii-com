@@ -188,12 +188,12 @@ export default function PortalLoginPage() {
             </form>
 
             <div className="mt-6 flex items-center justify-between text-[12.5px]">
-              <span
-                title="Available in a future update"
-                className="text-gray-400 cursor-not-allowed"
+              <Link
+                href="/portal/forgot-password/"
+                className="text-navy hover:text-brandOrange transition-colors"
               >
                 Forgot password?
-              </span>
+              </Link>
               <a
                 href="mailto:aso-digital@outlook.com?subject=ASO%20Portal%20account%20request"
                 className="text-navy hover:text-brandOrange transition-colors"

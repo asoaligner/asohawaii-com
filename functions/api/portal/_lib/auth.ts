@@ -237,3 +237,25 @@ export function clientIp(request: Request): string | null {
     null
   );
 }
+
+/** Generate a random URL-safe token. 32 bytes ≈ 256 bits of entropy. */
+export function generateOpaqueToken(byteLength = 32): string {
+  const bytes = new Uint8Array(byteLength);
+  crypto.getRandomValues(bytes);
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** SHA-256(input) as lowercase hex. Used for storing reset-token hashes
+ *  so the raw token only ever lives in the email link. */
+export async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  const view = new Uint8Array(buf);
+  let hex = "";
+  for (let i = 0; i < view.length; i++) {
+    hex += view[i].toString(16).padStart(2, "0");
+  }
+  return hex;
+}

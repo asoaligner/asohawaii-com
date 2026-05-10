@@ -28,6 +28,15 @@ export interface PortalEnv {
   DB: D1Database;
   /** HMAC secret for signing session JWTs. Required for any auth route. */
   JWT_SECRET: string;
+  /** Resend API key. Required by routes that send mail (forgot-password). */
+  RESEND_API_KEY?: string;
+  /** Optional override of the From address used for portal mail. Defaults
+   *  to "ASO Hawaii Portal <noreply@asohawaii.com>". */
+  PORTAL_EMAIL_FROM?: string;
+  /** Optional override of the Reply-To address. Defaults to
+   *  aso-digital@outlook.com so clinic users with low IT literacy can
+   *  reply directly to a real human. */
+  PORTAL_EMAIL_REPLY_TO?: string;
 }
 
 export type PagesFunction<E = unknown> = (context: {

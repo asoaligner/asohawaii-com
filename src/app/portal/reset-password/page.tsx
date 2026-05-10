@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import AuthShell from "@/components/portal/AuthShell";
+import PasswordInput from "@/components/portal/PasswordInput";
 import { resetPassword } from "@/lib/portal/client";
 
 export default function ResetPasswordPage() {
@@ -145,43 +146,25 @@ function ResetPasswordInner() {
       }
     >
       <form onSubmit={handleSubmit} className="grid gap-4" noValidate>
-        <div>
-          <label
-            htmlFor="reset-new"
-            className="block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5"
-          >
-            New password
-          </label>
-          <input
-            id="reset-new"
-            type="password"
-            value={next}
-            onChange={(e) => setNext(e.target.value)}
-            autoComplete="new-password"
-            required
-            className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-[14.5px] text-navy focus:border-navy focus:outline-none transition-colors"
-          />
-          <p className="mt-1 text-[11.5px] text-gray-500">
-            At least 10 characters.
-          </p>
-        </div>
-        <div>
-          <label
-            htmlFor="reset-confirm"
-            className="block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5"
-          >
-            Confirm new password
-          </label>
-          <input
-            id="reset-confirm"
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            autoComplete="new-password"
-            required
-            className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-[14.5px] text-navy focus:border-navy focus:outline-none transition-colors"
-          />
-        </div>
+        <PasswordInput
+          id="reset-new"
+          name="new-password"
+          label="New password"
+          value={next}
+          onChange={setNext}
+          autoComplete="new-password"
+          required
+          hint="At least 10 characters."
+        />
+        <PasswordInput
+          id="reset-confirm"
+          name="confirm-password"
+          label="Confirm new password"
+          value={confirm}
+          onChange={setConfirm}
+          autoComplete="new-password"
+          required
+        />
         {errorMsg && (
           <div
             role="alert"

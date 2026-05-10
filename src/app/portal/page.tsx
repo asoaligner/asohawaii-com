@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PasswordInput from "@/components/portal/PasswordInput";
 import { fetchMe, login } from "@/lib/portal/client";
 
 export default function PortalLoginPage() {
@@ -20,17 +21,18 @@ export default function PortalLoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [checkingSession, setCheckingSession] = useState(true);
 
+  // No early-return loading state: render the form on first paint so
+  // Chrome's password manager can scan and offer autofill. If the user
+  // is already authenticated, the useEffect below redirects within a
+  // few hundred ms.
   useEffect(() => {
     let cancelled = false;
     fetchMe().then((res) => {
       if (cancelled) return;
       if (res && res.authenticated) {
         router.replace("/portal/dashboard/");
-        return;
       }
-      setCheckingSession(false);
     });
     return () => {
       cancelled = true;
@@ -49,14 +51,6 @@ export default function PortalLoginPage() {
     }
     setErrorMsg(result.error);
     setBusy(false);
-  }
-
-  if (checkingSession) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-stone-50/40">
-        <div className="text-sm text-gray-500">Loading…</div>
-      </div>
-    );
   }
 
   return (
@@ -142,6 +136,7 @@ export default function PortalLoginPage() {
                 </label>
                 <input
                   id="portal-email"
+                  name="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -151,23 +146,15 @@ export default function PortalLoginPage() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="portal-password"
-                  className="block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5"
-                >
-                  Password
-                </label>
-                <input
-                  id="portal-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                  className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-[14.5px] text-navy focus:border-navy focus:outline-none transition-colors"
-                />
-              </div>
+              <PasswordInput
+                id="portal-password"
+                name="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="current-password"
+                required
+              />
 
               {errorMsg && (
                 <div

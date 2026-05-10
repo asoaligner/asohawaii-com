@@ -22,6 +22,7 @@ import {
   type PortalClinic,
   type PortalUser,
 } from "@/lib/portal/client";
+import PasswordInput from "@/components/portal/PasswordInput";
 import { usePortalSession } from "../session-context";
 
 export default function ProfilePage() {
@@ -206,29 +207,29 @@ function ChangePasswordCard() {
         in to this account. This session stays signed in.
       </p>
       <form onSubmit={handleSubmit} className="grid gap-5" noValidate>
-        <Field
+        <PasswordInput
           id="profile-pw-current"
+          name="current-password"
           label="Current password"
-          type="password"
           value={current}
           onChange={setCurrent}
           autoComplete="current-password"
           required
         />
-        <Field
+        <PasswordInput
           id="profile-pw-new"
+          name="new-password"
           label="New password"
-          type="password"
           value={next}
           onChange={setNext}
           autoComplete="new-password"
           required
           hint="At least 10 characters."
         />
-        <Field
+        <PasswordInput
           id="profile-pw-confirm"
+          name="confirm-password"
           label="Confirm new password"
-          type="password"
           value={confirm}
           onChange={setConfirm}
           autoComplete="new-password"

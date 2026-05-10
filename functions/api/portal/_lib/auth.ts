@@ -238,6 +238,45 @@ export function clientIp(request: Request): string | null {
   );
 }
 
+/**
+ * Insert a new portal_sessions row, stamp last_login_at on the user,
+ * and return the Set-Cookie value carrying the signed session JWT.
+ * Shared between password login and OAuth callback so both paths emit
+ * identical cookies and audit trails.
+ */
+export async function createSessionForUser(
+  db: D1Database,
+  user: PortalUserRow,
+  jwtSecret: string,
+  request: Request,
+): Promise<{ sessionId: string; cookie: string }> {
+  const sid = crypto.randomUUID();
+  const expiresAtSeconds = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS;
+  const expiresAtIso = new Date(expiresAtSeconds * 1000)
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
+  const ip = clientIp(request);
+  const userAgent = request.headers.get("User-Agent");
+
+  await db
+    .prepare(
+      "INSERT INTO portal_sessions (id, user_id, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)",
+    )
+    .bind(sid, user.id, expiresAtIso, ip, userAgent)
+    .run();
+
+  await db
+    .prepare(
+      "UPDATE portal_users SET last_login_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+    )
+    .bind(user.id)
+    .run();
+
+  const token = await signSessionJwt({ sid, uid: user.id }, jwtSecret);
+  return { sessionId: sid, cookie: buildSessionCookie(token) };
+}
+
 /** Generate a random URL-safe token. 32 bytes ≈ 256 bits of entropy. */
 export function generateOpaqueToken(byteLength = 32): string {
   const bytes = new Uint8Array(byteLength);

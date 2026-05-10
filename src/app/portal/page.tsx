@@ -1,21 +1,69 @@
 "use client";
 
 /**
- * Portal sign-in. Phase 1.1: email + password only. The Google / EasyRx
- * buttons are placeholders so the visual contract matches the spec —
- * Google ships in Phase 1.3, EasyRx is deferred. If a valid session
- * cookie is already present (e.g. user navigates back here from /portal/
- * dashboard/), redirect them straight to the dashboard.
+ * Portal sign-in. Email + password (Phase 1.1) and Google OAuth
+ * (Phase 1.3). EasyRx remains deferred to Phase 2 — the button is kept
+ * disabled with a "Soon" tag so the visual contract matches the spec.
+ *
+ * Google sign-in is a small <form method="POST" action="/api/portal/
+ * auth/google"> rather than a fetch + redirect, so the browser follows
+ * Google's 302 cleanly without us needing JS-side navigation tricks.
+ *
+ * On return the URL may carry ?error=<code>; we read it via Suspense
+ * (useSearchParams demands it under static export) and surface a
+ * single-line banner above the form so the user understands why they
+ * were bounced back.
  */
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import PasswordInput from "@/components/portal/PasswordInput";
 import { fetchMe, login } from "@/lib/portal/client";
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  google_denied:
+    "Google sign-in was cancelled. Try again or use email + password.",
+  not_registered:
+    "This Google account is not registered with the portal. Contact your ASO Hawaii rep to be added.",
+  email_unverified:
+    "Your Google email is not verified. Verify it on Google, then try again.",
+  account_disabled:
+    "This account is disabled. Contact your ASO Hawaii rep.",
+  google_id_conflict:
+    "This portal account is already linked to a different Google account.",
+  state_mismatch:
+    "Sign-in session expired. Please try Google sign-in again.",
+  invalid_state:
+    "Sign-in session expired. Please try Google sign-in again.",
+  missing_state:
+    "Sign-in session expired. Please try Google sign-in again.",
+  missing_code:
+    "Google did not return an authorization code. Please try again.",
+  token_exchange_failed:
+    "Could not complete Google sign-in. Please try again.",
+  userinfo_failed:
+    "Could not load your Google profile. Please try again.",
+  unknown:
+    "Google sign-in is not configured correctly. Contact ASO Hawaii.",
+};
+
 export default function PortalLoginPage() {
+  return (
+    <Suspense fallback={<LoginShell error={null} />}>
+      <PortalLoginInner />
+    </Suspense>
+  );
+}
+
+function PortalLoginInner() {
+  const searchParams = useSearchParams();
+  const errorCode = searchParams?.get("error") ?? null;
+  return <LoginShell error={errorCode} />;
+}
+
+function LoginShell({ error }: { error: string | null }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,19 +141,25 @@ export default function PortalLoginPage() {
               Sign in to view your case history and delivery dates.
             </p>
 
-            <div className="mt-7 grid gap-2.5">
-              <button
-                type="button"
-                disabled
-                title="Coming soon"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[13.5px] font-medium text-gray-400 cursor-not-allowed"
+            {error && (
+              <div
+                role="alert"
+                className="mt-5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-700"
               >
-                <span aria-hidden>🔒</span>
-                Continue with Google
-                <span className="text-[10.5px] uppercase tracking-widest text-gray-400">
-                  Soon
-                </span>
-              </button>
+                {OAUTH_ERROR_MESSAGES[error] ?? "Sign-in failed. Please try again."}
+              </div>
+            )}
+
+            <div className="mt-7 grid gap-2.5">
+              <form method="POST" action="/api/portal/auth/google">
+                <button
+                  type="submit"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[13.5px] font-medium text-navy hover:border-navy hover:bg-navy/[0.03] transition-colors"
+                >
+                  <GoogleGlyph />
+                  Continue with Google
+                </button>
+              </form>
               <button
                 type="button"
                 disabled
@@ -197,5 +251,34 @@ export default function PortalLoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+function GoogleGlyph() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 18 18"
+      aria-hidden
+      style={{ display: "inline-block" }}
+    >
+      <path
+        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+        fill="#4285F4"
+      />
+      <path
+        d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+        fill="#34A853"
+      />
+      <path
+        d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"
+        fill="#EA4335"
+      />
+    </svg>
   );
 }

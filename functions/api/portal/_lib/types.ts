@@ -37,6 +37,15 @@ export interface PortalEnv {
    *  aso-digital@outlook.com so clinic users with low IT literacy can
    *  reply directly to a real human. */
   PORTAL_EMAIL_REPLY_TO?: string;
+  /** Google OAuth Client ID — public per Google's docs, lives in
+   *  wrangler.toml [vars]. */
+  GOOGLE_CLIENT_ID?: string;
+  /** Google OAuth Client Secret — Pages Dashboard Secret. Never put
+   *  this in wrangler.toml. */
+  GOOGLE_CLIENT_SECRET?: string;
+  /** Authorized redirect URI registered in Google Cloud Console. Must
+   *  match exactly. Lives in wrangler.toml [vars]. */
+  GOOGLE_REDIRECT_URI?: string;
 }
 
 export type PagesFunction<E = unknown> = (context: {

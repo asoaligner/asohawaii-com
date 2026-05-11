@@ -2,19 +2,21 @@ name = "asohawaii-website"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "out"
 
-# VisualDLP sync schedule — fires 5 times per day, in HST.
-# HST = UTC-10, so:
-#   06 HST → 16 UTC
-#   10 HST → 20 UTC
-#   14 HST → 00 UTC (next UTC day)
-#   18 HST → 04 UTC (next UTC day)
-#   22 HST → 08 UTC (next UTC day)
-# The handler will be wired up in Phase 1.4b-2 once the real VisualDLP
-# API endpoints are confirmed. Today (Phase 1.4b-1) we still ship the
-# manual trigger at POST /api/portal/admin/sync/visualdlp so aso_staff
-# can validate the sync helper end-to-end before the scheduler matters.
-[triggers]
-crons = ["0 0 * * *", "0 4 * * *", "0 8 * * *", "0 16 * * *", "0 20 * * *"]
+# Note on VisualDLP sync schedule (Phase 1.4b-1):
+#
+# Cloudflare Pages projects with filesystem routing do NOT support
+# `[triggers] crons` in wrangler.toml — the deploy is rejected with
+# "Configuration file for Pages projects does not support 'triggers'".
+# (Verified 2026-05-11 against deployment 76c84025.)
+#
+# The intended cadence is 5x/day on HST: 06/10/14/18/22 HST, i.e. UTC
+# 16/20/00/04/08. Phase 1.4b-2 will pick one of:
+#   - a separate Cloudflare Worker (Workers project, has [triggers]) that
+#     POSTs to /api/portal/admin/sync/visualdlp with a shared-secret header
+#   - GitHub Actions cron hitting the same endpoint
+#   - migrating this Pages project to "advanced mode" with _worker.ts
+# For now the manual trigger at POST /api/portal/admin/sync/visualdlp is
+# the only entry point.
 
 # D1 binding — same database used by the existing AI-chat tables and
 # the portal_* tables added in migrations/portal/. With wrangler.toml

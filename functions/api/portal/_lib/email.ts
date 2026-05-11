@@ -28,6 +28,10 @@ export interface SendEmailInput {
   subject: string;
   html: string;
   text: string;
+  /** Per-call Reply-To override. Used by the order-question flow so the
+   *  lab can reply directly to the asking user. Falls back to
+   *  env.PORTAL_EMAIL_REPLY_TO / REPLY_TO_DEFAULT when omitted. */
+  replyTo?: string;
 }
 
 export type SendEmailResult =
@@ -42,7 +46,8 @@ export async function sendEmail(
     return { ok: false, error: "RESEND_API_KEY not configured" };
   }
   const from = env.PORTAL_EMAIL_FROM || FROM_DEFAULT;
-  const replyTo = env.PORTAL_EMAIL_REPLY_TO || REPLY_TO_DEFAULT;
+  const replyTo =
+    input.replyTo || env.PORTAL_EMAIL_REPLY_TO || REPLY_TO_DEFAULT;
 
   let res: Response;
   try {
@@ -149,4 +154,83 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/**
+ * Render an "Ask about this case" email — clinic user asking the lab a
+ * question about a specific order. The Reply-To is set to the asker's
+ * email by the caller so the lab can hit Reply and land directly in the
+ * user's inbox.
+ */
+export function orderQuestionEmail(args: {
+  fromName: string;
+  fromEmail: string;
+  clinicName: string;
+  orderNumber: string;
+  orderId: number;
+  patientName: string | null;
+  applianceType: string | null;
+  source: string;
+  orderDate: string | null;
+  deliveryDate: string | null;
+  portalOrderUrl: string;
+  message: string;
+}): { html: string; text: string; subject: string } {
+  const subject = `[Portal Question] ${args.orderNumber} — ${
+    args.patientName ?? "no patient"
+  }`;
+
+  const text = [
+    `New question from ${args.fromName} <${args.fromEmail}> (${args.clinicName})`,
+    "",
+    "ORDER",
+    `  #${args.orderNumber}  (portal id ${args.orderId})`,
+    `  Patient:   ${args.patientName ?? "—"}`,
+    `  Appliance: ${args.applianceType ?? "—"}`,
+    `  Source:    ${args.source}`,
+    `  Order:     ${args.orderDate ?? "—"}`,
+    `  Delivery:  ${args.deliveryDate ?? "—"}`,
+    `  Portal:    ${args.portalOrderUrl}`,
+    "",
+    "QUESTION",
+    args.message,
+    "",
+    "— Reply to this email to respond to the asker directly.",
+  ].join("\n");
+
+  const safeFromName = escapeHtml(args.fromName);
+  const safeFromEmail = escapeHtml(args.fromEmail);
+  const safeClinic = escapeHtml(args.clinicName);
+  const safeOrderNum = escapeHtml(args.orderNumber);
+  const safePatient = escapeHtml(args.patientName ?? "—");
+  const safeAppliance = escapeHtml(args.applianceType ?? "—");
+  const safeSource = escapeHtml(args.source);
+  const safeOrderDate = escapeHtml(args.orderDate ?? "—");
+  const safeDeliveryDate = escapeHtml(args.deliveryDate ?? "—");
+  const safeUrl = escapeHtml(args.portalOrderUrl);
+  const safeMessage = escapeHtml(args.message).replace(/\n/g, "<br>");
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${subject}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px 28px">
+      <p style="margin:0 0 4px;color:#9ca3af;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Portal Question</p>
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:22px;line-height:1.3">${safeOrderNum} · ${safePatient}</h1>
+      <p style="margin:0 0 18px;color:#374151;font-size:14px;line-height:1.55">From <strong>${safeFromName}</strong> &lt;<a href="mailto:${safeFromEmail}" style="color:#0F2942">${safeFromEmail}</a>&gt; · ${safeClinic}</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:0 0 18px">
+        <tr><td style="padding:6px 0;color:#6b7280;font-size:12px;width:90px">Appliance</td><td style="padding:6px 0;color:#0F2942;font-size:13px">${safeAppliance}</td></tr>
+        <tr><td style="padding:6px 0;color:#6b7280;font-size:12px">Source</td><td style="padding:6px 0;color:#0F2942;font-size:13px">${safeSource}</td></tr>
+        <tr><td style="padding:6px 0;color:#6b7280;font-size:12px">Order date</td><td style="padding:6px 0;color:#0F2942;font-size:13px">${safeOrderDate}</td></tr>
+        <tr><td style="padding:6px 0;color:#6b7280;font-size:12px">Delivery</td><td style="padding:6px 0;color:#0F2942;font-size:13px">${safeDeliveryDate}</td></tr>
+        <tr><td style="padding:6px 0;color:#6b7280;font-size:12px">Portal</td><td style="padding:6px 0;color:#0F2942;font-size:13px"><a href="${safeUrl}" style="color:#0F2942">${safeUrl}</a></td></tr>
+      </table>
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;color:#0F2942;font-size:14px;line-height:1.6;white-space:pre-wrap">${safeMessage}</div>
+      <p style="margin:18px 0 0;color:#6b7280;font-size:11.5px;line-height:1.55">Reply to this email to respond to the asker directly — the Reply-To is set to their portal address.</p>
+    </td></tr>
+    <tr><td style="padding:16px 32px 0;color:#9ca3af;font-size:11.5px;line-height:1.5">ASO Hawaii Doctor Portal · ${safeUrl}</td></tr>
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
 }

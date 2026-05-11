@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  askOrderQuestion,
   fetchOrder,
   type OrderDetail,
 } from "@/lib/portal/orders";
@@ -174,18 +175,7 @@ function OrderView({ order, viewerRole }: ViewProps) {
               Reorder same spec
             </button>
           )}
-          <button
-            type="button"
-            disabled
-            title="Coming soon"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-gray-200 bg-white text-gray-400 cursor-not-allowed"
-          >
-            <span aria-hidden>?</span>
-            Ask a question
-            <span className="text-[10px] uppercase tracking-widest text-gray-400">
-              Soon
-            </span>
-          </button>
+          <AskQuestionButton order={order} />
         </div>
       </header>
 
@@ -256,6 +246,149 @@ function OrderView({ order, viewerRole }: ViewProps) {
         {order.synced_at ? ` · Synced ${order.synced_at}` : null}
       </p>
     </article>
+  );
+}
+
+const QUESTION_MAX_LEN = 4000;
+
+type QuestionStatus =
+  | { kind: "idle" }
+  | { kind: "submitting" }
+  | { kind: "error"; message: string };
+
+function AskQuestionButton({ order }: { order: OrderDetail }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<QuestionStatus>({ kind: "idle" });
+  const [sentRef, setSentRef] = useState<string | null>(null);
+
+  function close() {
+    if (status.kind === "submitting") return;
+    setOpen(false);
+    setStatus({ kind: "idle" });
+  }
+
+  async function handleSubmit() {
+    const trimmed = message.trim();
+    if (!trimmed) {
+      setStatus({ kind: "error", message: "Please write a question first." });
+      return;
+    }
+    if (trimmed.length > QUESTION_MAX_LEN) {
+      setStatus({
+        kind: "error",
+        message: `Please keep it under ${QUESTION_MAX_LEN} characters.`,
+      });
+      return;
+    }
+    setStatus({ kind: "submitting" });
+    const res = await askOrderQuestion(order.id, trimmed);
+    if (res.ok) {
+      setSentRef(order.order_number ?? `#${order.id}`);
+      setOpen(false);
+      setMessage("");
+      setStatus({ kind: "idle" });
+      return;
+    }
+    setStatus({ kind: "error", message: res.error });
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(true);
+          setSentRef(null);
+        }}
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-navy/30 bg-white text-navy hover:bg-navy hover:text-white transition-colors"
+      >
+        <span aria-hidden>?</span>
+        Ask a question
+      </button>
+
+      {sentRef && !open && (
+        <span className="text-[12.5px] text-emerald-700">
+          ✓ Question sent for {sentRef} — the lab will reply by email.
+        </span>
+      )}
+
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ask-question-title"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-[1px] px-4 py-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
+        >
+          <div className="w-full max-w-lg rounded-2xl bg-white border border-gray-200 shadow-xl">
+            <div className="px-5 sm:px-6 py-4 border-b border-gray-200">
+              <h2
+                id="ask-question-title"
+                className="font-serif text-lg text-navy"
+              >
+                Ask about {order.order_number ?? `#${order.id}`}
+              </h2>
+              <p className="mt-1 text-[12.5px] text-gray-500">
+                Sends the lab a message tied to this order. They&apos;ll reply
+                to your portal email address.
+              </p>
+            </div>
+            <div className="px-5 sm:px-6 py-5">
+              <label
+                htmlFor="ask-question-text"
+                className="block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5"
+              >
+                Your question
+              </label>
+              <textarea
+                id="ask-question-text"
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  if (status.kind === "error") setStatus({ kind: "idle" });
+                }}
+                rows={6}
+                maxLength={QUESTION_MAX_LEN}
+                placeholder="e.g. Can the delivery date move up by 2 days?"
+                disabled={status.kind === "submitting"}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-[14px] text-navy focus:border-navy focus:outline-none transition-colors disabled:opacity-60"
+              />
+              <div className="mt-1 flex items-center justify-between text-[11.5px] text-gray-400">
+                <span>
+                  {message.length} / {QUESTION_MAX_LEN}
+                </span>
+                {status.kind === "error" && (
+                  <span className="text-red-600">{status.message}</span>
+                )}
+              </div>
+            </div>
+            <div className="px-5 sm:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={close}
+                disabled={status.kind === "submitting"}
+                className="px-4 py-2 rounded-full text-[13px] text-gray-600 hover:text-navy transition-colors disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={
+                  status.kind === "submitting" || message.trim().length === 0
+                }
+                className="px-4 py-2 rounded-full text-[13px] font-medium bg-navy text-white hover:bg-navy-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {status.kind === "submitting" ? "Sending…" : "Send to lab"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

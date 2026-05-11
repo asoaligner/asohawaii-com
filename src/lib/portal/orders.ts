@@ -121,6 +121,33 @@ export async function fetchOrders(
   }
 }
 
+export async function askOrderQuestion(
+  id: number,
+  message: string,
+): Promise<ApiResult<{ ok: true }>> {
+  try {
+    const res = await fetch(`/api/portal/orders/${id}/question`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    if (!res.ok) {
+      let error = "Failed to send question.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    return { ok: true, data: { ok: true } };
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+}
+
 export async function fetchOrder(
   id: number,
   signal?: AbortSignal,

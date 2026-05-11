@@ -119,6 +119,100 @@ export async function fetchAdminClinics(): Promise<
   }
 }
 
+// ─── User management ────────────────────────────────────────────────────
+
+export interface AdminUserSummary {
+  id: number;
+  clinic_id: number;
+  clinic_name: string | null;
+  email: string;
+  name: string | null;
+  role: "member" | "admin" | "aso_staff";
+  auth_provider: string | null;
+  has_password: boolean;
+  is_active: boolean;
+  last_login_at: string | null;
+  created_at: string;
+}
+
+export interface AdminUsersParams {
+  q?: string;
+  role?: "member" | "admin" | "aso_staff";
+  clinic?: number;
+  include?: "active" | "inactive" | "all";
+}
+
+export async function fetchAdminUsers(
+  params: AdminUsersParams = {},
+): Promise<ApiResult<{ users: AdminUserSummary[] }>> {
+  const u = new URLSearchParams();
+  if (params.q) u.set("q", params.q);
+  if (params.role) u.set("role", params.role);
+  if (params.clinic) u.set("clinic", String(params.clinic));
+  if (params.include) u.set("include", params.include);
+  const qs = u.toString();
+  try {
+    const res = await fetch(
+      `/api/portal/admin/users${qs ? `?${qs}` : ""}`,
+      { credentials: "include", cache: "no-store" },
+    );
+    if (!res.ok) {
+      let error = "Failed to load users.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as { users: AdminUserSummary[] };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+export interface UpdateAdminUserInput {
+  role?: "member" | "admin";
+  is_active?: boolean;
+}
+
+export interface UpdateAdminUserResult {
+  ok: true;
+  changes: number;
+  revoked_sessions: number;
+  user: AdminUserSummary | null;
+}
+
+export async function updateAdminUser(
+  id: number,
+  input: UpdateAdminUserInput,
+): Promise<ApiResult<UpdateAdminUserResult>> {
+  try {
+    const res = await fetch(`/api/portal/admin/users/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      let error = "Failed to update user.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as UpdateAdminUserResult;
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
 // ─── User invitation ────────────────────────────────────────────────────
 
 export interface InviteUserInput {

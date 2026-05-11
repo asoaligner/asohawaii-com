@@ -24,6 +24,12 @@ interface ToolLink {
 
 const NAV_TOOLS: ToolLink[] = [
   {
+    href: "/portal/admin/users/",
+    label: "Users",
+    description:
+      "Portal accounts across all clinics. Promote / demote, deactivate, and see last-login activity.",
+  },
+  {
     href: "/portal/admin/audit/",
     label: "Audit Log",
     description:

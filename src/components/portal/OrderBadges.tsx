@@ -6,11 +6,13 @@
 const SOURCE_LABELS: Record<string, string> = {
   visualdlp: "VisualDLP",
   shop: "Shop",
+  portal: "Portal",
 };
 
 const SOURCE_COLORS: Record<string, string> = {
   visualdlp: "bg-blue-50 text-blue-700 border border-blue-200/70",
   shop: "bg-orange-50 text-orange-700 border border-orange-200/70",
+  portal: "bg-emerald-50 text-emerald-700 border border-emerald-200/70",
 };
 
 export function SourceBadge({ source }: { source: string }) {

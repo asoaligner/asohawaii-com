@@ -18,6 +18,24 @@ import {
   type FormState,
 } from "./types";
 
+export interface SubmitCaseFormProps {
+  /** Initial values to merge over INITIAL_FORM_STATE. Use to pre-fill the
+   *  practice section in authenticated portal mode. Shallow-merged per
+   *  top-level key. */
+  prefill?: Partial<FormState>;
+  /** Called after the Formspree POST succeeds. Use to write a portal_orders
+   *  row in portal mode. Errors here are logged but do NOT fail the user
+   *  flow — Formspree (the lab's email workflow) is the source of truth. */
+  afterSubmitSuccess?: (args: {
+    state: FormState;
+    reference: string;
+    appliancesSummary: string;
+  }) => Promise<void>;
+  /** If set, the success screen shows a "View in Dashboard" link to this
+   *  href in addition to the standard Back-to-home button. */
+  successDashboardHref?: string;
+}
+
 /** Best-effort mapping from product slug → appliance id used by the
  *  Stage A form. Lets `?product=<catalog-slug>` URLs preselect a row.
  *  Keys here mirror the slugs in src/data/product-catalog.ts; values
@@ -111,9 +129,35 @@ function appliancesToText(arr: ApplianceConfig[], label: string): string {
   return lines.join("\n");
 }
 
-export function SubmitCaseForm() {
+function mergePrefill(
+  base: FormState,
+  prefill: Partial<FormState> | undefined,
+): FormState {
+  if (!prefill) return base;
+  return {
+    ...base,
+    ...prefill,
+    practice: { ...base.practice, ...(prefill.practice ?? {}) },
+    patient: { ...base.patient, ...(prefill.patient ?? {}) },
+    toothSelection: {
+      ...base.toothSelection,
+      ...(prefill.toothSelection ?? {}),
+    },
+    files: { ...base.files, ...(prefill.files ?? {}) },
+    delivery: { ...base.delivery, ...(prefill.delivery ?? {}) },
+    consent: { ...base.consent, ...(prefill.consent ?? {}) },
+  };
+}
+
+export function SubmitCaseForm({
+  prefill,
+  afterSubmitSuccess,
+  successDashboardHref,
+}: SubmitCaseFormProps = {}) {
   const params = useSearchParams();
-  const [state, setState] = useState<FormState>(INITIAL_FORM_STATE);
+  const [state, setState] = useState<FormState>(() =>
+    mergePrefill(INITIAL_FORM_STATE, prefill),
+  );
   const [step, setStep] = useState<Step>(1);
   const [visited, setVisited] = useState<Set<number>>(new Set([1]));
   const [status, setStatus] = useState<Status>("idle");
@@ -271,6 +315,21 @@ export function SubmitCaseForm() {
       if (res.ok) {
         setReference(ref);
         setSubmittedDoctor(state.practice.doctor || "Doctor");
+        // Portal hook: write the matching portal_orders row. Errors here
+        // do NOT fail the user flow — Formspree (email) is the lab's
+        // source of truth, dashboard visibility is best-effort.
+        if (afterSubmitSuccess) {
+          try {
+            await afterSubmitSuccess({
+              state,
+              reference: ref,
+              appliancesSummary: summaryParts.join("\n\n"),
+            });
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn("Portal submission write failed:", err);
+          }
+        }
         setStatus("success");
       } else {
         const body = await res.json().catch(() => null);
@@ -329,7 +388,7 @@ export function SubmitCaseForm() {
           <button
             type="button"
             onClick={() => {
-              setState(INITIAL_FORM_STATE);
+              setState(mergePrefill(INITIAL_FORM_STATE, prefill));
               setStep(1);
               setVisited(new Set([1]));
               setStatus("idle");
@@ -340,12 +399,21 @@ export function SubmitCaseForm() {
           >
             Submit another case
           </button>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 bg-white text-navy border border-gray-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-navy transition-colors"
-          >
-            Back to home
-          </Link>
+          {successDashboardHref ? (
+            <Link
+              href={successDashboardHref}
+              className="inline-flex items-center gap-2 bg-white text-navy border border-gray-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-navy transition-colors"
+            >
+              View in Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 bg-white text-navy border border-gray-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-navy transition-colors"
+            >
+              Back to home
+            </Link>
+          )}
         </div>
       </div>
     );

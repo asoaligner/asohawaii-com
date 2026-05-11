@@ -24,6 +24,7 @@ interface NavLink {
 
 const BASE_NAV_LINKS: NavLink[] = [
   { label: "Dashboard", href: "/portal/dashboard/" },
+  { label: "Submit Case", href: "/portal/submit-case/" },
   { label: "Profile", href: "/portal/profile/" },
 ];
 

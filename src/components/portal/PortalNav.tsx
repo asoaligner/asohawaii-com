@@ -62,22 +62,24 @@ export default function PortalNav({ user, clinic }: Props) {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200/60">
       <div className="container-narrow flex items-center justify-between gap-4 h-16">
-        <Link
-          href="/portal/dashboard/"
-          className="flex items-center gap-3 shrink-0"
-        >
-          <Image
-            src="/images/aso/aso-logo.png"
-            alt="ASO Hawaii"
-            width={750}
-            height={511}
-            className="h-9 w-auto object-contain"
-            priority
-          />
-          <span className="hidden sm:inline-block font-serif text-base text-navy leading-tight">
+        <div className="flex items-center gap-3 shrink-0">
+          <Link href="/" aria-label="ASO Hawaii home" className="shrink-0">
+            <Image
+              src="/images/aso/aso-logo.png"
+              alt="ASO Hawaii"
+              width={750}
+              height={511}
+              className="h-9 w-auto object-contain"
+              priority
+            />
+          </Link>
+          <Link
+            href="/portal/dashboard/"
+            className="hidden sm:inline-block font-serif text-base text-navy leading-tight hover:text-brandOrange transition-colors"
+          >
             Doctor Portal
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-5 text-[14px]">
           {navLinks.map((l) => (

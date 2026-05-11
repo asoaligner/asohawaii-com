@@ -2,6 +2,20 @@ name = "asohawaii-website"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "out"
 
+# VisualDLP sync schedule — fires 5 times per day, in HST.
+# HST = UTC-10, so:
+#   06 HST → 16 UTC
+#   10 HST → 20 UTC
+#   14 HST → 00 UTC (next UTC day)
+#   18 HST → 04 UTC (next UTC day)
+#   22 HST → 08 UTC (next UTC day)
+# The handler will be wired up in Phase 1.4b-2 once the real VisualDLP
+# API endpoints are confirmed. Today (Phase 1.4b-1) we still ship the
+# manual trigger at POST /api/portal/admin/sync/visualdlp so aso_staff
+# can validate the sync helper end-to-end before the scheduler matters.
+[triggers]
+crons = ["0 0 * * *", "0 4 * * *", "0 8 * * *", "0 16 * * *", "0 20 * * *"]
+
 # D1 binding — same database used by the existing AI-chat tables and
 # the portal_* tables added in migrations/portal/. With wrangler.toml
 # present, Cloudflare Pages treats this file as the source of truth

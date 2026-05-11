@@ -84,3 +84,54 @@ export async function fetchAuditLog(
     return { ok: false, status: 0, error: "Network error." };
   }
 }
+
+// ─── VisualDLP sync trigger ─────────────────────────────────────────────
+
+export interface VisualDlpSyncSummary {
+  ok: true;
+  triggered_by: "manual" | "cron";
+  fetched: number;
+  upserted: number;
+  skipped: number;
+  errors: number;
+  duration_ms: number;
+  message: string;
+}
+
+export interface VisualDlpSyncFailure {
+  ok: false;
+  triggered_by: "manual" | "cron";
+  error: string;
+  duration_ms: number;
+}
+
+export type VisualDlpSyncResponse =
+  | VisualDlpSyncSummary
+  | VisualDlpSyncFailure;
+
+export async function triggerVisualDlpSync(): Promise<
+  ApiResult<VisualDlpSyncResponse>
+> {
+  try {
+    const res = await fetch("/api/portal/admin/sync/visualdlp", {
+      method: "POST",
+      credentials: "include",
+    });
+    let body: VisualDlpSyncResponse | { error?: string } | null = null;
+    try {
+      body = (await res.json()) as VisualDlpSyncResponse | { error?: string };
+    } catch {
+      /* fall through */
+    }
+    if (!res.ok && (!body || !("ok" in body))) {
+      const error =
+        body && "error" in body && body.error
+          ? body.error
+          : "Failed to trigger sync.";
+      return { ok: false, status: res.status, error };
+    }
+    return { ok: true, data: body as VisualDlpSyncResponse };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}

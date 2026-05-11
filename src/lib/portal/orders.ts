@@ -121,6 +121,51 @@ export async function fetchOrders(
   }
 }
 
+export interface UpdateOrderInput {
+  order_number?: string | null;
+  patient_name?: string | null;
+  appliance_type?: string | null;
+  order_date?: string | null;
+  delivery_date?: string | null;
+  delivery_notes?: string | null;
+  tracking_number?: string | null;
+  tracking_carrier?: string | null;
+  additional_memo?: string | null;
+  internal_memo?: string | null;
+}
+
+export async function updateOrder(
+  id: number,
+  input: UpdateOrderInput,
+): Promise<ApiResult<{ ok: true; changes: number; order: OrderDetail }>> {
+  try {
+    const res = await fetch(`/api/portal/orders/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      let error = "Failed to update order.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as {
+      ok: true;
+      changes: number;
+      order: OrderDetail;
+    };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+}
+
 export async function askOrderQuestion(
   id: number,
   message: string,

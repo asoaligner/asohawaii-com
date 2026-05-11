@@ -15,11 +15,13 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   askOrderQuestion,
   fetchOrder,
+  updateOrder,
   type OrderDetail,
+  type UpdateOrderInput,
 } from "@/lib/portal/orders";
 import {
   DeliveryDateCell,
@@ -120,7 +122,11 @@ export default function OrderDetailPage() {
         )}
 
         {state.status === "ok" && (
-          <OrderView order={state.order} viewerRole={user.role} />
+          <OrderView
+            order={state.order}
+            viewerRole={user.role}
+            onOrderUpdated={(order) => setState({ status: "ok", order })}
+          />
         )}
       </div>
     </div>
@@ -130,9 +136,10 @@ export default function OrderDetailPage() {
 interface ViewProps {
   order: OrderDetail;
   viewerRole: "member" | "admin" | "aso_staff";
+  onOrderUpdated: (order: OrderDetail) => void;
 }
 
-function OrderView({ order, viewerRole }: ViewProps) {
+function OrderView({ order, viewerRole, onOrderUpdated }: ViewProps) {
   return (
     <article className="mt-6">
       {/* Header */}
@@ -176,6 +183,9 @@ function OrderView({ order, viewerRole }: ViewProps) {
             </button>
           )}
           <AskQuestionButton order={order} />
+          {viewerRole === "aso_staff" && (
+            <EditOrderButton order={order} onUpdated={onOrderUpdated} />
+          )}
         </div>
       </header>
 
@@ -383,6 +393,320 @@ function AskQuestionButton({ order }: { order: OrderDetail }) {
                 className="px-4 py-2 rounded-full text-[13px] font-medium bg-navy text-white hover:bg-navy-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {status.kind === "submitting" ? "Sending…" : "Send to lab"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ─── Edit order (aso_staff only) ──────────────────────────────────────
+
+interface EditOrderFormState {
+  order_number: string;
+  patient_name: string;
+  appliance_type: string;
+  order_date: string;
+  delivery_date: string;
+  tracking_number: string;
+  tracking_carrier: string;
+  delivery_notes: string;
+  additional_memo: string;
+  internal_memo: string;
+}
+
+function orderToEditForm(order: OrderDetail): EditOrderFormState {
+  return {
+    order_number: order.order_number ?? "",
+    patient_name: order.patient_name ?? "",
+    appliance_type: order.appliance_type ?? "",
+    order_date: order.order_date ?? "",
+    delivery_date: order.delivery_date ?? "",
+    tracking_number: order.tracking_number ?? "",
+    tracking_carrier: order.tracking_carrier ?? "",
+    delivery_notes: order.delivery_notes ?? "",
+    additional_memo: order.additional_memo ?? "",
+    internal_memo:
+      typeof order.internal_memo === "string" ? order.internal_memo : "",
+  };
+}
+
+function diffEditForm(
+  original: EditOrderFormState,
+  next: EditOrderFormState,
+): UpdateOrderInput {
+  const out: UpdateOrderInput = {};
+  (Object.keys(next) as (keyof EditOrderFormState)[]).forEach((k) => {
+    if (next[k] !== original[k]) {
+      // Empty string → null on the server side; we still send the empty
+      // string to make the intent ("clear this field") explicit.
+      (out as Record<string, string | null>)[k] = next[k];
+    }
+  });
+  return out;
+}
+
+function EditOrderButton({
+  order,
+  onUpdated,
+}: {
+  order: OrderDetail;
+  onUpdated: (order: OrderDetail) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<EditOrderFormState>(() =>
+    orderToEditForm(order),
+  );
+  const [busy, setBusy] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+  const original = useMemo(() => orderToEditForm(order), [order]);
+
+  function close() {
+    if (busy) return;
+    setOpen(false);
+    setErrorMsg(null);
+    setForm(orderToEditForm(order));
+  }
+
+  function bind<K extends keyof EditOrderFormState>(k: K) {
+    return {
+      value: form[k],
+      onChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      ) => setForm((f) => ({ ...f, [k]: e.target.value })),
+      disabled: busy,
+    };
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErrorMsg(null);
+    const diff = diffEditForm(original, form);
+    if (Object.keys(diff).length === 0) {
+      setErrorMsg("No changes to save.");
+      return;
+    }
+    setBusy(true);
+    const res = await updateOrder(order.id, diff);
+    setBusy(false);
+    if (res.ok) {
+      onUpdated(res.data.order);
+      setFlash(`Saved ${res.data.changes} field(s).`);
+      setOpen(false);
+      window.setTimeout(
+        () => setFlash((f) => (f && f.startsWith("Saved ") ? null : f)),
+        4500,
+      );
+      return;
+    }
+    setErrorMsg(res.error);
+  }
+
+  const inputClass =
+    "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-[14px] text-navy focus:border-navy focus:outline-none transition-colors disabled:opacity-60";
+  const labelClass =
+    "block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5";
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setForm(orderToEditForm(order));
+          setOpen(true);
+        }}
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-amber-300 bg-amber-50/60 text-amber-900 hover:bg-amber-100 transition-colors"
+      >
+        <span aria-hidden>✎</span>
+        Edit order
+        <span className="text-[10px] uppercase tracking-widest text-amber-700">
+          Staff
+        </span>
+      </button>
+
+      {flash && !open && (
+        <span className="text-[12.5px] text-emerald-700">✓ {flash}</span>
+      )}
+
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-order-title"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-[1px] px-4 py-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
+        >
+          <div className="w-full max-w-2xl rounded-2xl bg-white border border-gray-200 shadow-xl">
+            <div className="px-5 sm:px-6 py-4 border-b border-gray-200">
+              <h2
+                id="edit-order-title"
+                className="font-serif text-lg text-navy"
+              >
+                Edit {order.order_number ?? `#${order.id}`}
+              </h2>
+              <p className="mt-1 text-[12.5px] text-gray-500">
+                Internal staff edit. Changes are recorded in the audit log
+                with a per-field from→to diff.
+              </p>
+            </div>
+            <form
+              onSubmit={handleSubmit}
+              className="px-5 sm:px-6 py-5 grid gap-3 max-h-[70vh] overflow-y-auto"
+              noValidate
+            >
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="edit-order-number" className={labelClass}>
+                    Order number
+                  </label>
+                  <input
+                    id="edit-order-number"
+                    type="text"
+                    className={inputClass}
+                    {...bind("order_number")}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-patient-name" className={labelClass}>
+                    Patient name
+                  </label>
+                  <input
+                    id="edit-patient-name"
+                    type="text"
+                    className={inputClass}
+                    {...bind("patient_name")}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="edit-appliance" className={labelClass}>
+                    Appliance type
+                  </label>
+                  <input
+                    id="edit-appliance"
+                    type="text"
+                    className={inputClass}
+                    {...bind("appliance_type")}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-order-date" className={labelClass}>
+                    Order date
+                  </label>
+                  <input
+                    id="edit-order-date"
+                    type="date"
+                    className={inputClass}
+                    {...bind("order_date")}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-delivery-date" className={labelClass}>
+                    Delivery date
+                  </label>
+                  <input
+                    id="edit-delivery-date"
+                    type="date"
+                    className={inputClass}
+                    {...bind("delivery_date")}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-tracking-number" className={labelClass}>
+                    Tracking number
+                  </label>
+                  <input
+                    id="edit-tracking-number"
+                    type="text"
+                    className={inputClass}
+                    {...bind("tracking_number")}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-tracking-carrier" className={labelClass}>
+                    Carrier
+                  </label>
+                  <input
+                    id="edit-tracking-carrier"
+                    type="text"
+                    placeholder="USPS / UPS / FedEx / Walking"
+                    className={inputClass}
+                    {...bind("tracking_carrier")}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="edit-delivery-notes" className={labelClass}>
+                  Delivery notes
+                </label>
+                <textarea
+                  id="edit-delivery-notes"
+                  rows={3}
+                  className={inputClass}
+                  {...bind("delivery_notes")}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="edit-additional-memo" className={labelClass}>
+                  Additional memo{" "}
+                  <span className="text-gray-400 normal-case">
+                    (visible to the clinic)
+                  </span>
+                </label>
+                <textarea
+                  id="edit-additional-memo"
+                  rows={2}
+                  className={inputClass}
+                  {...bind("additional_memo")}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="edit-internal-memo" className={labelClass}>
+                  Internal memo{" "}
+                  <span className="text-amber-700 normal-case">
+                    (ASO staff only, never returned to clinic users)
+                  </span>
+                </label>
+                <textarea
+                  id="edit-internal-memo"
+                  rows={3}
+                  className={`${inputClass} bg-amber-50/40 border-amber-200/70`}
+                  {...bind("internal_memo")}
+                />
+              </div>
+
+              {errorMsg && (
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-700"
+                >
+                  {errorMsg}
+                </div>
+              )}
+            </form>
+            <div className="px-5 sm:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={close}
+                disabled={busy}
+                className="px-4 py-2 rounded-full text-[13px] text-gray-600 hover:text-navy transition-colors disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={busy}
+                className="px-4 py-2 rounded-full text-[13px] font-medium bg-amber-600 text-white hover:bg-amber-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {busy ? "Saving…" : "Save changes"}
               </button>
             </div>
           </div>

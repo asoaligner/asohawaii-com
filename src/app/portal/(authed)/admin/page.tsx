@@ -30,6 +30,12 @@ const NAV_TOOLS: ToolLink[] = [
       "Portal accounts across all clinics. Promote / demote, deactivate, and see last-login activity.",
   },
   {
+    href: "/portal/admin/clinics/",
+    label: "Clinics",
+    description:
+      "Clinic master records — contact info, ASO account number, and visualdlp_account_id used for sync mapping.",
+  },
+  {
     href: "/portal/admin/audit/",
     label: "Audit Log",
     description:

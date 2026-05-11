@@ -85,13 +85,21 @@ export async function fetchAuditLog(
   }
 }
 
-// ─── Clinics list ───────────────────────────────────────────────────────
+// ─── Clinics list + management ──────────────────────────────────────────
 
 export interface AdminClinicSummary {
   id: number;
   name: string;
+  email_domain: string | null;
+  aso_account_number: string | null;
+  visualdlp_account_id: string | null;
   contact_email: string;
+  phone: string | null;
+  address: string | null;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  user_count: number;
 }
 
 export async function fetchAdminClinics(): Promise<
@@ -113,6 +121,86 @@ export async function fetchAdminClinics(): Promise<
       return { ok: false, status: res.status, error };
     }
     const data = (await res.json()) as { clinics: AdminClinicSummary[] };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+export interface CreateClinicInput {
+  name: string;
+  contact_email: string;
+  email_domain?: string;
+  aso_account_number?: string;
+  visualdlp_account_id?: string;
+  phone?: string;
+  address?: string;
+}
+
+export async function createClinic(
+  input: CreateClinicInput,
+): Promise<ApiResult<{ id: number }>> {
+  try {
+    const res = await fetch("/api/portal/admin/clinics", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      let error = "Failed to create clinic.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as { id: number };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+export interface UpdateClinicInput {
+  name?: string;
+  contact_email?: string;
+  email_domain?: string;
+  aso_account_number?: string;
+  visualdlp_account_id?: string;
+  phone?: string;
+  address?: string;
+  is_active?: boolean;
+}
+
+export async function updateAdminClinic(
+  id: number,
+  input: UpdateClinicInput,
+): Promise<ApiResult<{ ok: true; changes: number; clinic: AdminClinicSummary | null }>> {
+  try {
+    const res = await fetch(`/api/portal/admin/clinics/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      let error = "Failed to update clinic.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as {
+      ok: true;
+      changes: number;
+      clinic: AdminClinicSummary | null;
+    };
     return { ok: true, data };
   } catch {
     return { ok: false, status: 0, error: "Network error." };

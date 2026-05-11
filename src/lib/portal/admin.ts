@@ -85,6 +85,84 @@ export async function fetchAuditLog(
   }
 }
 
+// ─── Clinics list ───────────────────────────────────────────────────────
+
+export interface AdminClinicSummary {
+  id: number;
+  name: string;
+  contact_email: string;
+  is_active: boolean;
+}
+
+export async function fetchAdminClinics(): Promise<
+  ApiResult<{ clinics: AdminClinicSummary[] }>
+> {
+  try {
+    const res = await fetch("/api/portal/admin/clinics", {
+      credentials: "include",
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      let error = "Failed to load clinics.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as { clinics: AdminClinicSummary[] };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+// ─── User invitation ────────────────────────────────────────────────────
+
+export interface InviteUserInput {
+  email: string;
+  name?: string;
+  clinic_id?: number;
+  new_clinic_name?: string;
+  role: "member" | "admin";
+}
+
+export interface InviteUserOk {
+  ok: true;
+  invitation_id: number | null;
+  email_sent: boolean;
+  expires_at: string;
+}
+
+export async function inviteUser(
+  input: InviteUserInput,
+): Promise<ApiResult<InviteUserOk>> {
+  try {
+    const res = await fetch("/api/portal/admin/users/invite", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      let error = "Failed to send invitation.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* fall through */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    const data = (await res.json()) as InviteUserOk;
+    return { ok: true, data };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
 // ─── VisualDLP sync trigger ─────────────────────────────────────────────
 
 export interface VisualDlpSyncSummary {

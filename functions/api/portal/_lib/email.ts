@@ -147,6 +147,81 @@ export function passwordResetEmail(args: {
   return { html, text };
 }
 
+/**
+ * Render an invitation email. The recipient clicks the link, lands on
+ * /portal/accept-invite/?token=X, chooses a password, and a portal_users
+ * row is created + signed in.
+ */
+export function invitationEmail(args: {
+  recipientName: string | null;
+  inviterName: string;
+  clinicName: string;
+  role: "member" | "admin" | "aso_staff";
+  acceptUrl: string;
+  expiresHumanLabel: string;
+}): { html: string; text: string; subject: string } {
+  const { recipientName, inviterName, clinicName, role, acceptUrl } = args;
+  const greeting = recipientName ? `Hi ${recipientName},` : "Hi,";
+  const roleLabel =
+    role === "admin"
+      ? "clinic admin"
+      : role === "aso_staff"
+        ? "ASO staff"
+        : "team member";
+  const subject = `${inviterName} invited you to ASO Hawaii Doctor Portal`;
+
+  const text = [
+    greeting,
+    "",
+    `${inviterName} has invited you to join the ASO Hawaii Doctor Portal`,
+    `for ${clinicName} as a ${roleLabel}.`,
+    "",
+    "Set a password to claim your account:",
+    "",
+    acceptUrl,
+    "",
+    `This invitation expires ${args.expiresHumanLabel}.`,
+    "",
+    "If you didn't expect this email, you can ignore it — no account",
+    "will be created without you choosing a password.",
+    "",
+    "— ASO Hawaii",
+    "808-957-0111 · aso-digital@outlook.com",
+  ].join("\n");
+
+  const safeGreeting = escapeHtml(greeting);
+  const safeUrl = escapeHtml(acceptUrl);
+  const safeInviter = escapeHtml(inviterName);
+  const safeClinic = escapeHtml(clinicName);
+  const safeRole = escapeHtml(roleLabel);
+  const safeExpires = escapeHtml(args.expiresHumanLabel);
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:540px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:24px;line-height:1.3">You're invited to the Doctor Portal</h1>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeGreeting}</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6"><strong>${safeInviter}</strong> has invited you to join the ASO Hawaii Doctor Portal for <strong>${safeClinic}</strong> as a <strong>${safeRole}</strong>.</p>
+      <p style="margin:24px 0">
+        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">Set your password</a>
+      </p>
+      <p style="margin:0 0 8px;color:#6b7280;font-size:12.5px;line-height:1.6">Or copy and paste this link into your browser:</p>
+      <p style="margin:0 0 24px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
+      <p style="margin:24px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">This invitation expires <strong>${safeExpires}</strong>.</p>
+      <p style="margin:8px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">If you didn't expect this email, you can safely ignore it — no account is created until you choose a password.</p>
+    </td></tr>
+    <tr><td style="padding:16px 32px 0;color:#9ca3af;font-size:11.5px;line-height:1.5">
+      ASO International Hawaii, Inc. · 1441 Kapiolani Blvd #1112, Honolulu HI 96814<br>
+      808-957-0111 · aso-digital@outlook.com
+    </td></tr>
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")

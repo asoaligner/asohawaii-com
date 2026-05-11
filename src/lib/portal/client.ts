@@ -216,6 +216,63 @@ export async function changePassword(
   return { ok: true, otherSessionsRevoked: body.otherSessionsRevoked };
 }
 
+// ─── Invitation accept (no auth required) ─────────────────────────────
+
+export interface InvitationInfo {
+  email: string;
+  name: string | null;
+  clinic_name: string | null;
+  role: "member" | "admin" | "aso_staff";
+  inviter_name: string | null;
+  expires_at: string;
+}
+
+export type InvitationInfoResult =
+  | { ok: true; info: InvitationInfo }
+  | ApiErr;
+
+export async function fetchInvitationInfo(
+  token: string,
+): Promise<InvitationInfoResult> {
+  let res: Response;
+  try {
+    res = await fetch(
+      `/api/portal/auth/invite-info?token=${encodeURIComponent(token)}`,
+      { cache: "no-store" },
+    );
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  const info = (await res.json()) as InvitationInfo;
+  return { ok: true, info };
+}
+
+export async function acceptInvitation(input: {
+  token: string;
+  password: string;
+  name?: string;
+}): Promise<{ ok: true; redirect: string } | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/auth/accept-invite", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) {
+    return parseError(res);
+  }
+  const body = (await res.json()) as { ok: true; redirect?: string };
+  return { ok: true, redirect: body.redirect ?? "/portal/dashboard/" };
+}
+
 async function parseError(res: Response): Promise<ApiErr> {
   let error = "Request failed.";
   try {

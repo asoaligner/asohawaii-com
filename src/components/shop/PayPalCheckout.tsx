@@ -32,6 +32,7 @@ import {
   sendOrderNotification,
   type PayPalCaptureSummary,
 } from "@/lib/orderNotification";
+import { syncShopOrderToPortal } from "@/lib/portal/shopSync";
 
 type Props = {
   shippingFee: number;
@@ -143,6 +144,24 @@ export default function PayPalCheckout({
               // Don't fail the buyer flow — capture already succeeded.
               // eslint-disable-next-line no-console
               console.error("Order notification failed:", notifyErr);
+            }
+
+            // Portal sync — best-effort, only writes if buyer_email matches
+            // a portal_users row. Failures here are silent so non-portal
+            // shoppers don't see scary errors after a successful capture.
+            try {
+              const sync = await syncShopOrderToPortal({
+                details,
+                items,
+                shippingFee,
+              });
+              if (!sync.ok && sync.error) {
+                // eslint-disable-next-line no-console
+                console.warn("Portal shop sync failed:", sync.error);
+              }
+            } catch (syncErr) {
+              // eslint-disable-next-line no-console
+              console.warn("Portal shop sync threw:", syncErr);
             }
 
             const orderId = details.id ?? "";

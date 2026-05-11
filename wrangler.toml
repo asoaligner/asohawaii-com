@@ -42,3 +42,32 @@ migrations_dir = "migrations/portal"
 [vars]
 GOOGLE_CLIENT_ID = "586085526768-sfabmmacvgem6rf8bd323hciuk4m26vg.apps.googleusercontent.com"
 GOOGLE_REDIRECT_URI = "https://asohawaii.com/api/portal/auth/google/callback"
+
+# Phase 1.5b — R2 file upload bucket for /portal/submit-case/ uploads.
+#
+# Currently DISABLED: Cloudflare R2 must be enabled on the account
+# (Dashboard → R2 → Enable, accepts the Storage TOS and tier pricing)
+# before this binding can be deployed. Once R2 is enabled and the
+# bucket exists, uncomment the [[r2_buckets]] block below and push to
+# activate uploads + downloads in the portal.
+#
+# Activation steps (Koji):
+#   1. Cloudflare Dashboard → R2 → "Enable R2" (one-time)
+#   2. CLOUDFLARE_API_TOKEN=<token> npx wrangler r2 bucket create asohawaii-portal-uploads
+#   3. Uncomment the [[r2_buckets]] block below
+#   4. git commit + push (or empty-commit redeploy) — the new deploy
+#      picks up the binding and /api/portal/uploads starts returning
+#      200 instead of 503 r2_unbound
+#
+# All code is already in place:
+#   - POST /api/portal/uploads (single file, multipart, session-auth)
+#   - GET  /api/portal/orders/:id/files/:fileId (auth-gated download)
+#   - portal_order_files table (migration 0004, already applied)
+#   - /portal/submit-case/ uploads each attached file in parallel after
+#     Formspree succeeds; failures (incl. 503 r2_unbound) silently fall
+#     back to "files in email only" — the dashboard just won't surface
+#     downloads until R2 is on.
+#
+# [[r2_buckets]]
+# binding = "PORTAL_UPLOADS"
+# bucket_name = "asohawaii-portal-uploads"

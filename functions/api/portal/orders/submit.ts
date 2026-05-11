@@ -43,6 +43,9 @@ interface SubmitFile {
   size: number;
   type: string;
   category: "stl" | "photos" | "rxPdf";
+  /** Optional R2 key, populated when the file was uploaded via
+   *  POST /api/portal/uploads before this submit. Phase 1.5b. */
+  r2_key?: string;
 }
 
 interface SubmitBody {
@@ -62,6 +65,12 @@ interface SubmitBody {
   files?: SubmitFile[];
   doctor_override?: string;
 }
+
+const FORM_CATEGORY_TO_DB: Record<SubmitFile["category"], string> = {
+  stl: "stl",
+  photos: "photo",
+  rxPdf: "rx_pdf",
+};
 
 function deriveApplianceType(j: SubmitBody["appliances_json"]): string | null {
   if (!j) return null;
@@ -202,6 +211,40 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
     );
   }
 
+  // Phase 1.5b: link R2-uploaded files to the new order. Files that
+  // arrived without an r2_key are kept as metadata in source_data (above)
+  // — they're already in the Formspree email so the lab isn't blind, the
+  // dashboard just won't surface them for download.
+  let linkedFileCount = 0;
+  if (newId != null) {
+    for (const f of files) {
+      if (!f.r2_key) continue;
+      try {
+        await ctx.env.DB.prepare(
+          `INSERT INTO portal_order_files
+             (order_id, category, filename, r2_key, content_type,
+              size_bytes, uploaded_by_user_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+          .bind(
+            newId,
+            FORM_CATEGORY_TO_DB[f.category] ?? "other",
+            f.name,
+            f.r2_key,
+            f.type || null,
+            Number.isFinite(f.size) ? f.size : null,
+            session.user.id,
+          )
+          .run();
+        linkedFileCount += 1;
+      } catch {
+        // Duplicate r2_key or some other DB issue — keep going, the
+        // file is still in R2 and the email path. We log via the audit
+        // metadata below rather than blocking submission.
+      }
+    }
+  }
+
   await recordAudit(ctx.env.DB, {
     userId: session.user.id,
     action: "portal_order_submitted",
@@ -213,6 +256,7 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
       appliance_type: applianceType,
       due_date: body.due_date ?? null,
       file_count: files.length,
+      r2_linked_count: linkedFileCount,
     },
     ipAddress: clientIp(ctx.request),
   });

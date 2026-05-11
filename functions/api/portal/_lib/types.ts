@@ -24,6 +24,30 @@ export interface D1Result<T = unknown> {
   meta?: { changes?: number; last_row_id?: number };
 }
 
+/** Minimal R2Bucket surface — same modus operandi as the D1 types above:
+ *  we don't pull in @cloudflare/workers-types just for these. Phase 1.5b
+ *  uses put / get / head / delete; expand as new flows arrive. */
+export interface R2Bucket {
+  put(
+    key: string,
+    value: ReadableStream | ArrayBuffer | Blob | string,
+    options?: { httpMetadata?: { contentType?: string } },
+  ): Promise<{ key: string; size: number; etag: string } | null>;
+  get(key: string): Promise<R2Object | null>;
+  head(key: string): Promise<R2Object | null>;
+  delete(key: string): Promise<void>;
+}
+
+export interface R2Object {
+  key: string;
+  size: number;
+  etag: string;
+  httpEtag: string;
+  httpMetadata?: { contentType?: string; contentDisposition?: string };
+  body: ReadableStream;
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
 export interface PortalEnv {
   DB: D1Database;
   /** HMAC secret for signing session JWTs. Required for any auth route. */
@@ -46,6 +70,12 @@ export interface PortalEnv {
   /** Authorized redirect URI registered in Google Cloud Console. Must
    *  match exactly. Lives in wrangler.toml [vars]. */
   GOOGLE_REDIRECT_URI?: string;
+  /** R2 bucket for portal-submitted case files (STL / photos / Rx PDFs).
+   *  Bound via wrangler.toml `[[r2_buckets]]`. Optional at the type
+   *  level so endpoints can degrade gracefully when R2 isn't enabled
+   *  on the account yet (Phase 1.5b ships endpoint code ahead of the
+   *  bucket activation). */
+  PORTAL_UPLOADS?: R2Bucket;
 }
 
 export type PagesFunction<E = unknown> = (context: {

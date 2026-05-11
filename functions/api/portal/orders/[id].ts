@@ -27,9 +27,26 @@ import { requireAsoStaff } from "../_lib/admin";
 import {
   isCrossClinicViewer,
   publicOrderDetail,
+  type PortalOrderFileSummary,
   type PortalOrderRow,
 } from "../_lib/orders";
 import type { PagesFunction, PortalEnv } from "../_lib/types";
+
+async function loadOrderFiles(
+  db: PortalEnv["DB"],
+  orderId: number,
+): Promise<PortalOrderFileSummary[]> {
+  const res = await db
+    .prepare(
+      `SELECT id, category, filename, content_type, size_bytes, created_at
+       FROM portal_order_files
+       WHERE order_id = ?
+       ORDER BY id ASC`,
+    )
+    .bind(orderId)
+    .all<PortalOrderFileSummary>();
+  return res.results ?? [];
+}
 
 export const onRequestGet: PagesFunction<PortalEnv> = async (ctx) => {
   if (!ctx.env.JWT_SECRET) {
@@ -71,7 +88,9 @@ export const onRequestGet: PagesFunction<PortalEnv> = async (ctx) => {
     return jsonResponse({ error: "Order not found." }, { status: 404 });
   }
 
-  return jsonResponse({ order: publicOrderDetail(row, resolved.user) });
+  const files = await loadOrderFiles(ctx.env.DB, row.id);
+
+  return jsonResponse({ order: publicOrderDetail(row, resolved.user, files) });
 };
 
 // ─── PATCH handler (aso_staff cross-clinic edit) ───────────────────────
@@ -239,9 +258,11 @@ export const onRequestPatch: PagesFunction<PortalEnv> = async (ctx) => {
     );
   }
 
+  const freshFiles = await loadOrderFiles(ctx.env.DB, fresh.id);
+
   return jsonResponse({
     ok: true,
     changes: updates.length - 1, // exclude updated_at sentinel
-    order: publicOrderDetail(fresh, guard.session.user),
+    order: publicOrderDetail(fresh, guard.session.user, freshFiles),
   });
 };

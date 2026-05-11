@@ -59,9 +59,32 @@ export interface OrderDetail {
       | { dentition: string; upper: string[]; lower: string[] }
       | null;
   };
+  /** Files uploaded against this order (R2-backed). Empty when uploads
+   *  aren't enabled yet or the order pre-dates Phase 1.5b. Always
+   *  present — never undefined. */
+  files: PortalOrderFile[];
   synced_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PortalOrderFile {
+  id: number;
+  category: string;
+  filename: string;
+  content_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
+}
+
+/** Build the download URL for a per-order file. The endpoint auth-gates
+ *  on every request (session cookie + clinic scoping), so the URL itself
+ *  isn't sensitive. */
+export function orderFileDownloadUrl(
+  orderId: number,
+  fileId: number,
+): string {
+  return `/api/portal/orders/${orderId}/files/${fileId}`;
 }
 
 export interface OrdersListParams {

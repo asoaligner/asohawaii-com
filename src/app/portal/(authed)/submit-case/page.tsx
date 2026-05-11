@@ -32,6 +32,10 @@ import type {
   ToothSelection,
 } from "@/components/submitcase/types";
 import { fetchOrder, type OrderDetail } from "@/lib/portal/orders";
+import {
+  uploadPortalFile,
+  type PortalUploadCategory,
+} from "@/lib/portal/uploads";
 import { usePortalSession } from "../session-context";
 
 type ReorderState =
@@ -134,24 +138,55 @@ export default function PortalSubmitCasePage() {
     reference: string;
     appliancesSummary: string;
   }) {
-    const stlFiles = state.files.stl.map((f) => ({
-      name: f.name,
-      size: f.size,
-      type: f.type,
-      category: "stl" as const,
-    }));
-    const photoFiles = state.files.photos.map((f) => ({
-      name: f.name,
-      size: f.size,
-      type: f.type,
-      category: "photos" as const,
-    }));
-    const rxPdfFiles = state.files.rxPdf.map((f) => ({
-      name: f.name,
-      size: f.size,
-      type: f.type,
-      category: "rxPdf" as const,
-    }));
+    // Map the in-form per-arch file buckets onto the upload+submit category
+    // pair we need at the API boundary. The form keeps 'stl' / 'photos' /
+    // 'rxPdf' because those map cleanly to its FileUploadField; the upload
+    // endpoint uses 'stl' / 'photo' / 'rx_pdf' as the database category.
+    type FormCategory = "stl" | "photos" | "rxPdf";
+    interface FileWithCategory {
+      file: File;
+      formCategory: FormCategory;
+      uploadCategory: PortalUploadCategory;
+    }
+    const allFiles: FileWithCategory[] = [
+      ...state.files.stl.map((f) => ({
+        file: f,
+        formCategory: "stl" as const,
+        uploadCategory: "stl" as const,
+      })),
+      ...state.files.photos.map((f) => ({
+        file: f,
+        formCategory: "photos" as const,
+        uploadCategory: "photo" as const,
+      })),
+      ...state.files.rxPdf.map((f) => ({
+        file: f,
+        formCategory: "rxPdf" as const,
+        uploadCategory: "rx_pdf" as const,
+      })),
+    ];
+
+    // Upload to R2 in parallel, best-effort. Files that fail to upload
+    // still flow to the lab via the Formspree email attachment we already
+    // sent moments ago — they'll just be missing from the portal's
+    // downloads section. R2 503 (bucket unbound) is the common case while
+    // Phase 1.5b is rolling out.
+    const uploadResults = await Promise.all(
+      allFiles.map(({ file, uploadCategory }) =>
+        uploadPortalFile(file, uploadCategory),
+      ),
+    );
+
+    const filesForSubmit = allFiles.map((entry, i) => {
+      const result = uploadResults[i];
+      return {
+        name: entry.file.name,
+        size: entry.file.size,
+        type: entry.file.type,
+        category: entry.formCategory,
+        r2_key: result.ok ? result.key : undefined,
+      };
+    });
 
     const doctorOverride =
       state.practice.doctor && state.practice.doctor !== user.name
@@ -176,7 +211,7 @@ export default function PortalSubmitCasePage() {
         due_date: state.delivery.dueDate,
         shipping_address: state.delivery.address,
         special_instructions: state.delivery.instructions,
-        files: [...stlFiles, ...photoFiles, ...rxPdfFiles],
+        files: filesForSubmit,
         doctor_override: doctorOverride,
       }),
     });

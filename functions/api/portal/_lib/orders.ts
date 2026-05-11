@@ -77,6 +77,19 @@ export interface PortalOrderReorderData {
     | null;
 }
 
+/** Per-file metadata for the order detail response. R2 keys are
+ *  deliberately NOT exposed to the client — downloads go through
+ *  /api/portal/orders/:id/files/:fileId which auth-gates and streams
+ *  from R2 server-side. */
+export interface PortalOrderFileSummary {
+  id: number;
+  category: string;
+  filename: string;
+  content_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
+}
+
 /** Detail projection. internal_memo + source_data appear only when the
  *  viewer is aso_staff. reorder is present for portal-sourced rows for
  *  all viewers (the submitter's own form state). */
@@ -104,6 +117,10 @@ export interface PortalOrderDetail {
   source_data?: unknown;
   /** Present for source='portal' orders; reused by /portal/submit-case/?from=N. */
   reorder?: PortalOrderReorderData;
+  /** Files uploaded against this order. Empty array when R2 isn't bound
+   *  or the order pre-dates the file-upload migration. Always present
+   *  (never undefined) so the UI can render an empty state cleanly. */
+  files: PortalOrderFileSummary[];
   synced_at: string | null;
   created_at: string;
   updated_at: string;
@@ -165,6 +182,7 @@ function buildReorderData(
 export function publicOrderDetail(
   row: PortalOrderRow,
   viewer: Pick<PortalUserRow, "role">,
+  files: PortalOrderFileSummary[] = [],
 ): PortalOrderDetail {
   const base: PortalOrderDetail = {
     id: row.id,
@@ -184,6 +202,7 @@ export function publicOrderDetail(
     stl_files: safeParseJsonArray(row.stl_files),
     design_notes: row.design_notes,
     additional_memo: row.additional_memo,
+    files,
     synced_at: row.synced_at,
     created_at: row.created_at,
     updated_at: row.updated_at,

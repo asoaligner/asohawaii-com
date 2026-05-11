@@ -19,8 +19,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   askOrderQuestion,
   fetchOrder,
+  orderFileDownloadUrl,
   updateOrder,
   type OrderDetail,
+  type PortalOrderFile,
   type UpdateOrderInput,
 } from "@/lib/portal/orders";
 import {
@@ -223,6 +225,13 @@ function OrderView({ order, viewerRole, onOrderUpdated }: ViewProps) {
         </FieldGrid>
       </Section>
 
+      {/* Files */}
+      {order.files.length > 0 && (
+        <Section title="Files">
+          <FileList orderId={order.id} files={order.files} />
+        </Section>
+      )}
+
       {/* Notes */}
       <Section title="Notes">
         <FieldGrid>
@@ -399,6 +408,68 @@ function AskQuestionButton({ order }: { order: OrderDetail }) {
         </div>
       )}
     </>
+  );
+}
+
+// ─── Files (R2-backed downloads, Phase 1.5b) ──────────────────────────
+
+const FILE_CATEGORY_LABELS: Record<string, string> = {
+  stl: "STL",
+  photo: "Photo",
+  rx_pdf: "Rx PDF",
+  other: "Other",
+};
+
+function formatBytes(bytes: number | null): string {
+  if (bytes == null || !Number.isFinite(bytes)) return "—";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function FileList({
+  orderId,
+  files,
+}: {
+  orderId: number;
+  files: PortalOrderFile[];
+}) {
+  return (
+    <ul className="divide-y divide-gray-100 -mx-5 sm:-mx-7">
+      {files.map((file) => {
+        const label =
+          FILE_CATEGORY_LABELS[file.category] ?? file.category;
+        return (
+          <li
+            key={file.id}
+            className="px-5 sm:px-7 py-3 flex items-center justify-between gap-4"
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center text-[10.5px] font-semibold uppercase tracking-widest text-navy bg-navy/5 border border-navy/20 px-2 py-0.5 rounded-full">
+                  {label}
+                </span>
+                <span className="text-[14px] text-navy truncate">
+                  {file.filename}
+                </span>
+              </div>
+              <div className="mt-0.5 text-[11.5px] text-gray-500">
+                {formatBytes(file.size_bytes)}
+                {file.content_type ? ` · ${file.content_type}` : ""}
+              </div>
+            </div>
+            <a
+              href={orderFileDownloadUrl(orderId, file.id)}
+              className="shrink-0 inline-flex items-center gap-1.5 text-[13px] text-navy underline underline-offset-2 hover:text-brandOrange transition-colors"
+              download={file.filename}
+            >
+              Download
+              <span aria-hidden>↓</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

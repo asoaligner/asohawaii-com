@@ -17,16 +17,29 @@ interface Props {
   clinic: PortalClinic;
 }
 
-const NAV_LINKS: { label: string; href: string }[] = [
+interface NavLink {
+  label: string;
+  href: string;
+}
+
+const BASE_NAV_LINKS: NavLink[] = [
   { label: "Dashboard", href: "/portal/dashboard/" },
   { label: "Profile", href: "/portal/profile/" },
 ];
+
+function navLinksFor(user: PortalUser): NavLink[] {
+  if (user.role === "aso_staff") {
+    return [...BASE_NAV_LINKS, { label: "Admin", href: "/portal/admin/" }];
+  }
+  return BASE_NAV_LINKS;
+}
 
 export default function PortalNav({ user, clinic }: Props) {
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const navLinks = navLinksFor(user);
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href);
@@ -67,7 +80,7 @@ export default function PortalNav({ user, clinic }: Props) {
         </Link>
 
         <nav className="hidden md:flex items-center gap-5 text-[14px]">
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -138,7 +151,7 @@ export default function PortalNav({ user, clinic }: Props) {
               </div>
               <div className="text-[11.5px] text-gray-500">{clinic.name}</div>
             </div>
-            {NAV_LINKS.map((l) => (
+            {navLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}

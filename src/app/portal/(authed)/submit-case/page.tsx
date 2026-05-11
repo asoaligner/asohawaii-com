@@ -6,6 +6,10 @@
  * Wraps the shared <SubmitCaseForm /> with:
  *   - prefill from the resolved session (clinic name, doctor = user name,
  *     email, phone) so the practice step is one-click-through;
+ *   - optional reorder prefill from `?from=<orderId>` — fetches the prior
+ *     order and copies arches / appliances / tooth_selection /
+ *     patient_reference into the form state (files + delivery dates are
+ *     deliberately not copied);
  *   - an afterSubmitSuccess callback that writes a portal_orders row via
  *     POST /api/portal/orders/submit so the clinic sees the case on their
  *     dashboard immediately after a successful Formspree submit;
@@ -16,15 +20,74 @@
  * truth and the dashboard visibility is best-effort.
  */
 
-import { Suspense } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { SubmitCaseForm } from "@/components/submitcase/SubmitCaseForm";
-import type { FormState } from "@/components/submitcase/types";
+import type {
+  ApplianceConfig,
+  Arches,
+  Dentition,
+  FormState,
+  ToothSelection,
+} from "@/components/submitcase/types";
+import { fetchOrder, type OrderDetail } from "@/lib/portal/orders";
 import { usePortalSession } from "../session-context";
+
+type ReorderState =
+  | { status: "none" }
+  | { status: "loading"; fromId: number }
+  | { status: "ready"; fromId: number; order: OrderDetail }
+  | { status: "error"; fromId: number; message: string };
+
+function isValidArches(v: unknown): v is Arches {
+  return v === "upper" || v === "lower" || v === "both";
+}
+
+function isValidDentition(v: unknown): v is Dentition {
+  return v === "permanent" || v === "mixed" || v === "primary";
+}
 
 export default function PortalSubmitCasePage() {
   const { user, clinic } = usePortalSession();
+  const searchParams = useSearchParams();
+  const fromParam = searchParams?.get("from") ?? null;
+  const fromId = useMemo(() => {
+    if (!fromParam) return null;
+    const n = Number.parseInt(fromParam, 10);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }, [fromParam]);
 
-  const prefill = {
+  const [reorder, setReorder] = useState<ReorderState>(() =>
+    fromId == null ? { status: "none" } : { status: "loading", fromId },
+  );
+
+  useEffect(() => {
+    if (fromId == null) {
+      setReorder({ status: "none" });
+      return;
+    }
+    const ctrl = new AbortController();
+    setReorder({ status: "loading", fromId });
+    fetchOrder(fromId, ctrl.signal).then((res) => {
+      if (ctrl.signal.aborted) return;
+      if (res.ok) {
+        setReorder({ status: "ready", fromId, order: res.data });
+      } else if (res.error !== "aborted") {
+        setReorder({
+          status: "error",
+          fromId,
+          message:
+            res.status === 404
+              ? "Original order not found or not accessible."
+              : res.error,
+        });
+      }
+    });
+    return () => ctrl.abort();
+  }, [fromId]);
+
+  const sessionPrefill: Partial<FormState> = {
     practice: {
       name: clinic.name,
       doctor: user.name ?? "",
@@ -32,6 +95,35 @@ export default function PortalSubmitCasePage() {
       phone: user.phone || clinic.phone || "",
     },
   };
+
+  const prefill: Partial<FormState> = useMemo(() => {
+    if (reorder.status !== "ready" || !reorder.order.reorder) {
+      return sessionPrefill;
+    }
+    const rd = reorder.order.reorder;
+    const merged: Partial<FormState> = { ...sessionPrefill };
+    merged.patient = {
+      reference: rd.patient_reference ?? "",
+    };
+    if (isValidArches(rd.arches)) merged.arches = rd.arches;
+    merged.archSync = rd.arch_sync;
+    merged.upperAppliances = rd.appliances_upper as ApplianceConfig[];
+    merged.lowerAppliances = rd.appliances_lower as ApplianceConfig[];
+    if (rd.tooth_selection) {
+      const ts = rd.tooth_selection;
+      const dentition: Dentition = isValidDentition(ts.dentition)
+        ? ts.dentition
+        : "permanent";
+      const toothSelection: ToothSelection = {
+        dentition,
+        upper: Array.isArray(ts.upper) ? ts.upper : [],
+        lower: Array.isArray(ts.lower) ? ts.lower : [],
+      };
+      merged.toothSelection = toothSelection;
+    }
+    return merged;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reorder, clinic.name, clinic.phone, user.name, user.email, user.phone]);
 
   async function afterSubmitSuccess({
     state,
@@ -110,19 +202,68 @@ export default function PortalSubmitCasePage() {
           </p>
         </header>
 
-        <Suspense
-          fallback={
-            <div className="text-center text-gray-400 text-sm py-10">
-              Loading form…
+        {reorder.status === "ready" && reorder.order.reorder && (
+          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-4 py-3 flex items-start justify-between gap-3 flex-wrap">
+            <div className="text-[13px] text-emerald-900">
+              <span className="font-medium">Reordering from</span>{" "}
+              <Link
+                href={`/portal/orders/?id=${reorder.order.id}`}
+                className="underline underline-offset-2 hover:text-emerald-700"
+              >
+                {reorder.order.order_number ?? `#${reorder.order.id}`}
+              </Link>
+              {reorder.order.patient_name && (
+                <>
+                  {" · "}
+                  <span className="text-emerald-800">
+                    {reorder.order.patient_name}
+                  </span>
+                </>
+              )}
+              . Appliance, arches, and tooth selection have been pre-filled —
+              update patient reference and files before submitting.
             </div>
-          }
-        >
-          <SubmitCaseForm
-            prefill={prefill}
-            afterSubmitSuccess={afterSubmitSuccess}
-            successDashboardHref="/portal/dashboard/"
-          />
-        </Suspense>
+          </div>
+        )}
+
+        {reorder.status === "ready" && !reorder.order.reorder && (
+          <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-[13px] text-amber-900">
+            This order&apos;s spec couldn&apos;t be reused (only portal-
+            submitted cases carry the full form state). The form below has
+            been started from blank — your practice info is still pre-filled.
+          </div>
+        )}
+
+        {reorder.status === "error" && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+            {reorder.message}
+          </div>
+        )}
+
+        {reorder.status === "loading" && (
+          <div className="text-center text-gray-400 text-sm py-10">
+            Loading prior order…
+          </div>
+        )}
+
+        {reorder.status !== "loading" && (
+          <Suspense
+            fallback={
+              <div className="text-center text-gray-400 text-sm py-10">
+                Loading form…
+              </div>
+            }
+          >
+            <SubmitCaseForm
+              key={
+                reorder.status === "ready" ? `reorder-${reorder.fromId}` : "blank"
+              }
+              prefill={prefill}
+              afterSubmitSuccess={afterSubmitSuccess}
+              successDashboardHref="/portal/dashboard/"
+            />
+          </Suspense>
+        )}
       </div>
     </div>
   );

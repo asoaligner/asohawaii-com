@@ -62,8 +62,24 @@ export function publicOrderListItem(row: PortalOrderRow): PortalOrderListItem {
   };
 }
 
+/** Sanitized form-state projection for Reorder. Present only on portal-
+ *  sourced rows whose source_data was written by /api/portal/orders/submit.
+ *  Visible to clinic users on their own orders (it's data they submitted)
+ *  — not gated by aso_staff like source_data is. */
+export interface PortalOrderReorderData {
+  patient_reference: string | null;
+  arches: "upper" | "lower" | "both" | null;
+  arch_sync: boolean;
+  appliances_upper: unknown[];
+  appliances_lower: unknown[];
+  tooth_selection:
+    | { dentition: string; upper: string[]; lower: string[] }
+    | null;
+}
+
 /** Detail projection. internal_memo + source_data appear only when the
- *  viewer is aso_staff. */
+ *  viewer is aso_staff. reorder is present for portal-sourced rows for
+ *  all viewers (the submitter's own form state). */
 export interface PortalOrderDetail {
   id: number;
   clinic_id: number;
@@ -86,6 +102,8 @@ export interface PortalOrderDetail {
   internal_memo?: string | null;
   /** Present only when the viewer is aso_staff. JSON-parsed if valid. */
   source_data?: unknown;
+  /** Present for source='portal' orders; reused by /portal/submit-case/?from=N. */
+  reorder?: PortalOrderReorderData;
   synced_at: string | null;
   created_at: string;
   updated_at: string;
@@ -108,6 +126,40 @@ function safeParseJson(raw: string | null): unknown {
   } catch {
     return raw;
   }
+}
+
+function buildReorderData(
+  row: PortalOrderRow,
+): PortalOrderReorderData | undefined {
+  if (row.source !== "portal" || !row.source_data) return undefined;
+  let sd: {
+    patient_reference?: string | null;
+    arches?: "upper" | "lower" | "both" | null;
+    arch_sync?: boolean | null;
+    appliances?: { upper?: unknown[]; lower?: unknown[] } | null;
+    tooth_selection?: {
+      dentition: string;
+      upper: string[];
+      lower: string[];
+    } | null;
+  };
+  try {
+    sd = JSON.parse(row.source_data);
+  } catch {
+    return undefined;
+  }
+  return {
+    patient_reference: sd.patient_reference ?? null,
+    arches: sd.arches ?? null,
+    arch_sync: sd.arch_sync ?? false,
+    appliances_upper: Array.isArray(sd.appliances?.upper)
+      ? sd.appliances!.upper
+      : [],
+    appliances_lower: Array.isArray(sd.appliances?.lower)
+      ? sd.appliances!.lower
+      : [],
+    tooth_selection: sd.tooth_selection ?? null,
+  };
 }
 
 export function publicOrderDetail(
@@ -136,6 +188,8 @@ export function publicOrderDetail(
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
+  const reorder = buildReorderData(row);
+  if (reorder) base.reorder = reorder;
   if (viewer.role === "aso_staff") {
     base.internal_memo = row.internal_memo;
     base.source_data = safeParseJson(row.source_data);

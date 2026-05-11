@@ -155,18 +155,25 @@ function OrderView({ order, viewerRole }: ViewProps) {
         </div>
 
         <div className="mt-5 flex items-center gap-3 flex-wrap">
-          <button
-            type="button"
-            disabled
-            title="Coming soon"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-gray-200 bg-white text-gray-400 cursor-not-allowed"
-          >
-            <span aria-hidden>↺</span>
-            Reorder same spec
-            <span className="text-[10px] uppercase tracking-widest text-gray-400">
-              Soon
-            </span>
-          </button>
+          {order.reorder ? (
+            <Link
+              href={`/portal/submit-case/?from=${order.id}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-navy/30 bg-white text-navy hover:bg-navy hover:text-white transition-colors"
+            >
+              <span aria-hidden>↺</span>
+              Reorder same spec
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              title="Only portal-submitted cases can be reordered with full spec. Submit a new case to start."
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-gray-200 bg-white text-gray-400 cursor-not-allowed"
+            >
+              <span aria-hidden>↺</span>
+              Reorder same spec
+            </button>
+          )}
           <button
             type="button"
             disabled

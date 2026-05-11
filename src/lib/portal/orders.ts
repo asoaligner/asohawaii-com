@@ -47,6 +47,18 @@ export interface OrderDetail {
   internal_memo?: string | null;
   /** aso_staff only — JSON-parsed if it parsed cleanly server-side. */
   source_data?: unknown;
+  /** Present for source='portal' orders. Sanitized form state usable to
+   *  pre-fill /portal/submit-case/?from=N. */
+  reorder?: {
+    patient_reference: string | null;
+    arches: "upper" | "lower" | "both" | null;
+    arch_sync: boolean;
+    appliances_upper: unknown[];
+    appliances_lower: unknown[];
+    tooth_selection:
+      | { dentition: string; upper: string[]; lower: string[] }
+      | null;
+  };
   synced_at: string | null;
   created_at: string;
   updated_at: string;

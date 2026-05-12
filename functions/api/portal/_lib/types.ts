@@ -76,6 +76,12 @@ export interface PortalEnv {
    *  on the account yet (Phase 1.5b ships endpoint code ahead of the
    *  bucket activation). */
   PORTAL_UPLOADS?: R2Bucket;
+  /** Shared secret guarding the VisualDLP sync ingest endpoint
+   *  (Phase 1.4b-2). The PC-side `sync_visualdlp_to_portal.py` sends
+   *  it in the `X-Sync-Secret` header; the endpoint refuses anything
+   *  that doesn't match in constant time. Optional at the type level
+   *  so unauthed callers get 503 (not configured) instead of bypass. */
+  VISUALDLP_INGEST_SECRET?: string;
 }
 
 export type PagesFunction<E = unknown> = (context: {

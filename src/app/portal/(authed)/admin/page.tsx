@@ -453,22 +453,24 @@ function VisualDlpSyncCard() {
         <div>
           <div className="font-medium text-navy">VisualDLP Sync</div>
           <div className="mt-1 text-[13px] text-gray-600 max-w-2xl leading-relaxed">
-            Pull recent orders from VisualDLP into the portal. Runs
-            automatically every 4 hours (06:00 / 10:00 / 14:00 / 18:00 /
-            22:00 HST). Use this button to trigger a manual sync; results
-            are recorded in the audit log.
-          </div>
-          <div className="mt-1 text-[11.5px] uppercase tracking-widest text-amber-700">
-            Stub — Phase 1.4b-2 will wire the real fetch
+            VisualDLP orders are ingested from the local pipeline
+            (sync_visualdlp_to_portal.py) every 4 hours — see the audit
+            log for{" "}
+            <code className="font-mono text-[12px] text-navy">
+              sync_visualdlp_ingested
+            </code>{" "}
+            events to inspect each run. The button below hits the
+            no-op trigger from Phase 1.4b-1; it's useful for verifying
+            the audit pipeline but does not pull new data.
           </div>
         </div>
         <button
           type="button"
           onClick={handleRun}
           disabled={ui.status === "running"}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-navy text-white hover:bg-navy-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {ui.status === "running" ? "Running…" : "Run sync now"}
+          {ui.status === "running" ? "Running…" : "Run no-op probe"}
         </button>
       </div>
 

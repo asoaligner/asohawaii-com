@@ -471,22 +471,39 @@ export default function ApplianceDetails({
         </button>
       </div>
 
-      {/* Tooth chart sits at the top of every expanded panel so the
-          doctor can mark / review teeth in the same context as picking
-          the appliance's color / stickers / wires. State is case-wide,
-          so editing in one panel updates the others on next render. */}
-      <div className="mb-4">
-        <div className={labelClass}>Teeth involved</div>
-        <ToothChart
-          value={toothSelection}
-          onChange={onToothSelectionChange}
-        />
-      </div>
-
+      {/* Fields render in their declared order with the tooth chart
+          spliced in directly after the stickers row (so Color and
+          Stickers — the "visual identity" fields — come first, then
+          tooth selection, then the appliance-specific variant /
+          wires / size / etc. fields). If the appliance has no
+          stickers field the chart drops to the very end. */}
       <div className="space-y-4">
-        {appliance.fields
-          .filter((f) => isFieldVisible(f, config))
-          .map((f) => renderField(f))}
+        {(() => {
+          const visible = appliance.fields.filter((f) =>
+            isFieldVisible(f, config),
+          );
+          const stickersIdx = visible.findIndex((f) => f.type === "stickers");
+          const toothChartNode = (
+            <div key="tooth-chart">
+              <div className={labelClass}>Teeth involved</div>
+              <ToothChart
+                value={toothSelection}
+                onChange={onToothSelectionChange}
+              />
+            </div>
+          );
+          const nodes: React.ReactNode[] = [];
+          visible.forEach((field, i) => {
+            nodes.push(renderField(field));
+            if (i === stickersIdx) {
+              nodes.push(toothChartNode);
+            }
+          });
+          if (stickersIdx === -1) {
+            nodes.push(toothChartNode);
+          }
+          return nodes;
+        })()}
       </div>
     </div>
   );

@@ -80,28 +80,27 @@ function buildQuadrants(dent: Dentition): Quadrants {
 // Tooth dimensions by kind. Width drives column size; height drives crown
 // length (taller = more "anterior"). Crown points down for upper teeth and
 // up for lower teeth — that flip is handled via SVG transform per row.
-// Dimensions reduced ~40% from the original 2026-05-11 sizes — the
-// chart now sits INSIDE each appliance's expanded details panel
-// (ApplianceDetails) rather than at the top of Step 3, so it has to
-// share vertical space with Color / Stickers / Variant fields. Two
-// successive rounds of UX feedback from Koji pushed the scale down
-// from 75% → 60%; click targets remain usable on desktop and tappable
-// on tablet, slightly tight on phones.
+// Dimensions reduced ~55% from the original 2026-05-11 sizes. Three
+// successive rounds of UX feedback from Koji pushed the scale down:
+// 75% → 60% → 45%. The chart sits inside each appliance's expanded
+// details panel below the stickers section, so it has to share
+// vertical space with the rest of the appliance config. Click targets
+// (molar 18×17) are tight on mobile but workable on desktop / tablet.
 const KIND_DIMS: Record<
   ToothDef["kind"],
   { w: number; h: number; rx: number }
 > = {
-  incisor: { w: 18, h: 25, rx: 3 },
-  canine: { w: 19, h: 28, rx: 3 },
-  premolar: { w: 20, h: 22, rx: 4 },
-  molar: { w: 24, h: 22, rx: 4 },
-  primary: { w: 16, h: 19, rx: 3 },
+  incisor: { w: 14, h: 19, rx: 2 },
+  canine: { w: 14, h: 21, rx: 2 },
+  premolar: { w: 16, h: 17, rx: 3 },
+  molar: { w: 18, h: 17, rx: 3 },
+  primary: { w: 12, h: 14, rx: 2 },
 };
 
 const TOOTH_GAP = 2;
-const ROW_PADDING_X = 18;
-const MIDLINE_GAP = 12;
-const ROW_HEIGHT = 36;
+const ROW_PADDING_X = 12;
+const MIDLINE_GAP = 8;
+const ROW_HEIGHT = 28;
 
 function rowWidth(quad: ToothDef[]): number {
   return quad.reduce(

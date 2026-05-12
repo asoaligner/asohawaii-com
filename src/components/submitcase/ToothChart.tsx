@@ -80,27 +80,29 @@ function buildQuadrants(dent: Dentition): Quadrants {
 // Tooth dimensions by kind. Width drives column size; height drives crown
 // length (taller = more "anterior"). Crown points down for upper teeth and
 // up for lower teeth — that flip is handled via SVG transform per row.
-// Dimensions reduced ~55% from the original 2026-05-11 sizes. Three
-// successive rounds of UX feedback from Koji pushed the scale down:
-// 75% → 60% → 45%. The chart sits inside each appliance's expanded
-// details panel below the stickers section, so it has to share
-// vertical space with the rest of the appliance config. Click targets
-// (molar 18×17) are tight on mobile but workable on desktop / tablet.
+// Dimensions reduced again — fourth round of UX feedback. Per Koji,
+// the chart is now used as an "acrylic coverage area" indicator on
+// Plate-Type and similar appliances, NOT a precision per-tooth picker.
+// Combined with Range being the default mode, the doctor mostly clicks
+// 2 endpoints to mark a span (e.g. R7 → L7 for full-arch coverage),
+// so the tooth boxes can be quite small. Widths are ~half of the
+// previous (45% → ~22% of original); heights stay reasonable so the
+// numeric labels are still readable.
 const KIND_DIMS: Record<
   ToothDef["kind"],
   { w: number; h: number; rx: number }
 > = {
-  incisor: { w: 14, h: 19, rx: 2 },
-  canine: { w: 14, h: 21, rx: 2 },
-  premolar: { w: 16, h: 17, rx: 3 },
-  molar: { w: 18, h: 17, rx: 3 },
-  primary: { w: 12, h: 14, rx: 2 },
+  incisor: { w: 8, h: 13, rx: 2 },
+  canine: { w: 8, h: 14, rx: 2 },
+  premolar: { w: 9, h: 12, rx: 2 },
+  molar: { w: 10, h: 12, rx: 2 },
+  primary: { w: 7, h: 10, rx: 2 },
 };
 
-const TOOTH_GAP = 2;
-const ROW_PADDING_X = 12;
-const MIDLINE_GAP = 8;
-const ROW_HEIGHT = 28;
+const TOOTH_GAP = 1;
+const ROW_PADDING_X = 8;
+const MIDLINE_GAP = 6;
+const ROW_HEIGHT = 20;
 
 function rowWidth(quad: ToothDef[]): number {
   return quad.reduce(
@@ -133,7 +135,7 @@ export default function ToothChart({ value, onChange }: Props) {
     rowWidth(quads.LR) + rowWidth(quads.LL) + MIDLINE_GAP;
   const archWidth = Math.max(upperRowWidth, lowerRowWidth);
   const svgW = archWidth + ROW_PADDING_X * 2;
-  const svgH = ROW_HEIGHT * 2 + 70; // upper + lower + midline label band
+  const svgH = ROW_HEIGHT * 2 + 36; // upper + lower + midline label band
 
   const upperSelected = new Set(value.upper);
   const lowerSelected = new Set(value.lower);
@@ -341,9 +343,9 @@ export default function ToothChart({ value, onChange }: Props) {
         />
         <text
           x={x + dim.w / 2}
-          y={y + dim.h / 2 + 4}
+          y={y + dim.h / 2 + 3}
           textAnchor="middle"
-          fontSize={t.kind === "molar" ? 13 : 12}
+          fontSize={8}
           fontWeight={600}
           fill={textColor}
           pointerEvents="none"
@@ -447,7 +449,9 @@ export default function ToothChart({ value, onChange }: Props) {
         ))}
       </div>
 
-      {/* Chart */}
+      {/* Chart — minWidth halved from the previous 560 to match the
+          new tooth dimensions; the SVG is still scaled to 100% of its
+          container so the doctor doesn't have to hunt for endpoints. */}
       <div className="rounded-2xl border border-gray-200 bg-white p-3 sm:p-4 overflow-x-auto">
         <svg
           viewBox={`0 0 ${svgW} ${svgH}`}
@@ -455,18 +459,18 @@ export default function ToothChart({ value, onChange }: Props) {
           className="select-none"
           aria-label="Tooth selection chart"
           role="img"
-          style={{ minWidth: 560 }}
+          style={{ maxWidth: 280 }}
         >
           {/* Upper row */}
-          {renderRow(quads.UR, quads.UL, false, 4, upperSelected)}
+          {renderRow(quads.UR, quads.UL, false, 2, upperSelected)}
           {/* Midline arch labels */}
           <text
             x={svgW / 2}
-            y={ROW_HEIGHT + 28}
+            y={ROW_HEIGHT + 14}
             textAnchor="middle"
-            fontSize={11}
+            fontSize={9}
             fill="#6B7280"
-            letterSpacing="0.15em"
+            letterSpacing="0.12em"
           >
             UPPER {value.dentition.toUpperCase()}{" "}
             ({upperCount} selected)
@@ -476,16 +480,16 @@ export default function ToothChart({ value, onChange }: Props) {
             quads.LR,
             quads.LL,
             true,
-            ROW_HEIGHT + 38,
+            ROW_HEIGHT + 20,
             lowerSelected
           )}
           <text
             x={svgW / 2}
-            y={svgH - 6}
+            y={svgH - 4}
             textAnchor="middle"
-            fontSize={11}
+            fontSize={9}
             fill="#6B7280"
-            letterSpacing="0.15em"
+            letterSpacing="0.12em"
           >
             LOWER {value.dentition.toUpperCase()}{" "}
             ({lowerCount} selected)

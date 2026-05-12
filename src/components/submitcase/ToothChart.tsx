@@ -80,21 +80,24 @@ function buildQuadrants(dent: Dentition): Quadrants {
 // Tooth dimensions by kind. Width drives column size; height drives crown
 // length (taller = more "anterior"). Crown points down for upper teeth and
 // up for lower teeth — that flip is handled via SVG transform per row.
+// Dimensions reduced ~25% from the original 2026-05-11 sizes per UX
+// feedback that the chart was taking too much vertical space in Step 2
+// (moved here from Step 3 in the same change).
 const KIND_DIMS: Record<
   ToothDef["kind"],
   { w: number; h: number; rx: number }
 > = {
-  incisor: { w: 30, h: 42, rx: 4 },
-  canine: { w: 32, h: 46, rx: 5 },
-  premolar: { w: 34, h: 38, rx: 6 },
-  molar: { w: 40, h: 38, rx: 7 },
-  primary: { w: 26, h: 32, rx: 5 },
+  incisor: { w: 23, h: 32, rx: 3 },
+  canine: { w: 24, h: 35, rx: 4 },
+  premolar: { w: 26, h: 29, rx: 5 },
+  molar: { w: 30, h: 29, rx: 5 },
+  primary: { w: 20, h: 24, rx: 4 },
 };
 
-const TOOTH_GAP = 4;
-const ROW_PADDING_X = 32;
-const MIDLINE_GAP = 22;
-const ROW_HEIGHT = 60;
+const TOOTH_GAP = 3;
+const ROW_PADDING_X = 24;
+const MIDLINE_GAP = 16;
+const ROW_HEIGHT = 45;
 
 function rowWidth(quad: ToothDef[]): number {
   return quad.reduce(
@@ -111,7 +114,10 @@ type Props = {
 };
 
 export default function ToothChart({ value, onChange }: Props) {
-  const [mode, setMode] = useState<Mode>("add");
+  // Default to "range" so the common case of marking a span of adjacent
+  // teeth (e.g. UR2–UL2 for an anterior retainer) is one click less than
+  // before. Add / remove stay available.
+  const [mode, setMode] = useState<Mode>("range");
   const [rangeAnchor, setRangeAnchor] = useState<string | null>(null);
 
   const quads = buildQuadrants(value.dentition);

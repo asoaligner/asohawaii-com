@@ -4,7 +4,6 @@ import { useEffect, useMemo } from "react";
 import DueDatePicker from "./DueDatePicker";
 import FileUploadField from "./FileUploadField";
 import ReviewSummary from "./ReviewSummary";
-import ToothChart from "./ToothChart";
 import {
   SHIPPING_COUNTRIES,
   US_STATES,
@@ -92,24 +91,13 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           Step 3 of 3
         </div>
         <h2 className="font-serif text-3xl text-navy leading-tight tracking-tightest">
-          Tooth chart, files &amp; delivery
+          Files &amp; delivery
         </h2>
         <p className="mt-2 text-[14.5px] text-gray-600 leading-relaxed">
-          Mark the teeth involved, attach STL / photos / Rx PDF, and tell us
-          when and how to send the case back.
+          Attach STL / photos / Rx PDF, and tell us when and how to send the
+          case back.
         </p>
       </div>
-
-      {/* TOOTH CHART */}
-      <section>
-        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
-          Tooth chart
-        </div>
-        <ToothChart
-          value={state.toothSelection}
-          onChange={(next) => setState({ ...state, toothSelection: next })}
-        />
-      </section>
 
       {/* FILES */}
       <section className="space-y-5">

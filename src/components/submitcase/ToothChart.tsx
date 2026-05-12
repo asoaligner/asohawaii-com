@@ -116,14 +116,68 @@ type Mode = "add" | "remove" | "range";
 type Props = {
   value: ToothSelection;
   onChange: (next: ToothSelection) => void;
+  /** When set, only this arch row is rendered (and the selection
+   *  summary suppresses the other line). Used by ApplianceDetails so
+   *  an upper-arch retainer panel doesn't show lower teeth and vice
+   *  versa. Defaults to both arches. */
+  arch?: "upper" | "lower";
 };
 
-export default function ToothChart({ value, onChange }: Props) {
+/** Display order for one arch — left-to-right as the chart renders:
+ *  right quadrant positions reversed (8→1 / E→A so molars sit on the
+ *  outside) then left quadrant in normal order (1→8 / A→E). */
+function archDisplayOrder(
+  archLetter: "U" | "L",
+  dent: Dentition,
+): string[] {
+  const rPrefix = (archLetter + "R") as Quadrant;
+  const lPrefix = (archLetter + "L") as Quadrant;
+  const rightPositions = makeQuadrant(rPrefix, dent).map((t) => t.label);
+  const leftPositions = makeQuadrant(lPrefix, dent).map((t) => t.label);
+  return [
+    ...rightPositions
+      .slice()
+      .reverse()
+      .map((p) => `${rPrefix}${p}`),
+    ...leftPositions.map((p) => `${lPrefix}${p}`),
+  ];
+}
+
+/** Compact contiguous-run formatter: ["UR7","UR6",...,"UL7"] →
+ *  "UR7 to UL7". Disjoint runs become "UR7 to UR5, UL3 to UL5".
+ *  Single-tooth runs render as themselves. Empty input → "". */
+function compactRanges(
+  selectedIds: string[],
+  displayOrder: string[],
+): string {
+  const sel = new Set(selectedIds);
+  const runs: string[][] = [];
+  let current: string[] = [];
+  for (const id of displayOrder) {
+    if (sel.has(id)) {
+      current.push(id);
+    } else if (current.length > 0) {
+      runs.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) runs.push(current);
+  return runs
+    .map((r) =>
+      r.length === 1 ? r[0] : `${r[0]} to ${r[r.length - 1]}`,
+    )
+    .join(", ");
+}
+
+export default function ToothChart({ value, onChange, arch }: Props) {
   // Default to "range" so the common case of marking a span of adjacent
   // teeth (e.g. UR2–UL2 for an anterior retainer) is one click less than
   // before. Add / remove stay available.
   const [mode, setMode] = useState<Mode>("range");
   const [rangeAnchor, setRangeAnchor] = useState<string | null>(null);
+
+  const showUpper = arch !== "lower";
+  const showLower = arch !== "upper";
 
   const quads = buildQuadrants(value.dentition);
 
@@ -135,7 +189,10 @@ export default function ToothChart({ value, onChange }: Props) {
     rowWidth(quads.LR) + rowWidth(quads.LL) + MIDLINE_GAP;
   const archWidth = Math.max(upperRowWidth, lowerRowWidth);
   const svgW = archWidth + ROW_PADDING_X * 2;
-  const svgH = ROW_HEIGHT * 2 + 36; // upper + lower + midline label band
+  // Vertical band per visible arch (row + arch label). When only one
+  // arch is shown the chart's height collapses to ~half.
+  const visibleArches = (showUpper ? 1 : 0) + (showLower ? 1 : 0);
+  const svgH = visibleArches === 2 ? ROW_HEIGHT * 2 + 36 : ROW_HEIGHT + 18;
 
   const upperSelected = new Set(value.upper);
   const lowerSelected = new Set(value.lower);
@@ -461,70 +518,83 @@ export default function ToothChart({ value, onChange }: Props) {
           role="img"
           style={{ maxWidth: 280 }}
         >
-          {/* Upper row */}
-          {renderRow(quads.UR, quads.UL, false, 2, upperSelected)}
-          {/* Midline arch labels */}
-          <text
-            x={svgW / 2}
-            y={ROW_HEIGHT + 14}
-            textAnchor="middle"
-            fontSize={9}
-            fill="#6B7280"
-            letterSpacing="0.12em"
-          >
-            UPPER {value.dentition.toUpperCase()}{" "}
-            ({upperCount} selected)
-          </text>
-          {/* Lower row */}
-          {renderRow(
-            quads.LR,
-            quads.LL,
-            true,
-            ROW_HEIGHT + 20,
-            lowerSelected
+          {showUpper && (
+            <>
+              {renderRow(quads.UR, quads.UL, false, 2, upperSelected)}
+              <text
+                x={svgW / 2}
+                y={ROW_HEIGHT + 14}
+                textAnchor="middle"
+                fontSize={9}
+                fill="#6B7280"
+                letterSpacing="0.12em"
+              >
+                UPPER {value.dentition.toUpperCase()}{" "}
+                ({upperCount} selected)
+              </text>
+            </>
           )}
-          <text
-            x={svgW / 2}
-            y={svgH - 4}
-            textAnchor="middle"
-            fontSize={9}
-            fill="#6B7280"
-            letterSpacing="0.12em"
-          >
-            LOWER {value.dentition.toUpperCase()}{" "}
-            ({lowerCount} selected)
-          </text>
+          {showLower && (
+            <>
+              {renderRow(
+                quads.LR,
+                quads.LL,
+                true,
+                showUpper ? ROW_HEIGHT + 20 : 2,
+                lowerSelected
+              )}
+              <text
+                x={svgW / 2}
+                y={svgH - 4}
+                textAnchor="middle"
+                fontSize={9}
+                fill="#6B7280"
+                letterSpacing="0.12em"
+              >
+                LOWER {value.dentition.toUpperCase()}{" "}
+                ({lowerCount} selected)
+              </text>
+            </>
+          )}
         </svg>
       </div>
 
-      {/* Selection summary */}
+      {/* Selection summary — compact contiguous-run format. A full
+          upper arch shows as "UR7 to UL7" (or 8→8 for wisdom-tooth
+          cases); disjoint regions get comma-separated. */}
       <div className="rounded-xl bg-gray-50/60 border border-gray-200 px-4 py-3 text-[13px] text-gray-700">
-        {upperCount === 0 && lowerCount === 0 ? (
-          <span className="text-gray-400">No teeth selected.</span>
-        ) : (
-          <div className="space-y-0.5">
-            <div>
-              <span className="font-medium text-navy">Upper:</span>{" "}
-              {upperCount === 0
-                ? "—"
-                : value.upper
-                    .slice()
-                    .sort()
-                    .map((id) => displayLabel(id, "left"))
-                    .join(", ")}
+        {(() => {
+          const upperOrder = archDisplayOrder("U", value.dentition);
+          const lowerOrder = archDisplayOrder("L", value.dentition);
+          const upperText = compactRanges(value.upper, upperOrder);
+          const lowerText = compactRanges(value.lower, lowerOrder);
+          const upperEmpty = upperCount === 0;
+          const lowerEmpty = lowerCount === 0;
+          if (
+            (!showUpper || upperEmpty) &&
+            (!showLower || lowerEmpty)
+          ) {
+            return (
+              <span className="text-gray-400">No teeth selected.</span>
+            );
+          }
+          return (
+            <div className="space-y-0.5">
+              {showUpper && (
+                <div>
+                  <span className="font-medium text-navy">Upper:</span>{" "}
+                  {upperEmpty ? "—" : upperText}
+                </div>
+              )}
+              {showLower && (
+                <div>
+                  <span className="font-medium text-navy">Lower:</span>{" "}
+                  {lowerEmpty ? "—" : lowerText}
+                </div>
+              )}
             </div>
-            <div>
-              <span className="font-medium text-navy">Lower:</span>{" "}
-              {lowerCount === 0
-                ? "—"
-                : value.lower
-                    .slice()
-                    .sort()
-                    .map((id) => displayLabel(id, "left"))
-                    .join(", ")}
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

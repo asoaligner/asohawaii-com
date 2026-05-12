@@ -33,6 +33,9 @@ type Props = {
    *  shared across all panels (case-wide, not per-appliance). */
   toothSelection: ToothSelection;
   onToothSelectionChange: (next: ToothSelection) => void;
+  /** Which arch this selector handles — passed down so the embedded
+   *  ToothChart can hide the unrelated arch's row. */
+  arch: "upper" | "lower";
 };
 
 type ZoomState = { src: string; alt: string } | null;
@@ -97,6 +100,7 @@ export default function ApplianceSelector({
   pinnedApplianceId,
   toothSelection,
   onToothSelectionChange,
+  arch,
 }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(initiallyExpanded)
@@ -394,6 +398,7 @@ export default function ApplianceSelector({
                               onRemove={() => removeConfig(key)}
                               toothSelection={toothSelection}
                               onToothSelectionChange={onToothSelectionChange}
+                              arch={arch}
                             />
                           );
                         })}

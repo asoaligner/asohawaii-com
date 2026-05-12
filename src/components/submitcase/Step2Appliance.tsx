@@ -157,6 +157,7 @@ export default function Step2Appliance({
       {(state.arches === "upper" || state.arches === "both") && (
         <ApplianceSelector
           archLabel="Upper"
+          arch="upper"
           selected={state.upperAppliances}
           onChange={setUpper}
           pinnedApplianceId={pinnedApplianceId}
@@ -174,6 +175,7 @@ export default function Step2Appliance({
       {(state.arches === "lower" || state.arches === "both") && (
         <ApplianceSelector
           archLabel="Lower"
+          arch="lower"
           selected={state.lowerAppliances}
           onChange={setLower}
           readOnly={state.arches === "both" && state.archSync}

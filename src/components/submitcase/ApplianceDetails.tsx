@@ -42,6 +42,10 @@ type Props = {
    *  section or Step 3 header. */
   toothSelection: ToothSelection;
   onToothSelectionChange: (next: ToothSelection) => void;
+  /** Which arch this details panel lives in (the parent ApplianceSelector
+   *  is single-arch). The embedded ToothChart hides the other arch so
+   *  upper retainers don't show lower teeth and vice versa. */
+  arch?: "upper" | "lower";
 };
 
 const labelClass =
@@ -55,6 +59,7 @@ export default function ApplianceDetails({
   onRemove,
   toothSelection,
   onToothSelectionChange,
+  arch,
 }: Props) {
   const appliance = findAppliance(config.applianceId);
   if (!appliance) return null;
@@ -489,6 +494,7 @@ export default function ApplianceDetails({
               <ToothChart
                 value={toothSelection}
                 onChange={onToothSelectionChange}
+                arch={arch}
               />
             </div>
           );

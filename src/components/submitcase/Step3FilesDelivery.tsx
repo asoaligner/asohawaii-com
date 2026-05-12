@@ -149,7 +149,10 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           Delivery &amp; timeline
         </div>
         <div>
-          <label htmlFor="d-due" className={labelClass}>
+          <label
+            htmlFor="d-due"
+            className="block text-lg font-semibold text-navy mb-3"
+          >
             Due Date <span className="text-brandOrange ml-1">*</span>
           </label>
           <DueDatePicker

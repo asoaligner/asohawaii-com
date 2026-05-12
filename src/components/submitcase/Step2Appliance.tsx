@@ -2,7 +2,6 @@
 
 import { findAppliance } from "@/data/appliances";
 import ApplianceSelector from "./ApplianceSelector";
-import ToothChart from "./ToothChart";
 import type { ApplianceConfig, Arches, FormState } from "./types";
 
 const labelClass = "block text-xs uppercase tracking-widest text-gray-500 mb-2";
@@ -154,19 +153,6 @@ export default function Step2Appliance({
         </label>
       )}
 
-      {/* Tooth chart — moved up from Step 3 so the doctor can mark teeth
-          BEFORE picking each appliance. Defaults to Range mode for the
-          common case of marking a span. */}
-      <section>
-        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium mb-3">
-          Tooth chart
-        </div>
-        <ToothChart
-          value={state.toothSelection}
-          onChange={(next) => setState({ ...state, toothSelection: next })}
-        />
-      </section>
-
       {/* Upper */}
       {(state.arches === "upper" || state.arches === "both") && (
         <ApplianceSelector
@@ -177,6 +163,10 @@ export default function Step2Appliance({
           initiallyExpanded={Array.from(
             new Set(state.upperAppliances.map((c) => c.applianceId))
           )}
+          toothSelection={state.toothSelection}
+          onToothSelectionChange={(next) =>
+            setState({ ...state, toothSelection: next })
+          }
         />
       )}
 
@@ -191,6 +181,10 @@ export default function Step2Appliance({
           initiallyExpanded={Array.from(
             new Set(state.lowerAppliances.map((c) => c.applianceId))
           )}
+          toothSelection={state.toothSelection}
+          onToothSelectionChange={(next) =>
+            setState({ ...state, toothSelection: next })
+          }
         />
       )}
     </div>

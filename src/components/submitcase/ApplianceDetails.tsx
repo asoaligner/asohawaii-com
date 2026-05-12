@@ -4,7 +4,12 @@ import Image from "next/image";
 import { findAppliance, type ApplianceField } from "@/data/appliances";
 import ColorPicker from "./ColorPicker";
 import StickerPicker from "./StickerPicker";
-import type { ApplianceConfig, ColorChoice } from "./types";
+import ToothChart from "./ToothChart";
+import type {
+  ApplianceConfig,
+  ColorChoice,
+  ToothSelection,
+} from "./types";
 
 /**
  * Per-SKU field gate. Returns true if the field should be rendered for
@@ -30,6 +35,13 @@ type Props = {
   config: ApplianceConfig;
   onChange: (next: ApplianceConfig) => void;
   onRemove: () => void;
+  /** Case-level tooth selection rendered at the top of every expanded
+   *  appliance panel — the same state is shared across panels so editing
+   *  in one reflects everywhere. Per the 2026-05-12 UX iteration:
+   *  embedded here (small, in-panel) rather than as a separate Step 2
+   *  section or Step 3 header. */
+  toothSelection: ToothSelection;
+  onToothSelectionChange: (next: ToothSelection) => void;
 };
 
 const labelClass =
@@ -37,7 +49,13 @@ const labelClass =
 const inputClass =
   "w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors";
 
-export default function ApplianceDetails({ config, onChange, onRemove }: Props) {
+export default function ApplianceDetails({
+  config,
+  onChange,
+  onRemove,
+  toothSelection,
+  onToothSelectionChange,
+}: Props) {
   const appliance = findAppliance(config.applianceId);
   if (!appliance) return null;
 
@@ -451,6 +469,18 @@ export default function ApplianceDetails({ config, onChange, onRemove }: Props) 
         >
           ×
         </button>
+      </div>
+
+      {/* Tooth chart sits at the top of every expanded panel so the
+          doctor can mark / review teeth in the same context as picking
+          the appliance's color / stickers / wires. State is case-wide,
+          so editing in one panel updates the others on next render. */}
+      <div className="mb-4">
+        <div className={labelClass}>Teeth involved</div>
+        <ToothChart
+          value={toothSelection}
+          onChange={onToothSelectionChange}
+        />
       </div>
 
       <div className="space-y-4">

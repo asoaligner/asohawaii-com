@@ -8,6 +8,7 @@ import ApplianceDetails from "./ApplianceDetails";
 import {
   applianceConfigKey,
   type ApplianceConfig,
+  type ToothSelection,
 } from "./types";
 
 type Props = {
@@ -26,6 +27,12 @@ type Props = {
    *  when the user arrives from a product page so the form opens
    *  focused on what they clicked. */
   pinnedApplianceId?: string;
+  /** Case-level tooth selection. Each ApplianceDetails panel renders a
+   *  compact tooth chart at its top so the doctor sees / edits the
+   *  selection while configuring that appliance. State is intentionally
+   *  shared across all panels (case-wide, not per-appliance). */
+  toothSelection: ToothSelection;
+  onToothSelectionChange: (next: ToothSelection) => void;
 };
 
 type ZoomState = { src: string; alt: string } | null;
@@ -88,6 +95,8 @@ export default function ApplianceSelector({
   readOnly = false,
   initiallyExpanded = [],
   pinnedApplianceId,
+  toothSelection,
+  onToothSelectionChange,
 }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(
     new Set(initiallyExpanded)
@@ -383,6 +392,8 @@ export default function ApplianceSelector({
                               config={c}
                               onChange={(next) => updateConfig(key, next)}
                               onRemove={() => removeConfig(key)}
+                              toothSelection={toothSelection}
+                              onToothSelectionChange={onToothSelectionChange}
                             />
                           );
                         })}

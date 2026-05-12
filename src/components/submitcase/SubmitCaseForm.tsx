@@ -14,6 +14,7 @@ import Step3FilesDelivery, { step3IsValid } from "./Step3FilesDelivery";
 import StepIndicator from "./StepIndicator";
 import {
   INITIAL_FORM_STATE,
+  formatShippingAddress,
   type ApplianceConfig,
   type FormState,
 } from "./types";
@@ -297,8 +298,10 @@ export function SubmitCaseForm({
 
     // Delivery
     data.append("due_date", state.delivery.dueDate);
-    if (state.delivery.address.trim())
-      data.append("shipping_address", state.delivery.address);
+    const formattedAddress = formatShippingAddress(state.delivery.address);
+    if (formattedAddress) {
+      data.append("shipping_address", formattedAddress);
+    }
     if (state.delivery.instructions)
       data.append("special_instructions", state.delivery.instructions);
 

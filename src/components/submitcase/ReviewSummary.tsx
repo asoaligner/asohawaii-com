@@ -3,7 +3,12 @@
 import { findAppliance } from "@/data/appliances";
 import { findColor } from "@/data/colors";
 import { findSticker } from "@/data/stickers";
-import { applianceConfigKey, type ApplianceConfig, type FormState } from "./types";
+import {
+  applianceConfigKey,
+  formatShippingAddress,
+  type ApplianceConfig,
+  type FormState,
+} from "./types";
 
 type Props = {
   state: FormState;
@@ -265,14 +270,15 @@ export default function ReviewSummary({ state }: Props) {
             <dt className="w-20 text-gray-500 shrink-0">Due</dt>
             <dd>{state.delivery.dueDate || "—"}</dd>
           </div>
-          {state.delivery.address.trim() && (
-            <div className="flex gap-2 sm:col-span-2">
-              <dt className="w-20 text-gray-500 shrink-0">Ship to</dt>
-              <dd className="whitespace-pre-line">
-                {state.delivery.address}
-              </dd>
-            </div>
-          )}
+          {(() => {
+            const formatted = formatShippingAddress(state.delivery.address);
+            return formatted ? (
+              <div className="flex gap-2 sm:col-span-2">
+                <dt className="w-20 text-gray-500 shrink-0">Ship to</dt>
+                <dd className="whitespace-pre-line">{formatted}</dd>
+              </div>
+            ) : null;
+          })()}
           {state.delivery.instructions.trim() && (
             <div className="flex gap-2 sm:col-span-2">
               <dt className="w-20 text-gray-500 shrink-0">Notes</dt>

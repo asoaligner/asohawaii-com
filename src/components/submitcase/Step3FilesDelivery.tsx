@@ -5,7 +5,12 @@ import DueDatePicker from "./DueDatePicker";
 import FileUploadField from "./FileUploadField";
 import ReviewSummary from "./ReviewSummary";
 import ToothChart from "./ToothChart";
-import { type FormState } from "./types";
+import {
+  SHIPPING_COUNTRIES,
+  US_STATES,
+  type FormState,
+  type ShippingAddress,
+} from "./types";
 import {
   calculateMinDueDate,
   formatIsoDate,
@@ -213,17 +218,18 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           )}
         </div>
         <div>
-          <label htmlFor="d-ship" className={labelClass}>
+          <div className={labelClass}>
             Shipping address <span className="text-brandOrange ml-1">*</span>
-          </label>
-          <textarea
-            id="d-ship"
-            required
-            rows={3}
+          </div>
+          <p className="-mt-1 mb-3 text-[12.5px] text-gray-500 leading-snug">
+            Once you submit, your browser will offer to autofill these
+            fields on future visits.
+          </p>
+          <ShippingAddressForm
             value={state.delivery.address}
-            onChange={(e) => setDelivery("address", e.target.value)}
-            placeholder="Street address, City, State, ZIP code"
-            className={`${inputClass} resize-y`}
+            onChange={(next) => setDelivery("address", next)}
+            inputClass={inputClass}
+            labelClass={labelClass}
           />
         </div>
         <div>
@@ -295,11 +301,154 @@ export function step3IsValid(state: FormState): {
         "Due date is earlier than the standard lead time for the selected appliance(s). Contact us at 808-957-0111 for Rush Case service.",
     };
   }
-  if (!state.delivery.address.trim()) {
-    return { ok: false, message: "Shipping address required." };
+  const addr = state.delivery.address;
+  if (!addr.line1.trim()) {
+    return { ok: false, message: "Street address is required." };
+  }
+  if (!addr.city.trim()) {
+    return { ok: false, message: "City is required." };
+  }
+  if (!addr.state.trim()) {
+    return { ok: false, message: "State is required." };
+  }
+  if (!addr.zip.trim()) {
+    return { ok: false, message: "ZIP / postal code is required." };
+  }
+  if (!addr.country.trim()) {
+    return { ok: false, message: "Country is required." };
   }
   if (!state.consent.hipaa) {
     return { ok: false, message: "HIPAA acknowledgment required." };
   }
   return { ok: true };
+}
+
+/** Structured 6-field shipping address with browser autofill hints. The
+ *  parent owns the value; this component only renders + bubbles per-
+ *  field changes via onChange(next). State + Country are <select>s
+ *  with text values that match what browsers store under the
+ *  address-level1 / country-name autocomplete tokens, so Chrome will
+ *  pre-pick the right option on revisits. */
+function ShippingAddressForm({
+  value,
+  onChange,
+  inputClass,
+  labelClass,
+}: {
+  value: ShippingAddress;
+  onChange: (next: ShippingAddress) => void;
+  inputClass: string;
+  labelClass: string;
+}) {
+  function set<K extends keyof ShippingAddress>(
+    key: K,
+    next: ShippingAddress[K],
+  ) {
+    onChange({ ...value, [key]: next });
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 sm:gap-4">
+      <div className="sm:col-span-6">
+        <label htmlFor="d-addr-line1" className={labelClass}>
+          Street address <span className="text-brandOrange ml-1">*</span>
+        </label>
+        <input
+          id="d-addr-line1"
+          type="text"
+          required
+          autoComplete="address-line1"
+          value={value.line1}
+          onChange={(e) => set("line1", e.target.value)}
+          placeholder="123 Main St"
+          className={inputClass}
+        />
+      </div>
+      <div className="sm:col-span-6">
+        <label htmlFor="d-addr-line2" className={labelClass}>
+          Apt / Suite / Floor{" "}
+          <span className="text-gray-400 normal-case tracking-normal">
+            · optional
+          </span>
+        </label>
+        <input
+          id="d-addr-line2"
+          type="text"
+          autoComplete="address-line2"
+          value={value.line2}
+          onChange={(e) => set("line2", e.target.value)}
+          placeholder="Apt 4B, Suite 200, ..."
+          className={inputClass}
+        />
+      </div>
+      <div className="sm:col-span-3">
+        <label htmlFor="d-addr-city" className={labelClass}>
+          City <span className="text-brandOrange ml-1">*</span>
+        </label>
+        <input
+          id="d-addr-city"
+          type="text"
+          required
+          autoComplete="address-level2"
+          value={value.city}
+          onChange={(e) => set("city", e.target.value)}
+          placeholder="Honolulu"
+          className={inputClass}
+        />
+      </div>
+      <div className="sm:col-span-1">
+        <label htmlFor="d-addr-state" className={labelClass}>
+          State <span className="text-brandOrange ml-1">*</span>
+        </label>
+        <select
+          id="d-addr-state"
+          required
+          autoComplete="address-level1"
+          value={value.state}
+          onChange={(e) => set("state", e.target.value)}
+          className={inputClass}
+        >
+          {US_STATES.map((s) => (
+            <option key={s.code} value={s.code}>
+              {s.code}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="d-addr-zip" className={labelClass}>
+          ZIP code <span className="text-brandOrange ml-1">*</span>
+        </label>
+        <input
+          id="d-addr-zip"
+          type="text"
+          inputMode="numeric"
+          required
+          autoComplete="postal-code"
+          value={value.zip}
+          onChange={(e) => set("zip", e.target.value)}
+          placeholder="96813"
+          className={inputClass}
+        />
+      </div>
+      <div className="sm:col-span-3">
+        <label htmlFor="d-addr-country" className={labelClass}>
+          Country <span className="text-brandOrange ml-1">*</span>
+        </label>
+        <select
+          id="d-addr-country"
+          required
+          autoComplete="country-name"
+          value={value.country}
+          onChange={(e) => set("country", e.target.value)}
+          className={inputClass}
+        >
+          {SHIPPING_COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
 }

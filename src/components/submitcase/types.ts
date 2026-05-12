@@ -62,6 +62,122 @@ export type ToothSelection = {
   lower: string[];
 };
 
+/** Structured shipping address (Phase 2.2a — replaces the prior single
+ *  freetext `delivery.address` string). Each input in the UI gets the
+ *  matching HTML autocomplete token so browsers (Chrome / Safari /
+ *  Firefox / Edge) can offer their built-in profile autofill on the
+ *  second visit. Server side stays string-only via formatShippingAddress
+ *  so the Formspree + portal_orders.delivery_notes payloads don't
+ *  change shape. */
+export type ShippingAddress = {
+  /** autocomplete="address-line1" */
+  line1: string;
+  /** autocomplete="address-line2" (Apt / Suite — optional) */
+  line2: string;
+  /** autocomplete="address-level2" */
+  city: string;
+  /** autocomplete="address-level1" — US state code (e.g. "HI"). */
+  state: string;
+  /** autocomplete="postal-code" */
+  zip: string;
+  /** autocomplete="country-name" — ISO 3166-1 alpha-2 (e.g. "US"). The
+   *  dropdown is intentionally small (US/CA/JP) since ASO Hawaii ships
+   *  almost exclusively to US addresses; expand when international
+   *  demand actually appears. */
+  country: string;
+};
+
+export const INITIAL_SHIPPING_ADDRESS: ShippingAddress = {
+  line1: "",
+  line2: "",
+  city: "",
+  state: "HI",
+  zip: "",
+  country: "US",
+};
+
+/** US states (+ DC). value = USPS 2-letter code, name = display label.
+ *  Hawaii deliberately stays at its alphabetical position; the select
+ *  starts pre-selected on "HI" via INITIAL_SHIPPING_ADDRESS. */
+export const US_STATES: ReadonlyArray<{ code: string; name: string }> = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "DC", name: "District of Columbia" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+];
+
+export const SHIPPING_COUNTRIES: ReadonlyArray<{ code: string; name: string }> = [
+  { code: "US", name: "United States" },
+  { code: "CA", name: "Canada" },
+  { code: "JP", name: "Japan" },
+];
+
+/** Flatten the structured address into the legacy one-line format used
+ *  by Formspree + the portal submit endpoint. Empty optional fields
+ *  drop out so we don't end up with stray ", ," separators. */
+export function formatShippingAddress(a: ShippingAddress): string {
+  const cityStateZip = [
+    a.city.trim(),
+    [a.state.trim(), a.zip.trim()].filter(Boolean).join(" "),
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const parts: string[] = [
+    a.line1.trim(),
+    a.line2.trim() || "",
+    cityStateZip,
+    a.country.trim(),
+  ].filter((s) => s.length > 0);
+  return parts.join(", ");
+}
+
 export type FormState = {
   practice: {
     name: string;
@@ -84,7 +200,7 @@ export type FormState = {
   };
   delivery: {
     dueDate: string;
-    address: string;
+    address: ShippingAddress;
     instructions: string;
   };
   consent: {
@@ -109,7 +225,7 @@ export const INITIAL_FORM_STATE: FormState = {
   files: { stl: [], photos: [], rxPdf: [] },
   delivery: {
     dueDate: "",
-    address: "",
+    address: { ...INITIAL_SHIPPING_ADDRESS },
     instructions: "",
   },
   consent: { hipaa: false, newsletter: false },

@@ -24,12 +24,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SubmitCaseForm } from "@/components/submitcase/SubmitCaseForm";
-import type {
-  ApplianceConfig,
-  Arches,
-  Dentition,
-  FormState,
-  ToothSelection,
+import {
+  formatShippingAddress,
+  type ApplianceConfig,
+  type Arches,
+  type Dentition,
+  type FormState,
+  type ToothSelection,
 } from "@/components/submitcase/types";
 import { fetchOrder, type OrderDetail } from "@/lib/portal/orders";
 import {
@@ -209,7 +210,7 @@ export default function PortalSubmitCasePage() {
         },
         tooth_selection: state.toothSelection,
         due_date: state.delivery.dueDate,
-        shipping_address: state.delivery.address,
+        shipping_address: formatShippingAddress(state.delivery.address),
         special_instructions: state.delivery.instructions,
         files: filesForSubmit,
         doctor_override: doctorOverride,

@@ -52,3 +52,4 @@ portal-seed-*.sql
 
 # Portal dummy-data SQL artifacts (regenerate from scripts/seed-portal-orders.mjs).
 portal-orders-seed.sql
+portal-clinics-import.sql

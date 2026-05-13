@@ -1,5 +1,10 @@
 # Cloudflare Pages / Netlify redirect rules.
-# Legacy asohawaii.com URLs → new semantic paths.
 
+# Canonicalize www → apex (SEO: single canonical hostname).
+# Both asohawaii.com and www.asohawaii.com are bound to this Pages project
+# as Custom Domains; this rule makes the apex the single source of truth.
+https://www.asohawaii.com/*   https://asohawaii.com/:splat   301!
+
+# Legacy asohawaii.com URLs → new semantic paths.
 /services-9       /product/sleep-apnea/   301
 /services-9/      /product/sleep-apnea/   301

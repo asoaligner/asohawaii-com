@@ -1,10 +1,12 @@
 # Cloudflare Pages / Netlify redirect rules.
-
-# Canonicalize www → apex (SEO: single canonical hostname).
-# Both asohawaii.com and www.asohawaii.com are bound to this Pages project
-# as Custom Domains; this rule makes the apex the single source of truth.
-https://www.asohawaii.com/*   https://asohawaii.com/:splat   301!
-
 # Legacy asohawaii.com URLs → new semantic paths.
+#
+# Note: www → apex canonicalization is handled by a Cloudflare zone-level
+# Redirect Rule ("Redirect from WWW to root"), NOT here — CF Pages
+# _redirects with hostname prefix doesn't take effect when both apex and
+# www are bound as Custom Domains on the same Pages project. Verified
+# 2026-05-13 (commit 936f980 had `https://www.asohawaii.com/*` rule that
+# never fired; reverted in this commit).
+
 /services-9       /product/sleep-apnea/   301
 /services-9/      /product/sleep-apnea/   301

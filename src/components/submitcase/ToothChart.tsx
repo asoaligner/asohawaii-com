@@ -469,24 +469,29 @@ export default function ToothChart({
     const dim = KIND_DIMS[t.kind];
     const isSelected = selectedSet.has(t.id);
     const isAnchor = rangeAnchor === t.id;
-    const fill = isSelected
+    // When the acrylic coverage has been confirmed (or we're picking
+    // a clasp), selected teeth render exactly like unselected ones —
+    // white fill, gray stroke, dark text — so the doctor can read the
+    // tooth IDs and pick clasps without the orange dominating the
+    // chart. The underlying selection state is unchanged; the visual
+    // dimming is purely cosmetic. A subtle dashed bottom edge marks
+    // the previously-confirmed acrylic region so the doctor still has
+    // a hint of what they picked. */
+    const showAsSelected = isSelected && !dimAcrylic;
+    const fill = showAsSelected
       ? "#F97316"
       : isAnchor
         ? "#FED7AA"
         : "#FFFFFF";
-    const stroke = isSelected
+    const stroke = showAsSelected
       ? "#EA580C"
       : isAnchor
         ? "#F97316"
-        : "#9CA3AF";
-    const strokeW = isSelected || isAnchor ? 1.75 : 1;
-    const textColor = isSelected ? "#FFFFFF" : "#374151";
-    // When the acrylic coverage has been confirmed (or we're picking a
-    // clasp), fade the orange selected teeth so the clasp markers (and
-    // the clasp picker on the right) dominate the visual stack. The
-    // text inside the tooth fades the same amount so a half-faded "5"
-    // doesn't show through.
-    const acrylicOpacity = dimAcrylic && isSelected ? 0.3 : 1;
+        : isSelected && dimAcrylic
+          ? "#FB923C"
+          : "#9CA3AF";
+    const strokeW = showAsSelected || isAnchor ? 1.75 : 1;
+    const textColor = showAsSelected ? "#FFFFFF" : "#374151";
     // Crown alignment: upper teeth render with flat side at top of slot;
     // lower teeth render flipped so flat side is at the bottom.
     const y = flip ? yTop + (ROW_HEIGHT - dim.h) : yTop;
@@ -514,8 +519,6 @@ export default function ToothChart({
           stroke={stroke}
           strokeWidth={strokeW}
           transform={transform}
-          fillOpacity={acrylicOpacity}
-          strokeOpacity={acrylicOpacity}
         />
         {claspsHere.length > 0 && (() => {
           // Marker dots — placed on the OCCLUSAL side of the tooth (top
@@ -551,7 +554,6 @@ export default function ToothChart({
           fontWeight={600}
           fill={textColor}
           pointerEvents="none"
-          fillOpacity={acrylicOpacity}
         >
           {t.label}
         </text>

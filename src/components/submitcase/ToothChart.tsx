@@ -137,6 +137,21 @@ type Props = {
   activeClasp?: ClaspType | null;
   /** Replace the entire clasp's tooth list. */
   onClaspChange?: (clasp: ClaspType, next: string[]) => void;
+  /** "Acrylic coverage confirmed" — once true, the orange selected
+   *  teeth render at reduced opacity so the clasp markers (and the
+   *  clasp picker on the right) get the visual focus. The chart also
+   *  enters this state implicitly when activeClasp is non-null, so
+   *  the doctor doesn't have to confirm before they click their first
+   *  clasp card. */
+  acrylicConfirmed?: boolean;
+  /** Called when the user clicks the Confirm acrylic coverage button.
+   *  Parent should set its acrylicConfirmed flag to true. */
+  onConfirmAcrylic?: () => void;
+  /** Called when the user clicks the Edit link to re-edit the
+   *  coverage selection. Parent should clear acrylicConfirmed AND
+   *  drop the active clasp so the chart returns to its
+   *  selection-cursor state. */
+  onEditAcrylic?: () => void;
 };
 
 /** Display order for one arch — left-to-right as the chart renders:
@@ -194,6 +209,9 @@ export default function ToothChart({
   claspSelections,
   activeClasp,
   onClaspChange,
+  acrylicConfirmed,
+  onConfirmAcrylic,
+  onEditAcrylic,
 }: Props) {
   // Default to "range" so the common case of marking a span of adjacent
   // teeth (e.g. UR2–UL2 for an anterior retainer) is one click less than
@@ -214,6 +232,10 @@ export default function ToothChart({
   const showUpper = arch !== "lower";
   const showLower = arch !== "upper";
   const inClaspMode = !!activeClasp;
+  // Orange selected-teeth fade kicks in either explicitly (user
+  // confirmed the acrylic coverage) or implicitly (a clasp card is
+  // active so the chart is no longer about the acrylic selection).
+  const dimAcrylic = inClaspMode || !!acrylicConfirmed;
 
   // Build a per-tooth list of clasps containing it, so renderTooth can
   // draw the colored marker dots above each box.
@@ -459,6 +481,12 @@ export default function ToothChart({
         : "#9CA3AF";
     const strokeW = isSelected || isAnchor ? 1.75 : 1;
     const textColor = isSelected ? "#FFFFFF" : "#374151";
+    // When the acrylic coverage has been confirmed (or we're picking a
+    // clasp), fade the orange selected teeth so the clasp markers (and
+    // the clasp picker on the right) dominate the visual stack. The
+    // text inside the tooth fades the same amount so a half-faded "5"
+    // doesn't show through.
+    const acrylicOpacity = dimAcrylic && isSelected ? 0.3 : 1;
     // Crown alignment: upper teeth render with flat side at top of slot;
     // lower teeth render flipped so flat side is at the bottom.
     const y = flip ? yTop + (ROW_HEIGHT - dim.h) : yTop;
@@ -486,6 +514,8 @@ export default function ToothChart({
           stroke={stroke}
           strokeWidth={strokeW}
           transform={transform}
+          fillOpacity={acrylicOpacity}
+          strokeOpacity={acrylicOpacity}
         />
         {claspsHere.length > 0 && (() => {
           // Marker dots — placed on the OCCLUSAL side of the tooth (top
@@ -521,6 +551,7 @@ export default function ToothChart({
           fontWeight={600}
           fill={textColor}
           pointerEvents="none"
+          fillOpacity={acrylicOpacity}
         >
           {t.label}
         </text>
@@ -743,6 +774,33 @@ export default function ToothChart({
           );
         })()}
       </div>
+
+      {/* Confirm / Edit acrylic coverage. Only rendered when the parent
+          wires the workflow (i.e. appliances that have a clasp picker —
+          Plate Type Retainer / Plate Expansion / Flipper). The doctor
+          first picks the acrylic-covered range, hits Confirm, then the
+          orange teeth fade to 30% so the focus shifts to picking
+          individual clasps. Clicking a clasp card auto-fades the
+          orange too, so Confirm is a convenience rather than a gate. */}
+      {onConfirmAcrylic && !inClaspMode && !acrylicConfirmed &&
+        (upperCount + lowerCount > 0) && (
+          <button
+            type="button"
+            onClick={onConfirmAcrylic}
+            className="w-full rounded-xl bg-brandOrange/10 border border-brandOrange/30 px-4 py-2.5 text-[13px] font-medium text-brandOrange hover:bg-brandOrange/15 transition-colors"
+          >
+            ✓ Confirm acrylic coverage area
+          </button>
+        )}
+      {onEditAcrylic && acrylicConfirmed && !inClaspMode && (
+        <button
+          type="button"
+          onClick={onEditAcrylic}
+          className="text-[12px] text-gray-500 underline underline-offset-2 hover:text-navy transition-colors"
+        >
+          Edit acrylic coverage area
+        </button>
+      )}
     </div>
   );
 }

@@ -58,17 +58,6 @@ const labelClass =
 const inputClass =
   "w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors";
 
-function hasAnyClaspData(c: ApplianceConfig): boolean {
-  const cs = c.clasps;
-  return (
-    !!cs &&
-    (cs.labial_bow.length > 0 ||
-      cs.adams.length > 0 ||
-      cs.ball_clasp.length > 0 ||
-      cs.c_clasp.length > 0)
-  );
-}
-
 export default function ApplianceDetails({
   config,
   onChange,
@@ -83,12 +72,12 @@ export default function ApplianceDetails({
   // survive form serialization. The actual per-clasp tooth lists live
   // in config.clasps which is part of FormState.
   const [activeClasp, setActiveClasp] = useState<ClaspType | null>(null);
-  // Doctors on non-Hawley-style appliances (ASO Aligner, Band Appliance,
-  // etc.) don't need the clasp picker. Default visible so the feature
-  // is discoverable; once dismissed the panel hides for this appliance
-  // instance and any clasp data is dropped. Reordering an old case
-  // that already has clasp data keeps the panel open.
-  const [claspsDismissed, setClaspsDismissed] = useState(false);
+  // Whether the doctor has finished marking the acrylic coverage area.
+  // When true (or when a clasp card becomes active), the orange selected
+  // teeth fade to 30% inside the chart so the clasp markers / picker
+  // dominate. The doctor can hit "Edit acrylic coverage area" to come
+  // back. Lives outside config.clasps because it's purely a UI cursor.
+  const [acrylicConfirmed, setAcrylicConfirmed] = useState(false);
   if (!appliance) return null;
 
   const claspSelections = config.clasps ?? EMPTY_CLASPS;
@@ -98,8 +87,6 @@ export default function ApplianceDetails({
   // src/data/appliances.ts) so adding new clasp-bearing appliances
   // doesn't require a code change here.
   const claspsSupported = appliance.supportsClasps === true;
-  const showClaspPanel =
-    claspsSupported && (!claspsDismissed || hasAnyClaspData(config));
   function setClaspTeeth(type: ClaspType, next: string[]) {
     const current = config.clasps ?? EMPTY_CLASPS;
     const updated: ClaspSelections = { ...current, [type]: next };
@@ -112,18 +99,6 @@ export default function ApplianceDetails({
   function updateClaspOptions(partial: Partial<ClaspSelections>) {
     const current = config.clasps ?? EMPTY_CLASPS;
     onChange({ ...config, clasps: { ...current, ...partial } });
-  }
-  function dismissClasps() {
-    // Drop the structured clasps payload entirely so submissions don't
-    // carry phantom data after the doctor has explicitly opted out.
-    const { clasps: _drop, ...rest } = config;
-    void _drop;
-    onChange(rest);
-    setActiveClasp(null);
-    setClaspsDismissed(true);
-  }
-  function restoreClasps() {
-    setClaspsDismissed(false);
   }
 
   function update<K extends keyof ApplianceConfig>(
@@ -557,17 +532,10 @@ export default function ApplianceDetails({
           const stickersIdx = visible.findIndex((f) => f.type === "stickers");
           const toothChartNode = (
             <div key="tooth-chart">
-              <div className="flex items-center gap-3 mb-1.5">
-                <div className={labelClass + " !mb-0"}>Teeth involved</div>
-                {claspsSupported && !showClaspPanel && (
-                  <button
-                    type="button"
-                    onClick={restoreClasps}
-                    className="text-[12px] text-navy hover:text-brandOrange underline underline-offset-2 transition-colors"
-                  >
-                    + Add clasps
-                  </button>
-                )}
+              <div className={labelClass}>
+                {claspsSupported
+                  ? "Acrylic coverage area"
+                  : "Teeth involved"}
               </div>
               <div className="flex flex-col lg:flex-row gap-3 lg:items-start">
                 <div className="flex-1 min-w-0">
@@ -575,12 +543,26 @@ export default function ApplianceDetails({
                     value={toothSelection}
                     onChange={onToothSelectionChange}
                     arch={arch}
-                    claspSelections={showClaspPanel ? claspSelections : undefined}
-                    activeClasp={showClaspPanel ? activeClasp : null}
-                    onClaspChange={showClaspPanel ? setClaspTeeth : undefined}
+                    claspSelections={claspsSupported ? claspSelections : undefined}
+                    activeClasp={claspsSupported ? activeClasp : null}
+                    onClaspChange={claspsSupported ? setClaspTeeth : undefined}
+                    acrylicConfirmed={claspsSupported ? acrylicConfirmed : false}
+                    onConfirmAcrylic={
+                      claspsSupported
+                        ? () => setAcrylicConfirmed(true)
+                        : undefined
+                    }
+                    onEditAcrylic={
+                      claspsSupported
+                        ? () => {
+                            setAcrylicConfirmed(false);
+                            setActiveClasp(null);
+                          }
+                        : undefined
+                    }
                   />
                 </div>
-                {showClaspPanel && (
+                {claspsSupported && (
                   <div className="shrink-0">
                     <ClaspPanel
                       value={claspSelections}
@@ -590,7 +572,6 @@ export default function ApplianceDetails({
                       dentition={toothSelection.dentition}
                       arch={arch}
                       onOptionChange={updateClaspOptions}
-                      onDismiss={dismissClasps}
                     />
                   </div>
                 )}

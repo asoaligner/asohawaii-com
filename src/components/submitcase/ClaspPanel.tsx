@@ -41,11 +41,6 @@ interface Props {
    *  Currently just labial_bow_with_resin_pad — others can join when
    *  needed. */
   onOptionChange?: (next: Partial<ClaspSelections>) => void;
-  /** When provided, an × button appears at the top-right of the panel.
-   *  Clicking it should hide the panel and (per ApplianceDetails)
-   *  clear all per-clasp tooth lists — for appliances where the
-   *  doctor doesn't need clasp placement. */
-  onDismiss?: () => void;
 }
 
 /** Compact summary for one clasp's selection. Mirrors the tooth-chart
@@ -94,7 +89,6 @@ export default function ClaspPanel({
   dentition,
   arch,
   onOptionChange,
-  onDismiss,
 }: Props) {
   // Per-card hidden state is UI-only — it doesn't survive a remount
   // and isn't serialized into form data. A hidden card clears its own
@@ -117,18 +111,7 @@ export default function ClaspPanel({
   }
 
   return (
-    <div className="grid gap-2 sm:max-w-[14rem] relative">
-      {onDismiss && (
-        <button
-          type="button"
-          onClick={onDismiss}
-          aria-label="Hide entire clasp picker"
-          title="Hide entire clasp picker (for cases that don't need any clasps)"
-          className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-300 flex items-center justify-center text-sm leading-none shadow-sm transition-colors z-10"
-        >
-          ×
-        </button>
-      )}
+    <div className="grid gap-2 sm:max-w-[14rem]">
       {visibleMeta.map((meta) => {
         const teeth = value[meta.type];
         const isActive = active === meta.type;

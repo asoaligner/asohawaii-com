@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { Dentition, ToothSelection } from "./types";
+import {
+  CLASP_META,
+  type ClaspSelections,
+  type ClaspType,
+  type Dentition,
+  type ToothSelection,
+} from "./types";
 
 /**
  * Interactive tooth chart with permanent / mixed / primary dentition
@@ -121,6 +127,16 @@ type Props = {
    *  an upper-arch retainer panel doesn't show lower teeth and vice
    *  versa. Defaults to both arches. */
   arch?: "upper" | "lower";
+  /** Per-clasp tooth selections (Plate Type Retainer's clasp panel).
+   *  When present, each tooth that appears in any clasp's list gets a
+   *  small colored dot above the tooth box. */
+  claspSelections?: ClaspSelections;
+  /** When non-null, tooth clicks route to this clasp's list (toggling
+   *  membership) instead of the generic ToothSelection. Add/Remove/Range
+   *  buttons are still relevant for the generic selection. */
+  activeClasp?: ClaspType | null;
+  /** Replace the entire clasp's tooth list. */
+  onClaspChange?: (clasp: ClaspType, next: string[]) => void;
 };
 
 /** Display order for one arch — left-to-right as the chart renders:
@@ -171,7 +187,14 @@ export function compactRanges(
     .join(", ");
 }
 
-export default function ToothChart({ value, onChange, arch }: Props) {
+export default function ToothChart({
+  value,
+  onChange,
+  arch,
+  claspSelections,
+  activeClasp,
+  onClaspChange,
+}: Props) {
   // Default to "range" so the common case of marking a span of adjacent
   // teeth (e.g. UR2–UL2 for an anterior retainer) is one click less than
   // before. Add / remove stay available.
@@ -180,6 +203,19 @@ export default function ToothChart({ value, onChange, arch }: Props) {
 
   const showUpper = arch !== "lower";
   const showLower = arch !== "upper";
+
+  // Build a per-tooth list of clasps containing it, so renderTooth can
+  // draw the colored marker dots above each box.
+  const claspsByTooth = new Map<string, ClaspType[]>();
+  if (claspSelections) {
+    for (const meta of CLASP_META) {
+      for (const id of claspSelections[meta.type]) {
+        const arr = claspsByTooth.get(id) ?? [];
+        arr.push(meta.type);
+        claspsByTooth.set(id, arr);
+      }
+    }
+  }
 
   const quads = buildQuadrants(value.dentition);
 
@@ -192,9 +228,11 @@ export default function ToothChart({ value, onChange, arch }: Props) {
   const archWidth = Math.max(upperRowWidth, lowerRowWidth);
   const svgW = archWidth + ROW_PADDING_X * 2;
   // Vertical band per visible arch (row + arch label). When only one
-  // arch is shown the chart's height collapses to ~half.
+  // arch is shown the chart's height collapses to ~half. Add a small
+  // top/bottom margin so the per-tooth clasp marker dots aren't clipped
+  // at the SVG edge.
   const visibleArches = (showUpper ? 1 : 0) + (showLower ? 1 : 0);
-  const svgH = visibleArches === 2 ? ROW_HEIGHT * 2 + 36 : ROW_HEIGHT + 18;
+  const svgH = visibleArches === 2 ? ROW_HEIGHT * 2 + 42 : ROW_HEIGHT + 24;
 
   const upperSelected = new Set(value.upper);
   const lowerSelected = new Set(value.lower);
@@ -237,6 +275,43 @@ export default function ToothChart({ value, onChange, arch }: Props) {
   }
 
   function clickTooth(id: string) {
+    // Clasp mode: tooth clicks edit the active clasp's list rather than
+    // the generic ToothSelection. Each clasp toggles individual teeth;
+    // ball clasp also drops the containing pair (so we don't end up with
+    // orphaned pair-halves that re-pair with adjacent unrelated entries).
+    if (activeClasp && claspSelections && onClaspChange) {
+      const meta = CLASP_META.find((m) => m.type === activeClasp);
+      const list = claspSelections[activeClasp];
+      const idx = list.indexOf(id);
+      if (idx === -1) {
+        onClaspChange(activeClasp, [...list, id]);
+        return;
+      }
+      if (meta?.pairMode) {
+        // Remove the whole pair the tooth belongs to (or just the
+        // anchor if it's the orphan at the tail).
+        const pairStart = idx % 2 === 0 ? idx : idx - 1;
+        const pairEnd = pairStart + 1;
+        if (pairEnd >= list.length) {
+          onClaspChange(
+            activeClasp,
+            list.slice(0, idx).concat(list.slice(idx + 1)),
+          );
+        } else {
+          onClaspChange(
+            activeClasp,
+            list.slice(0, pairStart).concat(list.slice(pairEnd + 1)),
+          );
+        }
+        return;
+      }
+      onClaspChange(
+        activeClasp,
+        list.slice(0, idx).concat(list.slice(idx + 1)),
+      );
+      return;
+    }
+
     const wasSelected = isUpperId(id)
       ? upperSelected.has(id)
       : lowerSelected.has(id);
@@ -379,6 +454,7 @@ export default function ToothChart({ value, onChange, arch }: Props) {
     const transform = flip
       ? `rotate(180 ${x + dim.w / 2} ${y + dim.h / 2})`
       : undefined;
+    const claspsHere = claspsByTooth.get(t.id) ?? [];
     return (
       <g
         key={t.id}
@@ -400,6 +476,32 @@ export default function ToothChart({ value, onChange, arch }: Props) {
           strokeWidth={strokeW}
           transform={transform}
         />
+        {claspsHere.length > 0 && (() => {
+          // Marker dots — placed on the OCCLUSAL side of the tooth (top
+          // for upper, bottom for lower) so they don't visually merge
+          // with the midline / arch label strip. ~2px circles spaced
+          // 3px apart. Up to 4 fit across a molar (~10px wide).
+          const dotR = 1.4;
+          const gap = 3;
+          const totalW = claspsHere.length * gap - (gap - dotR * 2);
+          const startX = x + dim.w / 2 - totalW / 2 + dotR;
+          // Upper teeth (flip=false): dots above the tooth (y - 3.5)
+          // Lower teeth (flip=true): dots below the tooth (y + dim.h + 3.5)
+          const dotY = flip ? y + dim.h + 3.5 : y - 3.5;
+          return claspsHere.map((claspType, i) => {
+            const meta = CLASP_META.find((m) => m.type === claspType);
+            return (
+              <circle
+                key={`clasp-${claspType}`}
+                cx={startX + i * gap}
+                cy={dotY}
+                r={dotR}
+                fill={meta?.hex ?? "#000"}
+                pointerEvents="none"
+              />
+            );
+          });
+        })()}
         <text
           x={x + dim.w / 2}
           y={y + dim.h / 2 + 3}
@@ -522,10 +624,10 @@ export default function ToothChart({ value, onChange, arch }: Props) {
         >
           {showUpper && (
             <>
-              {renderRow(quads.UR, quads.UL, false, 2, upperSelected)}
+              {renderRow(quads.UR, quads.UL, false, 6, upperSelected)}
               <text
                 x={svgW / 2}
-                y={ROW_HEIGHT + 14}
+                y={ROW_HEIGHT + 18}
                 textAnchor="middle"
                 fontSize={9}
                 fill="#6B7280"
@@ -542,7 +644,7 @@ export default function ToothChart({ value, onChange, arch }: Props) {
                 quads.LR,
                 quads.LL,
                 true,
-                showUpper ? ROW_HEIGHT + 20 : 2,
+                showUpper ? ROW_HEIGHT + 24 : 6,
                 lowerSelected
               )}
               <text

@@ -47,7 +47,98 @@ export type ApplianceConfig = {
   canine_guidance?: boolean;
   /** Sports Mouthguard color choice (Press-Type Appliance · Sports SKUs only). */
   mouthguard_color?: string;
+  /** Per-clasp tooth placements (Plate Type Retainer and similar
+   *  Hawley-class appliances). Each clasp tracks its own list of tooth
+   *  IDs; ball clasp specifically stores ordered pairs (consecutive
+   *  even/odd entries form one "between" pair). */
+  clasps?: ClaspSelections;
 };
+
+export type ClaspType =
+  | "labial_bow"
+  | "adams"
+  | "ball_clasp"
+  | "c_clasp";
+
+export type ClaspSelections = {
+  /** Range — usually the anterior teeth the wire crosses. */
+  labial_bow: string[];
+  /** Individual teeth — each has its own Adams clasp. */
+  adams: string[];
+  /** Pairs — consecutive entries (i, i+1) form one between-pair.
+   *  Odd-length means the last entry is an anchor waiting for the
+   *  user's second click. */
+  ball_clasp: string[];
+  /** Individual teeth — each has its own C clasp. */
+  c_clasp: string[];
+};
+
+export const EMPTY_CLASPS: ClaspSelections = {
+  labial_bow: [],
+  adams: [],
+  ball_clasp: [],
+  c_clasp: [],
+};
+
+export interface ClaspMeta {
+  type: ClaspType;
+  label: string;
+  hint: string;
+  /** Tailwind background utility for the colored dot on the tooth chart. */
+  dotClass: string;
+  /** Tailwind ring utility for the panel card when active. */
+  ringClass: string;
+  /** Hex used inside the SVG (can't reach Tailwind from inside <svg>). */
+  hex: string;
+  /** Ball-clasp is the only "between two teeth" semantic; others are
+   *  individual / range. */
+  pairMode: boolean;
+}
+
+export const CLASP_META: ReadonlyArray<ClaspMeta> = [
+  {
+    type: "labial_bow",
+    label: "Labial bow",
+    hint: "Range — click 2 teeth (uses Range mode under the hood).",
+    dotClass: "bg-blue-500",
+    ringClass: "ring-blue-500",
+    hex: "#3b82f6",
+    pairMode: false,
+  },
+  {
+    type: "adams",
+    label: "Adams clasp",
+    hint: "Individual teeth — click each one.",
+    dotClass: "bg-emerald-500",
+    ringClass: "ring-emerald-500",
+    hex: "#10b981",
+    pairMode: false,
+  },
+  {
+    type: "ball_clasp",
+    label: "Ball clasp",
+    hint: "Between — click 2 adjacent teeth per pair.",
+    dotClass: "bg-purple-500",
+    ringClass: "ring-purple-500",
+    hex: "#a855f7",
+    pairMode: true,
+  },
+  {
+    type: "c_clasp",
+    label: "C clasp",
+    hint: "Individual teeth — click each one.",
+    dotClass: "bg-pink-500",
+    ringClass: "ring-pink-500",
+    hex: "#ec4899",
+    pairMode: false,
+  },
+];
+
+export function getClaspMeta(type: ClaspType): ClaspMeta {
+  const meta = CLASP_META.find((m) => m.type === type);
+  if (!meta) throw new Error(`Unknown clasp type: ${type}`);
+  return meta;
+}
 
 export function applianceConfigKey(c: ApplianceConfig): string {
   if (c.itemCode) return `${c.applianceId}:${c.itemCode}`;

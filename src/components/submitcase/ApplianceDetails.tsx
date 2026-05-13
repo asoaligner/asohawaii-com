@@ -1,14 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { findAppliance, type ApplianceField } from "@/data/appliances";
+import ClaspPanel from "./ClaspPanel";
 import ColorPicker from "./ColorPicker";
 import StickerPicker from "./StickerPicker";
 import ToothChart from "./ToothChart";
-import type {
-  ApplianceConfig,
-  ColorChoice,
-  ToothSelection,
+import {
+  EMPTY_CLASPS,
+  type ApplianceConfig,
+  type ClaspSelections,
+  type ClaspType,
+  type ColorChoice,
+  type ToothSelection,
 } from "./types";
 
 /**
@@ -62,7 +67,23 @@ export default function ApplianceDetails({
   arch,
 }: Props) {
   const appliance = findAppliance(config.applianceId);
+  // Active clasp lives in component state — it's purely a UI cursor
+  // ("which clasp do my clicks edit right now?") and doesn't need to
+  // survive form serialization. The actual per-clasp tooth lists live
+  // in config.clasps which is part of FormState.
+  const [activeClasp, setActiveClasp] = useState<ClaspType | null>(null);
   if (!appliance) return null;
+
+  const claspSelections = config.clasps ?? EMPTY_CLASPS;
+  function setClaspTeeth(type: ClaspType, next: string[]) {
+    const current = config.clasps ?? EMPTY_CLASPS;
+    const updated: ClaspSelections = { ...current, [type]: next };
+    onChange({ ...config, clasps: updated });
+  }
+  function clearClasp(type: ClaspType) {
+    setClaspTeeth(type, []);
+    if (activeClasp === type) setActiveClasp(null);
+  }
 
   function update<K extends keyof ApplianceConfig>(
     key: K,
@@ -496,11 +517,28 @@ export default function ApplianceDetails({
           const toothChartNode = (
             <div key="tooth-chart">
               <div className={labelClass}>Teeth involved</div>
-              <ToothChart
-                value={toothSelection}
-                onChange={onToothSelectionChange}
-                arch={arch}
-              />
+              <div className="flex flex-col lg:flex-row gap-3 lg:items-start">
+                <div className="flex-1 min-w-0">
+                  <ToothChart
+                    value={toothSelection}
+                    onChange={onToothSelectionChange}
+                    arch={arch}
+                    claspSelections={claspSelections}
+                    activeClasp={activeClasp}
+                    onClaspChange={setClaspTeeth}
+                  />
+                </div>
+                <div className="shrink-0">
+                  <ClaspPanel
+                    value={claspSelections}
+                    active={activeClasp}
+                    onActiveChange={setActiveClasp}
+                    onClear={clearClasp}
+                    dentition={toothSelection.dentition}
+                    arch={arch}
+                  />
+                </div>
+              </div>
             </div>
           );
           const nodes: React.ReactNode[] = [];

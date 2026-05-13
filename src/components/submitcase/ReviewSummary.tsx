@@ -3,6 +3,7 @@
 import { findAppliance } from "@/data/appliances";
 import { findColor } from "@/data/colors";
 import { findSticker } from "@/data/stickers";
+import { archDisplayOrder, compactRanges } from "./ToothChart";
 import {
   applianceConfigKey,
   formatShippingAddress,
@@ -126,16 +127,12 @@ export default function ReviewSummary({ state }: Props) {
     state.files.photos.length +
     state.files.rxPdf.length;
 
-  function teethList(arr: string[]): string {
+  function teethList(arr: string[], archLetter: "U" | "L"): string {
     if (arr.length === 0) return "—";
-    return arr
-      .slice()
-      .sort()
-      .map((id) => {
-        const arch = id[0] === "U" ? "Upper" : "Lower";
-        return `${arch} ${id.slice(1)}`;
-      })
-      .join(", ");
+    return (
+      compactRanges(arr, archDisplayOrder(archLetter, state.toothSelection.dentition))
+      || "—"
+    );
   }
 
   return (
@@ -232,11 +229,11 @@ export default function ReviewSummary({ state }: Props) {
         <div className="text-[13px] text-gray-700 space-y-0.5">
           <div>
             <span className="text-gray-500 mr-2">Upper:</span>
-            {teethList(state.toothSelection.upper)}
+            {teethList(state.toothSelection.upper, "U")}
           </div>
           <div>
             <span className="text-gray-500 mr-2">Lower:</span>
-            {teethList(state.toothSelection.lower)}
+            {teethList(state.toothSelection.lower, "L")}
           </div>
         </div>
       </section>

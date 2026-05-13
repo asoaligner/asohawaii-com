@@ -125,8 +125,9 @@ type Props = {
 
 /** Display order for one arch — left-to-right as the chart renders:
  *  right quadrant positions reversed (8→1 / E→A so molars sit on the
- *  outside) then left quadrant in normal order (1→8 / A→E). */
-function archDisplayOrder(
+ *  outside) then left quadrant in normal order (1→8 / A→E). Exported
+ *  for ReviewSummary to share the compact-range format. */
+export function archDisplayOrder(
   archLetter: "U" | "L",
   dent: Dentition,
 ): string[] {
@@ -145,8 +146,9 @@ function archDisplayOrder(
 
 /** Compact contiguous-run formatter: ["UR7","UR6",...,"UL7"] →
  *  "UR7 to UL7". Disjoint runs become "UR7 to UR5, UL3 to UL5".
- *  Single-tooth runs render as themselves. Empty input → "". */
-function compactRanges(
+ *  Single-tooth runs render as themselves. Empty input → "". Exported
+ *  alongside archDisplayOrder for ReviewSummary. */
+export function compactRanges(
   selectedIds: string[],
   displayOrder: string[],
 ): string {

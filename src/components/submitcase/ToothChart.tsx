@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CLASP_META,
   type ClaspSelections,
@@ -201,8 +201,19 @@ export default function ToothChart({
   const [mode, setMode] = useState<Mode>("range");
   const [rangeAnchor, setRangeAnchor] = useState<string | null>(null);
 
+  // When the user makes one of the clasp cards active, the generic
+  // Add / Remove / Range modes become irrelevant — clear any pending
+  // Range anchor so the orange "first click" highlight doesn't keep
+  // shadowing whichever tooth the doctor clicks next for the clasp.
+  useEffect(() => {
+    if (activeClasp) {
+      setRangeAnchor(null);
+    }
+  }, [activeClasp]);
+
   const showUpper = arch !== "lower";
   const showLower = arch !== "upper";
+  const inClaspMode = !!activeClasp;
 
   // Build a per-tooth list of clasps containing it, so renderTooth can
   // draw the colored marker dots above each box.
@@ -558,7 +569,10 @@ export default function ToothChart({
         <div
           role="radiogroup"
           aria-label="Selection mode"
-          className="inline-flex rounded-full bg-gray-100 p-1"
+          aria-disabled={inClaspMode || undefined}
+          className={`inline-flex rounded-full bg-gray-100 p-1 transition-opacity ${
+            inClaspMode ? "opacity-40 pointer-events-none" : ""
+          }`}
         >
           {(["add", "remove", "range"] as Mode[]).map((m) => (
             <button
@@ -566,6 +580,7 @@ export default function ToothChart({
               type="button"
               role="radio"
               aria-checked={mode === m}
+              disabled={inClaspMode}
               onClick={() => {
                 setMode(m);
                 if (m !== "range") setRangeAnchor(null);
@@ -582,7 +597,7 @@ export default function ToothChart({
         </div>
       </div>
 
-      {mode === "range" && (
+      {mode === "range" && !inClaspMode && (
         <div className="text-[12px] text-brandOrange bg-brandOrange/5 border border-brandOrange/20 rounded-md px-3 py-2">
           {rangeAnchor
             ? `Range anchor: ${displayLabel(rangeAnchor, "left")} — click another tooth to fill the range.`

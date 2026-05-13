@@ -32,6 +32,10 @@ interface Props {
   onClear: (clasp: ClaspType) => void;
   dentition: Dentition;
   arch?: "upper" | "lower";
+  /** Per-clasp option flags that don't fit the generic tooth-list model.
+   *  Currently just labial_bow_with_resin_pad — others can join when
+   *  needed. */
+  onOptionChange?: (next: Partial<ClaspSelections>) => void;
   /** When provided, an × button appears at the top-right of the panel.
    *  Clicking it should hide the panel and (per ApplianceDetails)
    *  clear all per-clasp tooth lists — for appliances where the
@@ -84,6 +88,7 @@ export default function ClaspPanel({
   onClear,
   dentition,
   arch,
+  onOptionChange,
   onDismiss,
 }: Props) {
   return (
@@ -143,6 +148,25 @@ export default function ClaspPanel({
             >
               {summary}
             </div>
+            {meta.type === "labial_bow" && onOptionChange && (
+              <label
+                onClick={(e) => e.stopPropagation()}
+                className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-gray-700 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={!!value.labial_bow_with_resin_pad}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onOptionChange({
+                      labial_bow_with_resin_pad: e.target.checked,
+                    });
+                  }}
+                  className="accent-navy"
+                />
+                with Resin Pad
+              </label>
+            )}
             {hasSelection && (
               <div className="mt-1.5 flex justify-end">
                 <span

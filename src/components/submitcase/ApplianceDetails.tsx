@@ -102,6 +102,10 @@ export default function ApplianceDetails({
     setClaspTeeth(type, []);
     if (activeClasp === type) setActiveClasp(null);
   }
+  function updateClaspOptions(partial: Partial<ClaspSelections>) {
+    const current = config.clasps ?? EMPTY_CLASPS;
+    onChange({ ...config, clasps: { ...current, ...partial } });
+  }
   function dismissClasps() {
     // Drop the structured clasps payload entirely so submissions don't
     // carry phantom data after the doctor has explicitly opted out.
@@ -578,6 +582,7 @@ export default function ApplianceDetails({
                       onClear={clearClasp}
                       dentition={toothSelection.dentition}
                       arch={arch}
+                      onOptionChange={updateClaspOptions}
                       onDismiss={dismissClasps}
                     />
                   </div>

@@ -63,6 +63,10 @@ export type ClaspType =
 export type ClaspSelections = {
   /** Range — usually the anterior teeth the wire crosses. */
   labial_bow: string[];
+  /** Optional "with Resin Pad" flag for the labial bow. The lab needs
+   *  to know whether to fabricate the bow plain or with the bonded
+   *  resin pad accessory. */
+  labial_bow_with_resin_pad?: boolean;
   /** Individual teeth — each has its own Adams clasp. */
   adams: string[];
   /** Pairs — consecutive entries (i, i+1) form one between-pair.

@@ -49,8 +49,12 @@ export interface ApplianceField {
   label: string;
   /** Choice list for select / radio / multi-select fields. */
   options?: string[];
-  /** Optional hint shown beneath the field. */
+  /** Placeholder inside the input/textarea — only visible while empty. */
   hint?: string;
+  /** Persistent helper text rendered between the label and the input.
+   *  Used to spell out what to include (e.g. "list which clasps & wires
+   *  to specify") so the doctor sees the prompt even after typing. */
+  description?: string;
 }
 
 export interface Appliance {
@@ -106,8 +110,10 @@ export const APPLIANCES: Appliance[] = [
         key: "free_text",
         type: "free_text",
         required: false,
-        label: "Variant & special wires / springs",
-        hint: "e.g. Hawley, Wrap-around (Begg), QCM, Spring retainer, Clear bow, Modified #7–#10. Note any special wires.",
+        label: "Wires, clasps & variant",
+        description:
+          "Specify which clasps & wires to include, with tooth position and quantity. Common: labial bow, Adams clasp, ball clasp, C clasp. Note retainer variant too (e.g. Hawley, Wrap-around, QCM, Spring, Clear bow) if non-standard.",
+        hint: "e.g. Labial bow UR3 to UL3 · Adams clasp on UR6 & UL6 · ball clasp UL4 · C clasp UR2",
       },
     ],
   },

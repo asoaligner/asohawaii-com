@@ -317,10 +317,15 @@ export default function ApplianceDetails({
                 <span className="text-brandOrange ml-1">*</span>
               )}
             </label>
+            {field.description && (
+              <p className="-mt-1 mb-2 text-[12.5px] text-gray-600 leading-snug">
+                {field.description}
+              </p>
+            )}
             <textarea
               value={config.free_text ?? ""}
               onChange={(e) => update("free_text", e.target.value)}
-              rows={2}
+              rows={field.description ? 3 : 2}
               placeholder={field.hint ?? ""}
               required={field.required}
               className={`${inputClass} resize-y`}

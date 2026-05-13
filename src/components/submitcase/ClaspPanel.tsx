@@ -32,6 +32,11 @@ interface Props {
   onClear: (clasp: ClaspType) => void;
   dentition: Dentition;
   arch?: "upper" | "lower";
+  /** When provided, an × button appears at the top-right of the panel.
+   *  Clicking it should hide the panel and (per ApplianceDetails)
+   *  clear all per-clasp tooth lists — for appliances where the
+   *  doctor doesn't need clasp placement. */
+  onDismiss?: () => void;
 }
 
 /** Compact summary for one clasp's selection. Mirrors the tooth-chart
@@ -79,9 +84,21 @@ export default function ClaspPanel({
   onClear,
   dentition,
   arch,
+  onDismiss,
 }: Props) {
   return (
-    <div className="grid gap-2 sm:max-w-[14rem]">
+    <div className="grid gap-2 sm:max-w-[14rem] relative">
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="Hide clasp picker"
+          title="Hide clasp picker (for appliances that don't need clasps)"
+          className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-300 flex items-center justify-center text-sm leading-none shadow-sm transition-colors z-10"
+        >
+          ×
+        </button>
+      )}
       {CLASP_META.map((meta) => {
         const teeth = value[meta.type];
         const isActive = active === meta.type;

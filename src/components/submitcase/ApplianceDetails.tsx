@@ -58,6 +58,17 @@ const labelClass =
 const inputClass =
   "w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors";
 
+function hasAnyClaspData(c: ApplianceConfig): boolean {
+  const cs = c.clasps;
+  return (
+    !!cs &&
+    (cs.labial_bow.length > 0 ||
+      cs.adams.length > 0 ||
+      cs.ball_clasp.length > 0 ||
+      cs.c_clasp.length > 0)
+  );
+}
+
 export default function ApplianceDetails({
   config,
   onChange,
@@ -72,9 +83,16 @@ export default function ApplianceDetails({
   // survive form serialization. The actual per-clasp tooth lists live
   // in config.clasps which is part of FormState.
   const [activeClasp, setActiveClasp] = useState<ClaspType | null>(null);
+  // Doctors on non-Hawley-style appliances (ASO Aligner, Band Appliance,
+  // etc.) don't need the clasp picker. Default visible so the feature
+  // is discoverable; once dismissed the panel hides for this appliance
+  // instance and any clasp data is dropped. Reordering an old case
+  // that already has clasp data keeps the panel open.
+  const [claspsDismissed, setClaspsDismissed] = useState(false);
   if (!appliance) return null;
 
   const claspSelections = config.clasps ?? EMPTY_CLASPS;
+  const showClaspPanel = !claspsDismissed || hasAnyClaspData(config);
   function setClaspTeeth(type: ClaspType, next: string[]) {
     const current = config.clasps ?? EMPTY_CLASPS;
     const updated: ClaspSelections = { ...current, [type]: next };
@@ -83,6 +101,18 @@ export default function ApplianceDetails({
   function clearClasp(type: ClaspType) {
     setClaspTeeth(type, []);
     if (activeClasp === type) setActiveClasp(null);
+  }
+  function dismissClasps() {
+    // Drop the structured clasps payload entirely so submissions don't
+    // carry phantom data after the doctor has explicitly opted out.
+    const { clasps: _drop, ...rest } = config;
+    void _drop;
+    onChange(rest);
+    setActiveClasp(null);
+    setClaspsDismissed(true);
+  }
+  function restoreClasps() {
+    setClaspsDismissed(false);
   }
 
   function update<K extends keyof ApplianceConfig>(
@@ -516,28 +546,42 @@ export default function ApplianceDetails({
           const stickersIdx = visible.findIndex((f) => f.type === "stickers");
           const toothChartNode = (
             <div key="tooth-chart">
-              <div className={labelClass}>Teeth involved</div>
+              <div className="flex items-center gap-3 mb-1.5">
+                <div className={labelClass + " !mb-0"}>Teeth involved</div>
+                {!showClaspPanel && (
+                  <button
+                    type="button"
+                    onClick={restoreClasps}
+                    className="text-[12px] text-navy hover:text-brandOrange underline underline-offset-2 transition-colors"
+                  >
+                    + Add clasps
+                  </button>
+                )}
+              </div>
               <div className="flex flex-col lg:flex-row gap-3 lg:items-start">
                 <div className="flex-1 min-w-0">
                   <ToothChart
                     value={toothSelection}
                     onChange={onToothSelectionChange}
                     arch={arch}
-                    claspSelections={claspSelections}
-                    activeClasp={activeClasp}
-                    onClaspChange={setClaspTeeth}
+                    claspSelections={showClaspPanel ? claspSelections : undefined}
+                    activeClasp={showClaspPanel ? activeClasp : null}
+                    onClaspChange={showClaspPanel ? setClaspTeeth : undefined}
                   />
                 </div>
-                <div className="shrink-0">
-                  <ClaspPanel
-                    value={claspSelections}
-                    active={activeClasp}
-                    onActiveChange={setActiveClasp}
-                    onClear={clearClasp}
-                    dentition={toothSelection.dentition}
-                    arch={arch}
-                  />
-                </div>
+                {showClaspPanel && (
+                  <div className="shrink-0">
+                    <ClaspPanel
+                      value={claspSelections}
+                      active={activeClasp}
+                      onActiveChange={setActiveClasp}
+                      onClear={clearClasp}
+                      dentition={toothSelection.dentition}
+                      arch={arch}
+                      onDismiss={dismissClasps}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           );

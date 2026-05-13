@@ -4,7 +4,7 @@
  * Per-clasp picker that sits to the right of the ToothChart inside a
  * Plate-Type-Retainer-style appliance details panel.
  *
- * Each card represents one of the four clasp types defined in
+ * Each card represents one of the five clasp types defined in
  * CLASP_META. Clicking a card makes that clasp "active" — tooth clicks
  * on the chart then add / remove teeth from that clasp's list instead
  * of from the generic Teeth-Involved selection. Click again to
@@ -14,8 +14,13 @@
  * in the flat array form one "between A and B" pair). An odd-length
  * list means the user has placed the first endpoint and is waiting to
  * click the second; the card displays that anchor.
+ *
+ * Cards can be hidden individually via the × in their top-right corner
+ * when the doctor knows that clasp type isn't relevant to this case.
+ * Hidden cards re-appear via the footer "+ Show …" links.
  */
 
+import { useState } from "react";
 import type { Dentition } from "./types";
 import {
   CLASP_META,
@@ -91,20 +96,40 @@ export default function ClaspPanel({
   onOptionChange,
   onDismiss,
 }: Props) {
+  // Per-card hidden state is UI-only — it doesn't survive a remount
+  // and isn't serialized into form data. A hidden card clears its own
+  // teeth on dismiss so the lab can't get phantom selections back.
+  const [hiddenCards, setHiddenCards] = useState<Set<ClaspType>>(new Set());
+  const visibleMeta = CLASP_META.filter((m) => !hiddenCards.has(m.type));
+  const hiddenMeta = CLASP_META.filter((m) => hiddenCards.has(m.type));
+
+  function hideCard(type: ClaspType) {
+    setHiddenCards((prev) => new Set(prev).add(type));
+    onClear(type);
+    if (active === type) onActiveChange(null);
+  }
+  function showCard(type: ClaspType) {
+    setHiddenCards((prev) => {
+      const next = new Set(prev);
+      next.delete(type);
+      return next;
+    });
+  }
+
   return (
     <div className="grid gap-2 sm:max-w-[14rem] relative">
       {onDismiss && (
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Hide clasp picker"
-          title="Hide clasp picker (for appliances that don't need clasps)"
+          aria-label="Hide entire clasp picker"
+          title="Hide entire clasp picker (for cases that don't need any clasps)"
           className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-300 flex items-center justify-center text-sm leading-none shadow-sm transition-colors z-10"
         >
           ×
         </button>
       )}
-      {CLASP_META.map((meta) => {
+      {visibleMeta.map((meta) => {
         const teeth = value[meta.type];
         const isActive = active === meta.type;
         const hasSelection = teeth.length > 0;
@@ -114,12 +139,32 @@ export default function ClaspPanel({
             key={meta.type}
             type="button"
             onClick={() => onActiveChange(isActive ? null : meta.type)}
-            className={`text-left rounded-xl border bg-white px-3 py-2 transition-colors ${
+            className={`relative text-left rounded-xl border bg-white px-3 py-2 pr-7 transition-colors ${
               isActive
                 ? `border-transparent ring-2 ${meta.ringClass} bg-gray-50`
                 : "border-gray-200 hover:border-gray-300"
             }`}
           >
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                hideCard(meta.type);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  hideCard(meta.type);
+                }
+              }}
+              aria-label={`Hide ${meta.label} (not used in this case)`}
+              title={`Hide ${meta.label}`}
+              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-red-600 flex items-center justify-center text-sm leading-none cursor-pointer"
+            >
+              ×
+            </span>
             <div className="flex items-center gap-2">
               <span
                 className={`inline-block w-2.5 h-2.5 rounded-full ${meta.dotClass}`}
@@ -192,6 +237,22 @@ export default function ClaspPanel({
           </button>
         );
       })}
+      {hiddenMeta.length > 0 && (
+        <div className="text-[11.5px] text-gray-500 leading-snug flex flex-wrap gap-x-2 gap-y-1 pt-1">
+          <span>+ Show:</span>
+          {hiddenMeta.map((meta, i) => (
+            <button
+              key={meta.type}
+              type="button"
+              onClick={() => showCard(meta.type)}
+              className="text-navy hover:text-brandOrange underline underline-offset-2 transition-colors"
+            >
+              {meta.label}
+              {i < hiddenMeta.length - 1 ? "," : ""}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

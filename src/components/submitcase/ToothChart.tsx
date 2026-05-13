@@ -605,24 +605,52 @@ export default function ToothChart({
         </div>
       )}
 
-      {/* Quick actions */}
+      {/* Quick actions — filtered to the visible arch. When the
+          appliance is upper-only or lower-only the other arch's
+          buttons are silently dropped (and Clear all collapses to a
+          single Clear since there's only one arch in play). */}
       <div className="flex flex-wrap gap-2 text-[11.5px]">
-        {[
-          { label: "Select all upper", fn: () => selectAll("upper") },
-          { label: "Select all lower", fn: () => selectAll("lower") },
-          { label: "Clear upper", fn: () => clearArch("upper") },
-          { label: "Clear lower", fn: () => clearArch("lower") },
-          { label: "Clear all", fn: () => clearArch("all") },
-        ].map((a) => (
-          <button
-            key={a.label}
-            type="button"
-            onClick={a.fn}
-            className="rounded-full border border-gray-200 px-3 py-1 text-gray-600 hover:border-navy hover:text-navy transition-colors"
-          >
-            {a.label}
-          </button>
-        ))}
+        {(() => {
+          type Action = { label: string; fn: () => void };
+          const actions: Action[] = [];
+          if (showUpper) {
+            actions.push({
+              label: visibleArches === 1 ? "Select all" : "Select all upper",
+              fn: () => selectAll("upper"),
+            });
+          }
+          if (showLower) {
+            actions.push({
+              label: visibleArches === 1 ? "Select all" : "Select all lower",
+              fn: () => selectAll("lower"),
+            });
+          }
+          if (showUpper) {
+            actions.push({
+              label: visibleArches === 1 ? "Clear" : "Clear upper",
+              fn: () => clearArch("upper"),
+            });
+          }
+          if (showLower) {
+            actions.push({
+              label: visibleArches === 1 ? "Clear" : "Clear lower",
+              fn: () => clearArch("lower"),
+            });
+          }
+          if (visibleArches === 2) {
+            actions.push({ label: "Clear all", fn: () => clearArch("all") });
+          }
+          return actions.map((a) => (
+            <button
+              key={a.label}
+              type="button"
+              onClick={a.fn}
+              className="rounded-full border border-gray-200 px-3 py-1 text-gray-600 hover:border-navy hover:text-navy transition-colors"
+            >
+              {a.label}
+            </button>
+          ));
+        })()}
       </div>
 
       {/* Chart — minWidth halved from the previous 560 to match the

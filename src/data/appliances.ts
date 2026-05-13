@@ -63,6 +63,11 @@ export interface Appliance {
   category: ApplianceCategory;
   description: string;
   fields: ApplianceField[];
+  /** Show the clasp picker (Labial bow / Adams / Ball / C / Occlusal
+   *  Rest) inside this appliance's details panel. Only the Hawley-style
+   *  appliances and removable dentures use these clasps; aligners,
+   *  bands, splints etc. shouldn't surface the picker at all. */
+  supportsClasps?: boolean;
 }
 
 const COLOR_STICKERS_FIELDS: ApplianceField[] = [
@@ -102,6 +107,7 @@ export const APPLIANCES: Appliance[] = [
     id: "plate_type_retainer",
     name: "Plate Type Retainer",
     category: "retainer",
+    supportsClasps: true,
     description:
       "Hawley / Wrap-around / QCM / Spring / Clear Bow — note variant in the notes field.",
     fields: [
@@ -121,6 +127,7 @@ export const APPLIANCES: Appliance[] = [
     id: "plate_expansion",
     name: "Plate Expansion",
     category: "expansion",
+    supportsClasps: true,
     description: "Acrylic plate with expansion screw.",
     fields: [
       ...COLOR_STICKERS_FIELDS,
@@ -335,6 +342,7 @@ export const APPLIANCES: Appliance[] = [
     id: "flipper",
     name: "Flipper / Immediate Denture",
     category: "other",
+    supportsClasps: true,
     description:
       "Pick Flipper / Immediate Denture / Full Denture above; configure stage and shade here.",
     fields: [

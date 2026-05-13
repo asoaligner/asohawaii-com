@@ -58,7 +58,8 @@ export type ClaspType =
   | "labial_bow"
   | "adams"
   | "ball_clasp"
-  | "c_clasp";
+  | "c_clasp"
+  | "occlusal_rest";
 
 export type ClaspSelections = {
   /** Range — usually the anterior teeth the wire crosses. */
@@ -75,6 +76,9 @@ export type ClaspSelections = {
   ball_clasp: string[];
   /** Individual teeth — each has its own C clasp. */
   c_clasp: string[];
+  /** Individual teeth — small metal extension on the occlusal surface
+   *  for vertical support of a removable partial / flipper. */
+  occlusal_rest: string[];
 };
 
 export const EMPTY_CLASPS: ClaspSelections = {
@@ -82,6 +86,7 @@ export const EMPTY_CLASPS: ClaspSelections = {
   adams: [],
   ball_clasp: [],
   c_clasp: [],
+  occlusal_rest: [],
 };
 
 export interface ClaspMeta {
@@ -134,6 +139,15 @@ export const CLASP_META: ReadonlyArray<ClaspMeta> = [
     dotClass: "bg-pink-500",
     ringClass: "ring-pink-500",
     hex: "#ec4899",
+    pairMode: false,
+  },
+  {
+    type: "occlusal_rest",
+    label: "Occlusal Rest",
+    hint: "Individual teeth — click each one.",
+    dotClass: "bg-teal-500",
+    ringClass: "ring-teal-500",
+    hex: "#14b8a6",
     pairMode: false,
   },
 ];

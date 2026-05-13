@@ -92,7 +92,14 @@ export default function ApplianceDetails({
   if (!appliance) return null;
 
   const claspSelections = config.clasps ?? EMPTY_CLASPS;
-  const showClaspPanel = !claspsDismissed || hasAnyClaspData(config);
+  // Only Hawley-style appliances and removable dentures get the clasp
+  // picker — aligners / bands / splints / IDB / etc. don't carry clasps.
+  // The schema flag is the source of truth (set per-appliance in
+  // src/data/appliances.ts) so adding new clasp-bearing appliances
+  // doesn't require a code change here.
+  const claspsSupported = appliance.supportsClasps === true;
+  const showClaspPanel =
+    claspsSupported && (!claspsDismissed || hasAnyClaspData(config));
   function setClaspTeeth(type: ClaspType, next: string[]) {
     const current = config.clasps ?? EMPTY_CLASPS;
     const updated: ClaspSelections = { ...current, [type]: next };
@@ -552,7 +559,7 @@ export default function ApplianceDetails({
             <div key="tooth-chart">
               <div className="flex items-center gap-3 mb-1.5">
                 <div className={labelClass + " !mb-0"}>Teeth involved</div>
-                {!showClaspPanel && (
+                {claspsSupported && !showClaspPanel && (
                   <button
                     type="button"
                     onClick={restoreClasps}

@@ -141,6 +141,7 @@ function InviteUserModal({ onClose, onSent }: ModalProps) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<"member" | "admin">("member");
+  const [locale, setLocale] = useState<"en" | "ja">("en");
   const [clinicSel, setClinicSel] = useState<ClinicSelection>({
     kind: "existing",
     clinic_id: null,
@@ -210,6 +211,7 @@ function InviteUserModal({ onClose, onSent }: ModalProps) {
       email: emailTrim,
       name: name.trim() || undefined,
       role,
+      locale,
       ...clinicArgs,
     });
     setBusy(false);
@@ -391,6 +393,37 @@ function InviteUserModal({ onClose, onSent }: ModalProps) {
             <p className="mt-1 text-[12px] text-gray-500">
               ASO staff role can&apos;t be assigned through this flow — use
               the seed script for internal hires.
+            </p>
+          </fieldset>
+
+          <fieldset disabled={busy}>
+            <legend className="block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5">
+              Email language
+            </legend>
+            <div className="flex gap-2">
+              <label className="flex-1 flex items-center gap-2 cursor-pointer rounded-xl border bg-white px-3 py-2.5 text-[13.5px] text-navy">
+                <input
+                  type="radio"
+                  name="invite-locale"
+                  className="accent-navy"
+                  checked={locale === "en"}
+                  onChange={() => setLocale("en")}
+                />
+                <span>English</span>
+              </label>
+              <label className="flex-1 flex items-center gap-2 cursor-pointer rounded-xl border bg-white px-3 py-2.5 text-[13.5px] text-navy">
+                <input
+                  type="radio"
+                  name="invite-locale"
+                  className="accent-navy"
+                  checked={locale === "ja"}
+                  onChange={() => setLocale("ja")}
+                />
+                <span>日本語</span>
+              </label>
+            </div>
+            <p className="mt-1 text-[12px] text-gray-500">
+              The PDF guide linked from the email is bilingual either way.
             </p>
           </fieldset>
 

@@ -152,6 +152,8 @@ export function passwordResetEmail(args: {
  * /portal/accept-invite/?token=X, chooses a password, and a portal_users
  * row is created + signed in.
  */
+export type InvitationLocale = "en" | "ja";
+
 export function invitationEmail(args: {
   recipientName: string | null;
   inviterName: string;
@@ -159,8 +161,101 @@ export function invitationEmail(args: {
   role: "member" | "admin" | "aso_staff";
   acceptUrl: string;
   expiresHumanLabel: string;
+  /** Origin of the portal (e.g. `https://asohawaii.com`) used to build
+   * the guide link. Falls back to the production origin when omitted. */
+  siteOrigin?: string;
+  /** `"ja"` renders the Japanese-language body, otherwise English. The
+   * subject line matches the body locale. */
+  locale?: InvitationLocale;
 }): { html: string; text: string; subject: string } {
   const { recipientName, inviterName, clinicName, role, acceptUrl } = args;
+  const locale: InvitationLocale = args.locale === "ja" ? "ja" : "en";
+  const origin = (args.siteOrigin || "https://asohawaii.com").replace(/\/+$/, "");
+  const guideUrl = `${origin}/portal/guide/`;
+
+  if (locale === "ja") {
+    const roleLabel =
+      role === "admin"
+        ? "院内管理者"
+        : role === "aso_staff"
+          ? "ASO スタッフ"
+          : "スタッフ";
+    const subject = `ASO Hawaii Doctor Portal へのご招待 — ${clinicName}様`;
+    const greeting = recipientName
+      ? `${recipientName} 先生`
+      : `${clinicName} ご担当者様`;
+
+    const text = [
+      greeting,
+      "",
+      `平素より大変お世話になっております、ASO International Hawaii の ${inviterName} です。`,
+      "",
+      `このたび、${clinicName} 様を ASO Hawaii Doctor Portal にご招待いたします。`,
+      `権限: ${roleLabel}`,
+      "",
+      "下記リンクからパスワードを設定し、アカウントをご利用開始ください:",
+      acceptUrl,
+      "",
+      `この招待リンクの有効期限: ${args.expiresHumanLabel}`,
+      "",
+      "Portal の使い方ガイド (日本語/英語):",
+      guideUrl,
+      "",
+      "Portal を使うと:",
+      "  ・新規症例の送信、納期確認、再注文がワンクリックで完結します",
+      "  ・STL・Rx・写真がそのまま注文に紐付き、メールスレッドを探さずに済みます",
+      "  ・個別の症例についてはチャット感覚で弊社デジタル担当へ直接ご質問いただけます",
+      "",
+      "ご不明な点がございましたら、お気軽にお問い合わせください:",
+      "  電話: 808-957-0111",
+      "  メール: aso-digital@outlook.com",
+      "",
+      "ASO International Hawaii, Inc.",
+      "1441 Kapiolani Blvd #1112, Honolulu HI 96814",
+    ].join("\n");
+
+    const safeGreeting = escapeHtml(greeting);
+    const safeUrl = escapeHtml(acceptUrl);
+    const safeGuideUrl = escapeHtml(guideUrl);
+    const safeInviter = escapeHtml(inviterName);
+    const safeClinic = escapeHtml(clinicName);
+    const safeRole = escapeHtml(roleLabel);
+    const safeExpires = escapeHtml(args.expiresHumanLabel);
+
+    const html = `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic UI','Meiryo',-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:540px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:22px;line-height:1.4">ASO Hawaii Doctor Portal へのご招待</h1>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">${safeGreeting}</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">平素より大変お世話になっております、ASO International Hawaii の <strong>${safeInviter}</strong> です。</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">このたび、<strong>${safeClinic}</strong> 様を ASO Hawaii Doctor Portal にご招待いたします (権限: ${safeRole})。下記ボタンからパスワードを設定し、ご利用を開始してください。</p>
+      <p style="margin:24px 0">
+        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">パスワードを設定する</a>
+      </p>
+      <p style="margin:0 0 8px;color:#6b7280;font-size:12.5px;line-height:1.6">ボタンが開かない場合は、下記 URL をブラウザに貼り付けてください:</p>
+      <p style="margin:0 0 20px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
+
+      <div style="margin:0 0 8px;padding:14px 16px;background:#F9731610;border-radius:12px">
+        <p style="margin:0 0 6px;color:#0F2942;font-size:13px;font-weight:500">📘 Portal の使い方ガイド (日本語 / 英語)</p>
+        <p style="margin:0;color:#374151;font-size:12.5px;line-height:1.6">サインイン方法・注文確認・新規送信・再注文・質問の流れを 1 ページにまとめています。<br><a href="${safeGuideUrl}" style="color:#F97316;text-decoration:none;font-weight:500">${safeGuideUrl}</a></p>
+      </div>
+
+      <p style="margin:18px 0 6px;color:#6b7280;font-size:12.5px;line-height:1.6">この招待リンクの有効期限: <strong>${safeExpires}</strong></p>
+      <p style="margin:6px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">心当たりがない場合は、このメールは破棄してください。アカウントはパスワード設定するまで作成されません。</p>
+    </td></tr>
+    <tr><td style="padding:16px 32px 0;color:#9ca3af;font-size:11.5px;line-height:1.6">
+      ご不明な点はお気軽に: <strong>808-957-0111</strong> · <a href="mailto:aso-digital@outlook.com" style="color:#6b7280">aso-digital@outlook.com</a><br>
+      ASO International Hawaii, Inc. · 1441 Kapiolani Blvd #1112, Honolulu HI 96814
+    </td></tr>
+  </table>
+</body></html>`;
+
+    return { html, text, subject };
+  }
+
+  // English (default)
   const greeting = recipientName ? `Hi ${recipientName},` : "Hi,";
   const roleLabel =
     role === "admin"
@@ -168,7 +263,7 @@ export function invitationEmail(args: {
       : role === "aso_staff"
         ? "ASO staff"
         : "team member";
-  const subject = `${inviterName} invited you to ASO Hawaii Doctor Portal`;
+  const subject = `${inviterName} invited you to the ASO Hawaii Doctor Portal`;
 
   const text = [
     greeting,
@@ -177,20 +272,30 @@ export function invitationEmail(args: {
     `for ${clinicName} as a ${roleLabel}.`,
     "",
     "Set a password to claim your account:",
-    "",
     acceptUrl,
     "",
     `This invitation expires ${args.expiresHumanLabel}.`,
     "",
-    "If you didn't expect this email, you can ignore it — no account",
-    "will be created without you choosing a password.",
+    "New to the portal? Here's a one-page onboarding guide (EN + JA):",
+    guideUrl,
     "",
-    "— ASO Hawaii",
-    "808-957-0111 · aso-digital@outlook.com",
+    "What the portal gives you:",
+    "  • Real-time order tracking — every case, every delivery date, one dashboard",
+    "  • One-click reorder — same patient, same appliance, new STL",
+    "  • Direct file uploads — STL and Rx attachments stay tied to the order",
+    "  • Ask anytime — questions about a specific case go straight to our digital team",
+    "",
+    "Questions? We're happy to walk you through the first case:",
+    "  Phone: 808-957-0111",
+    "  Email: aso-digital@outlook.com",
+    "",
+    "ASO International Hawaii, Inc.",
+    "1441 Kapiolani Blvd #1112, Honolulu HI 96814",
   ].join("\n");
 
   const safeGreeting = escapeHtml(greeting);
   const safeUrl = escapeHtml(acceptUrl);
+  const safeGuideUrl = escapeHtml(guideUrl);
   const safeInviter = escapeHtml(inviterName);
   const safeClinic = escapeHtml(clinicName);
   const safeRole = escapeHtml(roleLabel);
@@ -203,18 +308,24 @@ export function invitationEmail(args: {
     <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
       <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:24px;line-height:1.3">You're invited to the Doctor Portal</h1>
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeGreeting}</p>
-      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6"><strong>${safeInviter}</strong> has invited you to join the ASO Hawaii Doctor Portal for <strong>${safeClinic}</strong> as a <strong>${safeRole}</strong>.</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6"><strong>${safeInviter}</strong> has invited you to join the ASO Hawaii Doctor Portal for <strong>${safeClinic}</strong> as a <strong>${safeRole}</strong>. Set a password below to start tracking cases and sending new orders.</p>
       <p style="margin:24px 0">
         <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">Set your password</a>
       </p>
       <p style="margin:0 0 8px;color:#6b7280;font-size:12.5px;line-height:1.6">Or copy and paste this link into your browser:</p>
-      <p style="margin:0 0 24px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
-      <p style="margin:24px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">This invitation expires <strong>${safeExpires}</strong>.</p>
-      <p style="margin:8px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">If you didn't expect this email, you can safely ignore it — no account is created until you choose a password.</p>
+      <p style="margin:0 0 20px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
+
+      <div style="margin:0 0 8px;padding:14px 16px;background:#F9731610;border-radius:12px">
+        <p style="margin:0 0 6px;color:#0F2942;font-size:13px;font-weight:500">📘 New to the portal? One-page onboarding guide (EN&nbsp;+&nbsp;JA)</p>
+        <p style="margin:0;color:#374151;font-size:12.5px;line-height:1.6">Covers sign-in, submitting cases, reordering, file uploads, and asking about an order.<br><a href="${safeGuideUrl}" style="color:#F97316;text-decoration:none;font-weight:500">${safeGuideUrl}</a></p>
+      </div>
+
+      <p style="margin:18px 0 6px;color:#6b7280;font-size:12.5px;line-height:1.6">This invitation expires <strong>${safeExpires}</strong>.</p>
+      <p style="margin:6px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6">If you didn't expect this email, you can safely ignore it — no account is created until you choose a password.</p>
     </td></tr>
     <tr><td style="padding:16px 32px 0;color:#9ca3af;font-size:11.5px;line-height:1.5">
-      ASO International Hawaii, Inc. · 1441 Kapiolani Blvd #1112, Honolulu HI 96814<br>
-      808-957-0111 · aso-digital@outlook.com
+      Questions? <strong>808-957-0111</strong> · <a href="mailto:aso-digital@outlook.com" style="color:#6b7280">aso-digital@outlook.com</a><br>
+      ASO International Hawaii, Inc. · 1441 Kapiolani Blvd #1112, Honolulu HI 96814
     </td></tr>
   </table>
 </body></html>`;

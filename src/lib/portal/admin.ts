@@ -309,6 +309,8 @@ export interface InviteUserInput {
   clinic_id?: number;
   new_clinic_name?: string;
   role: "member" | "admin";
+  /** `"ja"` sends the Japanese invitation copy. Default `"en"`. */
+  locale?: "en" | "ja";
 }
 
 export interface InviteUserOk {

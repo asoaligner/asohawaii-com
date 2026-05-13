@@ -71,6 +71,7 @@ interface InviteBody {
   clinic_id?: unknown;
   new_clinic_name?: unknown;
   role?: unknown;
+  locale?: unknown;
 }
 
 export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
@@ -109,6 +110,8 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
 
   const role: "member" | "admin" =
     body.role === "admin" ? "admin" : "member";
+
+  const locale: "en" | "ja" = body.locale === "ja" ? "ja" : "en";
 
   const ip = clientIp(ctx.request);
 
@@ -223,6 +226,9 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
     ? acceptUrl
     : `${SITE_ORIGIN}/portal/accept-invite/?token=${encodeURIComponent(rawToken)}`;
 
+  const emailOrigin = requestUrl.host.endsWith(".pages.dev")
+    ? origin
+    : SITE_ORIGIN;
   const tpl = invitationEmail({
     recipientName: name,
     inviterName: session.user.name?.trim() || session.user.email,
@@ -230,6 +236,8 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
     role,
     acceptUrl: linkForEmail,
     expiresHumanLabel: humanExpiresLabel(expiresAt),
+    siteOrigin: emailOrigin,
+    locale,
   });
 
   const sent = await sendEmail(ctx.env, {
@@ -250,6 +258,7 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
         clinic_id: clinicId,
         clinic_name: clinicName,
         role,
+        locale,
         error: sent.error,
       },
       ipAddress: ip,
@@ -270,6 +279,7 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
       clinic_id: clinicId,
       clinic_name: clinicName,
       role,
+      locale,
       resend_id: sent.id,
       expires_at: expiresAtSql,
     },

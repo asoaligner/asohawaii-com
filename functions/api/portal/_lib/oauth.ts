@@ -82,17 +82,30 @@ export function generateState(): string {
 
 // ─── State cookie ──────────────────────────────────────────────────
 
-interface OAuthStateClaims {
+export type OAuthIntent = "login" | "accept_invite";
+
+export interface OAuthStateClaims {
   state: string;
   /** PKCE code_verifier — server-side memory only, never to the client. */
   cv: string;
+  /** What the user is trying to do. Default "login" for back-compat. */
+  intent?: OAuthIntent;
+  /** Raw invitation token, signed inside this JWT (never appears on the
+   *  URL). Only meaningful when `intent === "accept_invite"`. */
+  invite_token?: string;
 }
 
 export async function signOAuthState(
   claims: OAuthStateClaims,
   jwtSecret: string,
 ): Promise<string> {
-  return await new SignJWT({ state: claims.state, cv: claims.cv })
+  const payload: Record<string, unknown> = {
+    state: claims.state,
+    cv: claims.cv,
+  };
+  if (claims.intent) payload.intent = claims.intent;
+  if (claims.invite_token) payload.invite_token = claims.invite_token;
+  return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
@@ -111,7 +124,18 @@ export async function verifyOAuthState(
     if (typeof payload.state !== "string" || typeof payload.cv !== "string") {
       return null;
     }
-    return { state: payload.state, cv: payload.cv };
+    const intent: OAuthIntent | undefined =
+      payload.intent === "accept_invite" ? "accept_invite" : undefined;
+    const inviteToken =
+      typeof payload.invite_token === "string" && payload.invite_token
+        ? payload.invite_token
+        : undefined;
+    return {
+      state: payload.state,
+      cv: payload.cv,
+      intent,
+      invite_token: inviteToken,
+    };
   } catch {
     return null;
   }

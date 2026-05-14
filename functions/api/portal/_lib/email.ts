@@ -193,7 +193,7 @@ export function invitationEmail(args: {
       `このたび、${clinicName} 様を ASO Hawaii Doctor Portal にご招待いたします。`,
       `権限: ${roleLabel}`,
       "",
-      "下記リンクからパスワードを設定し、アカウントをご利用開始ください:",
+      "下記リンクから「Continue with Google」または「パスワード設定」を選び、アカウントをご利用開始ください:",
       acceptUrl,
       "",
       `この招待リンクの有効期限: ${args.expiresHumanLabel}`,
@@ -231,9 +231,10 @@ export function invitationEmail(args: {
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">${safeGreeting}</p>
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">平素より大変お世話になっております、ASO International Hawaii の <strong>${safeInviter}</strong> です。</p>
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.7">このたび、<strong>${safeClinic}</strong> 様を ASO Hawaii Doctor Portal にご招待いたします (権限: ${safeRole})。下記ボタンからパスワードを設定し、ご利用を開始してください。</p>
-      <p style="margin:24px 0">
-        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">パスワードを設定する</a>
+      <p style="margin:24px 0 8px">
+        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">パスワードを設定する / Continue with Google</a>
       </p>
+      <p style="margin:0 0 16px;color:#374151;font-size:12.5px;line-height:1.6">📌 Gmail / Google Workspace アカウントの方は、リンク先で「Continue with Google」を選べばパスワード不要でサインインできます。</p>
       <p style="margin:0 0 8px;color:#6b7280;font-size:12.5px;line-height:1.6">ボタンが開かない場合は、下記 URL をブラウザに貼り付けてください:</p>
       <p style="margin:0 0 20px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
 
@@ -271,7 +272,7 @@ export function invitationEmail(args: {
     `${inviterName} has invited you to join the ASO Hawaii Doctor Portal`,
     `for ${clinicName} as a ${roleLabel}.`,
     "",
-    "Set a password to claim your account:",
+    "Accept your invite — Continue with Google (no password needed) or set a password:",
     acceptUrl,
     "",
     `This invitation expires ${args.expiresHumanLabel}.`,
@@ -309,9 +310,10 @@ export function invitationEmail(args: {
       <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:24px;line-height:1.3">You're invited to the Doctor Portal</h1>
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeGreeting}</p>
       <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6"><strong>${safeInviter}</strong> has invited you to join the ASO Hawaii Doctor Portal for <strong>${safeClinic}</strong> as a <strong>${safeRole}</strong>. Set a password below to start tracking cases and sending new orders.</p>
-      <p style="margin:24px 0">
-        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">Set your password</a>
+      <p style="margin:24px 0 8px">
+        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">Accept your invite</a>
       </p>
+      <p style="margin:0 0 16px;color:#374151;font-size:12.5px;line-height:1.6">📌 Tip: if your invited email is on Gmail or Google Workspace, you can click <em>Continue with Google</em> on that page — no password to remember.</p>
       <p style="margin:0 0 8px;color:#6b7280;font-size:12.5px;line-height:1.6">Or copy and paste this link into your browser:</p>
       <p style="margin:0 0 20px;color:#0F2942;font-size:12px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
 

@@ -48,6 +48,8 @@ function AcceptInviteInner() {
   const searchParams = useSearchParams();
   const token = searchParams?.get("token") ?? "";
   const tokenPresent = token.length > 0;
+  const mismatchError = searchParams?.get("error") === "email_mismatch";
+  const invitedEmailFromUrl = searchParams?.get("invited") ?? "";
 
   const [status, setStatus] = useState<
     | { kind: "loading" }
@@ -152,10 +154,12 @@ function AcceptInviteInner() {
   }
 
   const info = status.info;
+  const invitedEmail = invitedEmailFromUrl || info.email;
+
   return (
     <AuthShell
       title="Accept invitation"
-      subtitle={`Choose a password to claim your access to ${info.clinic_name ?? "the portal"}.`}
+      subtitle={`Welcome — claim your access to ${info.clinic_name ?? "the portal"}.`}
       footer={
         <>
           Already have an account?{" "}
@@ -190,7 +194,55 @@ function AcceptInviteInner() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 mt-5" noValidate>
+      {mismatchError && (
+        <div
+          role="alert"
+          className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900 leading-relaxed"
+        >
+          <div className="font-medium">That Google account didn&apos;t match.</div>
+          <div className="mt-1">
+            This invitation was sent to{" "}
+            <strong className="text-navy">{invitedEmail}</strong>. Please sign
+            in with that Google account, or set a password below instead.
+          </div>
+        </div>
+      )}
+
+      {/* Continue with Google — recommended path for Gmail / Workspace
+          accounts. Posts the raw invite token to the OAuth entry which
+          embeds it in the state JWT and validates email match in the
+          callback. */}
+      <form
+        method="POST"
+        action="/api/portal/auth/google"
+        className="mt-5"
+      >
+        <input type="hidden" name="invite_token" value={token} />
+        <button
+          type="submit"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-navy hover:border-navy hover:bg-navy/[0.03] transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853" />
+            <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05" />
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z" fill="#EA4335" />
+          </svg>
+          Continue with Google
+        </button>
+        <p className="mt-2 text-center text-[11.5px] text-gray-500">
+          Recommended if your invited email is on Gmail or Google Workspace
+          — no password to remember.
+        </p>
+      </form>
+
+      <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-widest text-gray-400">
+        <div className="flex-grow h-px bg-gray-200"></div>
+        <span>or set a password</span>
+        <div className="flex-grow h-px bg-gray-200"></div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="grid gap-4" noValidate>
         <div>
           <label
             htmlFor="accept-name"

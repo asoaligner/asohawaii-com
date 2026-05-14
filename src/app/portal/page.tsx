@@ -45,6 +45,16 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
     "Could not complete Google sign-in. Please try again.",
   userinfo_failed:
     "Could not load your Google profile. Please try again.",
+  invite_invalid:
+    "That invitation link is not valid. Ask your ASO Hawaii rep to send a new one.",
+  invite_used:
+    "That invitation has already been accepted. Sign in below.",
+  invite_revoked:
+    "That invitation was revoked. Contact your ASO Hawaii rep for a new one.",
+  invite_expired:
+    "That invitation has expired. Contact your ASO Hawaii rep for a new one.",
+  invite_email_conflict:
+    "An account already exists for this email. Sign in below or use forgot password.",
   unknown:
     "Google sign-in is not configured correctly. Contact ASO Hawaii.",
 };

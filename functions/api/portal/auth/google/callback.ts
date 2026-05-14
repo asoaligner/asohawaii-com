@@ -24,6 +24,7 @@ import {
   createSessionForUser,
   readCookie,
   recordAudit,
+  sha256Hex,
 } from "../../_lib/auth";
 import {
   OAUTH_STATE_COOKIE,
@@ -52,6 +53,11 @@ type ErrorCode =
   | "not_registered"
   | "account_disabled"
   | "google_id_conflict"
+  | "invite_invalid"
+  | "invite_used"
+  | "invite_revoked"
+  | "invite_expired"
+  | "invite_email_conflict"
   | "unknown";
 
 function errorRedirect(
@@ -147,6 +153,203 @@ export const onRequestGet: PagesFunction<PortalEnv> = async (ctx) => {
 
   const email = userinfo.user.email.trim().toLowerCase();
   const sub = userinfo.user.sub;
+
+  // ─── Accept-invite branch ──────────────────────────────────────────
+  //
+  // When the user came from the accept-invite page, the state JWT carries
+  // intent="accept_invite" and the raw invitation token. We re-validate
+  // the invitation here (the soft-validate in the entry endpoint only
+  // proves it was alive ~30s ago) and require the Google email to match
+  // the invited email exactly — domain-only matches are not allowed.
+  if (
+    stateClaims.intent === "accept_invite" &&
+    stateClaims.invite_token
+  ) {
+    const rawToken = stateClaims.invite_token;
+    const tokenHash = await sha256Hex(rawToken);
+    const invitation = await ctx.env.DB.prepare(
+      `SELECT id, email, name, clinic_id, role, used_at, revoked_at, expires_at
+         FROM portal_invitations WHERE token_hash = ?`,
+    )
+      .bind(tokenHash)
+      .first<{
+        id: number;
+        email: string;
+        name: string | null;
+        clinic_id: number;
+        role: "member" | "admin" | "aso_staff";
+        used_at: string | null;
+        revoked_at: string | null;
+        expires_at: string;
+      }>();
+    if (!invitation) return errorRedirect("invite_invalid");
+    if (invitation.used_at) return errorRedirect("invite_used");
+    if (invitation.revoked_at) return errorRedirect("invite_revoked");
+    const expiresMs = Date.parse(invitation.expires_at.replace(" ", "T") + "Z");
+    if (Number.isFinite(expiresMs) && expiresMs < Date.now()) {
+      return errorRedirect("invite_expired");
+    }
+
+    const invitedEmail = invitation.email.trim().toLowerCase();
+    if (invitedEmail !== email) {
+      // Bounce back to the accept-invite page with both the original
+      // token and the invited email so the UI can render a helpful
+      // "this invite was sent to X — sign in with that account, or use
+      // Set a password instead" banner. The token is already known to
+      // the user via the email they received, so echoing it here is no
+      // additional exposure.
+      await recordAudit(ctx.env.DB, {
+        userId: null,
+        action: "portal_invite_accept_failed",
+        resourceType: "invitation",
+        resourceId: String(invitation.id),
+        metadata: {
+          reason: "google_email_mismatch",
+          invited_email: invitedEmail,
+          google_email: email,
+        },
+        ipAddress: ip,
+      });
+      const headers = new Headers();
+      const params = new URLSearchParams({
+        token: rawToken,
+        error: "email_mismatch",
+        invited: invitedEmail,
+      });
+      headers.set("Location", `/portal/accept-invite/?${params.toString()}`);
+      headers.set("Cache-Control", "no-store");
+      headers.append("Set-Cookie", buildClearOAuthStateCookie());
+      return new Response(null, { status: 302, headers });
+    }
+
+    // Refuse if a portal_users row already exists for the invited
+    // email or the incoming Google sub — both indicate a race where the
+    // invitee already finished the flow somewhere else.
+    const existingByEmail = await ctx.env.DB.prepare(
+      "SELECT id FROM portal_users WHERE email = ?",
+    )
+      .bind(invitedEmail)
+      .first<{ id: number }>();
+    if (existingByEmail) {
+      await recordAudit(ctx.env.DB, {
+        userId: null,
+        action: "portal_invite_accept_failed",
+        resourceType: "invitation",
+        resourceId: String(invitation.id),
+        metadata: {
+          reason: "email_conflict_google",
+          invited_email: invitedEmail,
+          existing_user_id: existingByEmail.id,
+        },
+        ipAddress: ip,
+      });
+      return errorRedirect("invite_email_conflict");
+    }
+    const existingBySub = await ctx.env.DB.prepare(
+      "SELECT id, email FROM portal_users WHERE google_id = ?",
+    )
+      .bind(sub)
+      .first<{ id: number; email: string }>();
+    if (existingBySub) {
+      await recordAudit(ctx.env.DB, {
+        userId: null,
+        action: "portal_invite_accept_failed",
+        resourceType: "invitation",
+        resourceId: String(invitation.id),
+        metadata: {
+          reason: "google_id_conflict",
+          invited_email: invitedEmail,
+          existing_user_id: existingBySub.id,
+          existing_user_email: existingBySub.email,
+          sub,
+        },
+        ipAddress: ip,
+      });
+      return errorRedirect("google_id_conflict");
+    }
+
+    const finalName =
+      userinfo.user.name?.trim() || invitation.name || null;
+    const insertResult = await ctx.env.DB.prepare(
+      `INSERT INTO portal_users
+         (clinic_id, email, name, role, auth_provider, google_id, is_active)
+       VALUES (?, ?, ?, ?, 'google', ?, 1)`,
+    )
+      .bind(
+        invitation.clinic_id,
+        invitedEmail,
+        finalName,
+        invitation.role,
+        sub,
+      )
+      .run();
+    const newUserId =
+      insertResult.meta?.last_row_id != null
+        ? Number(insertResult.meta.last_row_id)
+        : null;
+    if (!newUserId) {
+      await recordAudit(ctx.env.DB, {
+        userId: null,
+        action: "portal_invite_accept_failed",
+        resourceType: "invitation",
+        resourceId: String(invitation.id),
+        metadata: { reason: "user_insert_failed_google" },
+        ipAddress: ip,
+      });
+      return errorRedirect("unknown");
+    }
+
+    await ctx.env.DB.prepare(
+      `UPDATE portal_invitations
+         SET used_at = datetime('now'), used_by_user_id = ?
+       WHERE id = ?`,
+    )
+      .bind(newUserId, invitation.id)
+      .run();
+
+    const newUserRow = await ctx.env.DB.prepare(
+      "SELECT * FROM portal_users WHERE id = ?",
+    )
+      .bind(newUserId)
+      .first<PortalUserRow>();
+    if (!newUserRow) return errorRedirect("unknown");
+
+    const session = await createSessionForUser(
+      ctx.env.DB,
+      newUserRow,
+      ctx.env.JWT_SECRET,
+      ctx.request,
+    );
+
+    await recordAudit(ctx.env.DB, {
+      userId: newUserId,
+      action: "portal_invite_accepted",
+      resourceType: "invitation",
+      resourceId: String(invitation.id),
+      metadata: {
+        method: "google",
+        clinic_id: invitation.clinic_id,
+        role: invitation.role,
+        google_sub: sub,
+      },
+      ipAddress: ip,
+    });
+    await recordAudit(ctx.env.DB, {
+      userId: newUserId,
+      action: "login_success",
+      resourceType: "session",
+      resourceId: session.sessionId,
+      metadata: { provider: "google", via: "accept_invite" },
+      ipAddress: ip,
+    });
+
+    const headers = new Headers();
+    headers.set("Location", "/portal/dashboard/");
+    headers.set("Cache-Control", "no-store");
+    headers.append("Set-Cookie", buildClearOAuthStateCookie());
+    headers.append("Set-Cookie", session.cookie);
+    return new Response(null, { status: 302, headers });
+  }
 
   // 1) Try the cached link first — fastest path for repeat logins.
   let user = await ctx.env.DB.prepare(

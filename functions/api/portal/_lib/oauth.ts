@@ -139,6 +139,93 @@ export function buildClearOAuthStateCookie(): string {
   ].join("; ");
 }
 
+// ─── Apply-prefill cookie (Phase 2.1) ───────────────────────────────
+//
+// When an unrecognised Google sign-in lands in the callback, we drop a
+// short-lived signed cookie carrying the Google identity hints so
+// /portal/request-access/ can prefill the form and /api/portal/auth/apply
+// can attach the verified google_id to the new pending row.
+//
+// Signed (not plaintext base64) because /api/portal/auth/apply trusts the
+// `google_id` claim to link the eventual approved portal_users row —
+// forging it would let an attacker grab access linked to someone else's
+// Google account.
+
+export const APPLY_PREFILL_COOKIE = "aso_portal_apply_prefill";
+const APPLY_PREFILL_TTL_SECONDS = 600; // 10 min, matches state cookie
+
+export interface ApplyPrefillClaims {
+  email: string;
+  google_id: string;
+  name: string | null;
+}
+
+export async function signApplyPrefill(
+  claims: ApplyPrefillClaims,
+  jwtSecret: string,
+): Promise<string> {
+  return await new SignJWT({
+    email: claims.email,
+    google_id: claims.google_id,
+    name: claims.name ?? null,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(JWT_ISSUER)
+    .setIssuedAt()
+    .setExpirationTime(`${APPLY_PREFILL_TTL_SECONDS}s`)
+    .sign(encodeSecret(jwtSecret));
+}
+
+export async function verifyApplyPrefill(
+  jwt: string,
+  jwtSecret: string,
+): Promise<ApplyPrefillClaims | null> {
+  try {
+    const { payload } = await jwtVerify(jwt, encodeSecret(jwtSecret), {
+      issuer: JWT_ISSUER,
+    });
+    if (
+      typeof payload.email !== "string" ||
+      typeof payload.google_id !== "string"
+    ) {
+      return null;
+    }
+    const name =
+      typeof payload.name === "string" && payload.name.length > 0
+        ? payload.name
+        : null;
+    return {
+      email: payload.email,
+      google_id: payload.google_id,
+      name,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function buildApplyPrefillCookie(token: string): string {
+  return [
+    `${APPLY_PREFILL_COOKIE}=${token}`,
+    "Path=/",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+    `Max-Age=${APPLY_PREFILL_TTL_SECONDS}`,
+  ].join("; ");
+}
+
+export function buildClearApplyPrefillCookie(): string {
+  return [
+    `${APPLY_PREFILL_COOKIE}=`,
+    "Path=/",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+    "Max-Age=0",
+  ].join("; ");
+}
+
 // ─── Google endpoints ──────────────────────────────────────────────
 
 export interface BuildAuthorizeUrlInput {

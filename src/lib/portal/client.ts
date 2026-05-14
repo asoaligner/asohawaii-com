@@ -324,3 +324,55 @@ export async function resetPassword(input: {
   }
   return { ok: true };
 }
+
+// ─── Phase 2.1 — self-service access application ─────────────────────
+
+export interface ApplyAccessInput {
+  email: string;
+  name?: string | null;
+  doctor_name: string;
+  clinic_name: string;
+  aso_account_number?: string | null;
+  easyrx_email?: string | null;
+  reason?: string | null;
+}
+
+export interface ApplyAccessOk {
+  ok: true;
+  pending_id: number;
+}
+
+export interface AccessPrefillOk {
+  ok: true;
+  prefill: { email: string; name: string | null; from_google: boolean } | null;
+}
+
+export async function fetchAccessPrefill(): Promise<AccessPrefillOk | null> {
+  try {
+    const res = await fetch("/api/portal/auth/apply-prefill", {
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as AccessPrefillOk;
+  } catch {
+    return null;
+  }
+}
+
+export async function submitAccessApplication(
+  input: ApplyAccessInput,
+): Promise<ApplyAccessOk | ApiErr> {
+  let res: Response;
+  try {
+    res = await fetch("/api/portal/auth/apply", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    return { ok: false, status: 0, error: "Network error. Please try again." };
+  }
+  if (!res.ok) return parseError(res);
+  return (await res.json()) as ApplyAccessOk;
+}

@@ -27,9 +27,11 @@ import {
 } from "../../_lib/auth";
 import {
   OAUTH_STATE_COOKIE,
+  buildApplyPrefillCookie,
   buildClearOAuthStateCookie,
   exchangeCodeForTokens,
   fetchGoogleUserinfo,
+  signApplyPrefill,
   verifyOAuthState,
 } from "../../_lib/oauth";
 import type {
@@ -194,13 +196,32 @@ export const onRequestGet: PagesFunction<PortalEnv> = async (ctx) => {
   }
 
   if (!user) {
+    // Phase 2.1 — divert unrecognised Google sign-ins to the
+    // self-service application form rather than dropping them at the
+    // sign-in page with an unhelpful error code. The signed prefill
+    // cookie carries the Google identity hints so the form can preload
+    // them and the eventual approval links the new portal_users row to
+    // this google_id.
     await recordAudit(ctx.env.DB, {
       userId: null,
-      action: "google_login_failed",
-      metadata: { stage: "no_matching_user", email, sub },
+      action: "google_login_redirected_to_apply",
+      metadata: { email, sub, has_name: !!userinfo.user.name },
       ipAddress: ip,
     });
-    return errorRedirect("not_registered");
+    const prefillJwt = await signApplyPrefill(
+      {
+        email,
+        google_id: sub,
+        name: userinfo.user.name ?? null,
+      },
+      ctx.env.JWT_SECRET,
+    );
+    const headers = new Headers();
+    headers.set("Location", "/portal/request-access/?from=google");
+    headers.set("Cache-Control", "no-store");
+    headers.append("Set-Cookie", buildClearOAuthStateCookie());
+    headers.append("Set-Cookie", buildApplyPrefillCookie(prefillJwt));
+    return new Response(null, { status: 302, headers });
   }
 
   if (user.is_active !== 1) {

@@ -397,3 +397,138 @@ export async function triggerVisualDlpSync(): Promise<
     return { ok: false, status: 0, error: "Network error." };
   }
 }
+
+// ─── Phase 2.1 — pending users (access applications) ─────────────────
+
+export interface PendingUserRow {
+  id: number;
+  email: string;
+  google_id: string | null;
+  name: string | null;
+  doctor_name: string | null;
+  clinic_name: string;
+  aso_account_number: string | null;
+  easyrx_email: string | null;
+  reason: string | null;
+  ip_address: string | null;
+  attempted_at: string;
+  admin_notified_at: string | null;
+  status: "pending" | "approved" | "rejected";
+  reviewed_at: string | null;
+  reviewed_by_user_id: number | null;
+  reviewer_email: string | null;
+  reviewer_name: string | null;
+  approved_clinic_id: number | null;
+  approved_clinic_name: string | null;
+  rejection_reason: string | null;
+  migrated_user_id: number | null;
+  created_at: string;
+}
+
+export interface PendingUsersListOk {
+  ok: true;
+  pending_users: PendingUserRow[];
+  counts: { pending: number; approved: number; rejected: number };
+}
+
+export async function fetchPendingUsers(input: {
+  status?: "pending" | "approved" | "rejected" | "all";
+  q?: string;
+}): Promise<ApiResult<PendingUsersListOk>> {
+  const params = new URLSearchParams();
+  if (input.status) params.set("status", input.status);
+  if (input.q) params.set("q", input.q);
+  try {
+    const res = await fetch(
+      `/api/portal/admin/pending-users?${params.toString()}`,
+      { credentials: "include" },
+    );
+    if (!res.ok) {
+      let error = "Failed to load applications.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    return { ok: true, data: (await res.json()) as PendingUsersListOk };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+export interface ApprovePendingOk {
+  ok: true;
+  pending_id: number;
+  new_user_id: number;
+  clinic_id: number;
+  email_sent: boolean;
+}
+
+export async function approvePendingUser(
+  id: number,
+  input: { clinic_id: number; role?: "member" | "admin" },
+): Promise<ApiResult<ApprovePendingOk>> {
+  try {
+    const res = await fetch(
+      `/api/portal/admin/pending-users/${id}/approve`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    );
+    if (!res.ok) {
+      let error = "Failed to approve.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    return { ok: true, data: (await res.json()) as ApprovePendingOk };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}
+
+export interface RejectPendingOk {
+  ok: true;
+  pending_id: number;
+  email_sent: boolean;
+}
+
+export async function rejectPendingUser(
+  id: number,
+  reason: string,
+): Promise<ApiResult<RejectPendingOk>> {
+  try {
+    const res = await fetch(
+      `/api/portal/admin/pending-users/${id}/reject`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      },
+    );
+    if (!res.ok) {
+      let error = "Failed to reject.";
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) error = body.error;
+      } catch {
+        /* */
+      }
+      return { ok: false, status: res.status, error };
+    }
+    return { ok: true, data: (await res.json()) as RejectPendingOk };
+  } catch {
+    return { ok: false, status: 0, error: "Network error." };
+  }
+}

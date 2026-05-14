@@ -420,3 +420,344 @@ export function orderQuestionEmail(args: {
 
   return { html, text, subject };
 }
+
+// ────────────────────────────────────────────────────────────────────────
+// Phase 2.1 — Self-service portal access application emails.
+//
+// All applicant-facing templates are bilingual (EN block on top, JA on
+// bottom) so we don't have to capture the applicant's preferred locale
+// at request time. The admin-notification template is English-only.
+// ────────────────────────────────────────────────────────────────────────
+
+/** Bilingual applicant footer used across the three applicant-facing
+ * access emails. */
+function bilingualApplicantFooter(): string {
+  return `<tr><td style="padding:16px 32px 0;color:#9ca3af;font-size:11.5px;line-height:1.6">
+      Questions? <strong>808-957-0111</strong> · <a href="mailto:aso-digital@outlook.com" style="color:#6b7280">aso-digital@outlook.com</a><br>
+      ご不明な点は: <strong>808-957-0111</strong> / <a href="mailto:aso-digital@outlook.com" style="color:#6b7280">aso-digital@outlook.com</a><br>
+      ASO International Hawaii, Inc. · 1441 Kapiolani Blvd #1112, Honolulu HI 96814
+    </td></tr>`;
+}
+
+/**
+ * Sent to the applicant immediately after they submit the
+ * /portal/request-access/ form. Confirms receipt and sets the
+ * expectation that ASO will reply within one business day.
+ */
+export function accessApplicationReceivedEmail(args: {
+  applicantName: string | null;
+  clinicName: string;
+  guideUrl: string;
+}): { html: string; text: string; subject: string } {
+  const { applicantName, clinicName, guideUrl } = args;
+  const subject =
+    "ASO Hawaii Doctor Portal — Application received / 申請を受け付けました";
+  const enGreeting = applicantName ? `Hi ${applicantName},` : "Hi,";
+  const jaGreeting = applicantName
+    ? `${applicantName} 先生`
+    : `${clinicName} ご担当者様`;
+
+  const text = [
+    enGreeting,
+    "",
+    `Thank you for applying for access to the ASO Hawaii Doctor Portal for ${clinicName}.`,
+    "",
+    "Our team will review your application and reply within one business day.",
+    "Once approved, you'll receive a separate email confirming sign-in.",
+    "",
+    "Onboarding guide (EN + JA):",
+    guideUrl,
+    "",
+    "Questions: 808-957-0111 · aso-digital@outlook.com",
+    "",
+    "— ASO Hawaii",
+    "",
+    "─────────────────────",
+    "",
+    jaGreeting,
+    "",
+    `このたびは ${clinicName} 様より ASO Hawaii Doctor Portal の利用申請をいただき、誠にありがとうございます。`,
+    "",
+    "弊社にて 1 営業日以内に内容を確認のうえ、ご返信いたします。",
+    "承認されますと、サインインのご案内メールを別途お送りいたします。",
+    "",
+    "Portal の使い方ガイド (日本語 / 英語):",
+    guideUrl,
+    "",
+    "ご不明な点: 808-957-0111 / aso-digital@outlook.com",
+    "",
+    "ASO International Hawaii",
+  ].join("\n");
+
+  const safeEnGreeting = escapeHtml(enGreeting);
+  const safeJaGreeting = escapeHtml(jaGreeting);
+  const safeClinic = escapeHtml(clinicName);
+  const safeGuide = escapeHtml(guideUrl);
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Yu Gothic UI',Meiryo,Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:540px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:22px;line-height:1.4">Application received</h1>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeEnGreeting}</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">Thank you for applying for access to the ASO Hawaii Doctor Portal for <strong>${safeClinic}</strong>.</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">Our team will review your application and reply within one business day. Once approved, you'll receive a separate email with sign-in instructions.</p>
+      <div style="margin:18px 0;padding:12px 14px;background:#F9731610;border-radius:10px">
+        <p style="margin:0 0 4px;color:#0F2942;font-size:12.5px;font-weight:500">📘 Onboarding guide (EN + JA)</p>
+        <p style="margin:0;color:#374151;font-size:12px;line-height:1.5"><a href="${safeGuide}" style="color:#F97316;text-decoration:none">${safeGuide}</a></p>
+      </div>
+
+      <div style="margin:24px 0;border-top:1px solid #e5e7eb"></div>
+
+      <h2 style="margin:0 0 12px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:18px;line-height:1.5">申請を受け付けました</h2>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">${safeJaGreeting}</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">このたびは <strong>${safeClinic}</strong> 様より ASO Hawaii Doctor Portal の利用申請をいただき、誠にありがとうございます。</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">弊社にて 1 営業日以内に内容を確認のうえ、ご返信いたします。承認されますと、サインインのご案内メールを別途お送りいたします。</p>
+    </td></tr>
+    ${bilingualApplicantFooter()}
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
+}
+
+/**
+ * Sent to the applicant when aso_staff approves their application. The
+ * approval also created their portal_users row, so they can sign in
+ * with the same Google account / email immediately.
+ */
+export function accessApprovedEmail(args: {
+  applicantName: string | null;
+  clinicName: string;
+  signInUrl: string;
+  authProvider: "google" | "password";
+}): { html: string; text: string; subject: string } {
+  const { applicantName, clinicName, signInUrl, authProvider } = args;
+  const subject = `Portal access approved — welcome to ASO Hawaii / Portal をご利用いただけます`;
+  const enGreeting = applicantName ? `Hi ${applicantName},` : "Hi,";
+  const jaGreeting = applicantName
+    ? `${applicantName} 先生`
+    : `${clinicName} ご担当者様`;
+  const enSignInHint =
+    authProvider === "google"
+      ? "Use “Continue with Google” on the sign-in page — your Google account is already linked."
+      : "Set your password on the sign-in page using your registered email.";
+  const jaSignInHint =
+    authProvider === "google"
+      ? "サインイン画面の「Continue with Google」をクリックしてください。Google アカウントは既に登録済です。"
+      : "サインイン画面でご登録のメールアドレスを入力し、パスワードを設定してください。";
+
+  const text = [
+    enGreeting,
+    "",
+    `Your application for ${clinicName} has been approved. Welcome to the ASO Hawaii Doctor Portal!`,
+    "",
+    enSignInHint,
+    signInUrl,
+    "",
+    "Questions: 808-957-0111 · aso-digital@outlook.com",
+    "",
+    "— ASO Hawaii",
+    "",
+    "─────────────────────",
+    "",
+    jaGreeting,
+    "",
+    `${clinicName} 様のお申込みを承認いたしました。ASO Hawaii Doctor Portal をどうぞご利用ください。`,
+    "",
+    jaSignInHint,
+    signInUrl,
+    "",
+    "ご不明な点: 808-957-0111 / aso-digital@outlook.com",
+  ].join("\n");
+
+  const safeEnGreeting = escapeHtml(enGreeting);
+  const safeJaGreeting = escapeHtml(jaGreeting);
+  const safeClinic = escapeHtml(clinicName);
+  const safeUrl = escapeHtml(signInUrl);
+  const safeEnHint = escapeHtml(enSignInHint);
+  const safeJaHint = escapeHtml(jaSignInHint);
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Yu Gothic UI',Meiryo,Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:540px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:22px;line-height:1.4">You're in — welcome to the Portal</h1>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeEnGreeting}</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">Your application for <strong>${safeClinic}</strong> has been approved. Welcome to the ASO Hawaii Doctor Portal!</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeEnHint}</p>
+      <p style="margin:20px 0">
+        <a href="${safeUrl}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500">Sign in to the Portal</a>
+      </p>
+
+      <div style="margin:24px 0;border-top:1px solid #e5e7eb"></div>
+
+      <h2 style="margin:0 0 12px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:18px;line-height:1.5">Portal をご利用いただけます</h2>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">${safeJaGreeting}</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7"><strong>${safeClinic}</strong> 様のお申込みを承認いたしました。ASO Hawaii Doctor Portal をどうぞご利用ください。</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">${safeJaHint}</p>
+      <p style="margin:0 0 10px;color:#0F2942;font-size:12.5px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-all">${safeUrl}</p>
+    </td></tr>
+    ${bilingualApplicantFooter()}
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
+}
+
+/**
+ * Sent to the applicant when aso_staff rejects. The reason is shown in
+ * the email body so the applicant knows exactly what to fix; the
+ * follow-up phone number invites them to call to discuss if needed.
+ */
+export function accessRejectedEmail(args: {
+  applicantName: string | null;
+  clinicName: string;
+  reason: string;
+}): { html: string; text: string; subject: string } {
+  const { applicantName, clinicName, reason } = args;
+  const subject = `ASO Hawaii Doctor Portal — Application not approved / お申込みについて`;
+  const enGreeting = applicantName ? `Hi ${applicantName},` : "Hi,";
+  const jaGreeting = applicantName
+    ? `${applicantName} 先生`
+    : `${clinicName} ご担当者様`;
+
+  const text = [
+    enGreeting,
+    "",
+    `Thank you for your interest in the ASO Hawaii Doctor Portal. After reviewing your application for ${clinicName}, we are unable to approve access at this time.`,
+    "",
+    "Reason / 理由:",
+    reason,
+    "",
+    "If you'd like to discuss or reapply with updated information, please call 808-957-0111 — we're happy to walk through it with you.",
+    "",
+    "— ASO Hawaii",
+    "",
+    "─────────────────────",
+    "",
+    jaGreeting,
+    "",
+    `この度は ASO Hawaii Doctor Portal にお申込みいただきありがとうございました。${clinicName} 様のお申込み内容を確認させていただきましたが、現時点では承認をお見送りさせていただきます。`,
+    "",
+    "ご相談・修正のうえ再申請ご希望の場合は、お電話 (808-957-0111) いただけますとお話しさせていただきます。",
+    "",
+    "ASO International Hawaii",
+  ].join("\n");
+
+  const safeEnGreeting = escapeHtml(enGreeting);
+  const safeJaGreeting = escapeHtml(jaGreeting);
+  const safeClinic = escapeHtml(clinicName);
+  const safeReason = escapeHtml(reason).replace(/\n/g, "<br>");
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Yu Gothic UI',Meiryo,Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:540px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px 32px 24px">
+      <h1 style="margin:0 0 16px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:22px;line-height:1.4">About your portal application</h1>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">${safeEnGreeting}</p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6">Thank you for your interest in the ASO Hawaii Doctor Portal. After reviewing your application for <strong>${safeClinic}</strong>, we are unable to approve access at this time.</p>
+      <div style="margin:14px 0;padding:12px 14px;background:#fff7ed;border-left:3px solid #F97316;border-radius:6px">
+        <p style="margin:0 0 4px;color:#0F2942;font-size:11.5px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Reason / 理由</p>
+        <p style="margin:0;color:#374151;font-size:13.5px;line-height:1.6">${safeReason}</p>
+      </div>
+      <p style="margin:14px 0 0;color:#374151;font-size:14px;line-height:1.6">If you'd like to discuss or reapply with updated information, please call <strong>808-957-0111</strong> — we're happy to walk through it with you.</p>
+
+      <div style="margin:24px 0;border-top:1px solid #e5e7eb"></div>
+
+      <h2 style="margin:0 0 12px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:18px;line-height:1.5">お申込みについて</h2>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">${safeJaGreeting}</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">この度は ASO Hawaii Doctor Portal にお申込みいただきありがとうございました。<strong>${safeClinic}</strong> 様のお申込み内容を確認させていただきましたが、現時点では承認をお見送りさせていただきます。</p>
+      <p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.7">ご相談・修正のうえ再申請ご希望の場合は、お電話 (<strong>808-957-0111</strong>) いただけますとお話しさせていただきます。</p>
+    </td></tr>
+    ${bilingualApplicantFooter()}
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
+}
+
+/**
+ * Sent to ASO admins (PORTAL_EMAIL_REPLY_TO target) whenever a new
+ * application lands. English-only because it goes to the lab's
+ * digital-ops inbox. Includes the full applicant record so admins can
+ * triage from the email without opening the portal.
+ */
+export function newApplicationNotifyEmail(args: {
+  pendingId: number;
+  applicantEmail: string;
+  applicantName: string | null;
+  doctorName: string | null;
+  clinicName: string;
+  asoAccountNumber: string | null;
+  easyrxEmail: string | null;
+  reason: string | null;
+  googleLinked: boolean;
+  reviewUrl: string;
+  attemptedAt: string;
+  ipAddress: string | null;
+}): { html: string; text: string; subject: string } {
+  const subject = `[Portal] New access application — ${args.clinicName}`;
+
+  const rows: [string, string][] = [
+    ["Pending #", `${args.pendingId}`],
+    ["Applicant", `${args.applicantName ?? "—"} <${args.applicantEmail}>`],
+    ["Doctor", args.doctorName ?? "—"],
+    ["Clinic", args.clinicName],
+    ["ASO account #", args.asoAccountNumber ?? "—"],
+    ["EasyRx email", args.easyrxEmail ?? "—"],
+    ["Google linked", args.googleLinked ? "yes" : "no"],
+    ["Submitted at", args.attemptedAt],
+    ["IP", args.ipAddress ?? "—"],
+  ];
+
+  const text = [
+    "A new portal access application is awaiting review.",
+    "",
+    ...rows.map(([k, v]) => `  ${k.padEnd(15)} ${v}`),
+    "",
+    "Stated reason:",
+    args.reason || "(none)",
+    "",
+    "Review:",
+    args.reviewUrl,
+    "",
+    "— ASO Portal",
+  ].join("\n");
+
+  const safeUrl = escapeHtml(args.reviewUrl);
+  const safeReason = (args.reason ? escapeHtml(args.reason) : "(none)").replace(/\n/g, "<br>");
+  const tableRows = rows
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 0;color:#6b7280;font-size:12px;width:130px">${escapeHtml(k)}</td><td style="padding:6px 0;color:#0F2942;font-size:13px">${escapeHtml(v)}</td></tr>`,
+    )
+    .join("");
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:32px 16px;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
+    <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:28px 28px 22px">
+      <h1 style="margin:0 0 14px;font-family:Georgia,'Source Serif 4',serif;color:#0F2942;font-size:20px;line-height:1.4">New portal access application</h1>
+      <p style="margin:0 0 16px;color:#374151;font-size:13.5px;line-height:1.6">A doctor (or clinic team member) has submitted the public application form.</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px;width:100%">
+        ${tableRows}
+      </table>
+      <div style="margin:0 0 14px;padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
+        <p style="margin:0 0 4px;color:#6b7280;font-size:11px;text-transform:uppercase;letter-spacing:0.08em">Stated reason</p>
+        <p style="margin:0;color:#0F2942;font-size:13px;line-height:1.5;white-space:pre-wrap">${safeReason}</p>
+      </div>
+      <p style="margin:14px 0">
+        <a href="${safeUrl}" style="display:inline-block;background:#0F2942;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:9999px;font-size:13.5px;font-weight:500">Review in portal</a>
+      </p>
+    </td></tr>
+    <tr><td style="padding:14px 28px 0;color:#9ca3af;font-size:11.5px;line-height:1.5">ASO Hawaii Doctor Portal · admin notification</td></tr>
+  </table>
+</body></html>`;
+
+  return { html, text, subject };
+}

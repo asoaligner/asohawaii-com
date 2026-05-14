@@ -36,6 +36,12 @@ const NAV_TOOLS: ToolLink[] = [
       "Clinic master records — contact info, ASO account number, and visualdlp_account_id used for sync mapping.",
   },
   {
+    href: "/portal/admin/pending-users/",
+    label: "Access applications",
+    description:
+      "Self-service access applications + clinic-linking requests from logged-in users. Approve to assign a clinic and send the welcome email.",
+  },
+  {
     href: "/portal/admin/audit/",
     label: "Audit Log",
     description:

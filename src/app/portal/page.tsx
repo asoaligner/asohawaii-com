@@ -26,7 +26,7 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
   google_denied:
     "Google sign-in was cancelled. Try again or use email + password.",
   not_registered:
-    "This Google account is not registered with the portal. Contact your ASO Hawaii rep to be added.",
+    "This Google account is not registered yet. Please apply for access on the form below.",
   email_unverified:
     "Your Google email is not verified. Verify it on Google, then try again.",
   account_disabled:
@@ -235,18 +235,25 @@ function LoginShell({ error }: { error: string | null }) {
               >
                 Forgot password?
               </Link>
-              <a
-                href="mailto:aso-digital@outlook.com?subject=ASO%20Portal%20account%20request"
+              <Link
+                href="/portal/request-access/"
                 className="text-navy hover:text-brandOrange transition-colors"
               >
-                Need an account?
-              </a>
+                Apply for access →
+              </Link>
             </div>
           </div>
 
           <p className="mt-6 text-center text-[12px] text-gray-500 leading-relaxed">
-            Portal access is invitation-only. Contact your ASO Hawaii rep to
-            be added.
+            Already received an invitation? Use the link in that email.
+            Otherwise{" "}
+            <Link
+              href="/portal/request-access/"
+              className="text-navy hover:text-brandOrange transition-colors underline underline-offset-2"
+            >
+              apply for access
+            </Link>{" "}
+            and we&apos;ll set up your clinic.
           </p>
         </div>
       </main>

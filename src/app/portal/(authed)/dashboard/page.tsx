@@ -166,17 +166,32 @@ export default function DashboardPage() {
   return (
     <div className="container-narrow py-8 sm:py-12">
       <div className="max-w-6xl">
-        <header className="mb-6 sm:mb-8">
-          <p className="text-[12px] uppercase tracking-widest text-gray-500">
-            {clinic.name}
-          </p>
-          <h1 className="font-serif text-3xl sm:text-4xl text-navy mt-1 leading-tight">
-            Hello, {greetingName}.
-          </h1>
-          {user.role === "aso_staff" && (
-            <p className="mt-2 text-[12.5px] text-gray-500">
-              Showing orders across all clinics — ASO staff view.
+        <header className="mb-6 sm:mb-8 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[12px] uppercase tracking-widest text-gray-500">
+              {clinic.name}
             </p>
+            <h1 className="font-serif text-3xl sm:text-4xl text-navy mt-1 leading-tight">
+              Hello, {greetingName}.
+            </h1>
+            {user.role === "aso_staff" && (
+              <p className="mt-2 text-[12.5px] text-gray-500">
+                Showing orders across all clinics — ASO staff view.
+              </p>
+            )}
+          </div>
+          {user.role !== "aso_staff" && (
+            <Link
+              href="/portal/request-access/"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-[12px] text-navy hover:border-navy hover:text-brandOrange transition-colors"
+              title="Apply to link your account to a different clinic"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.72" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.72-1.72" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>Apply for clinic linking</span>
+            </Link>
           )}
         </header>
 

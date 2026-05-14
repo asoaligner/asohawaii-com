@@ -90,7 +90,19 @@ export const onRequestGet: PagesFunction<PortalEnv> = async (ctx) => {
 
   const files = await loadOrderFiles(ctx.env.DB, row.id);
 
-  return jsonResponse({ order: publicOrderDetail(row, resolved.user, files) });
+  // Fetch clinic name for the manifest-based aligner-setup review
+  // match. For same-clinic viewers we already have it on the session,
+  // but a separate query keeps the response self-contained (and is
+  // cheap — one indexed PK lookup).
+  const clinicRow = await ctx.env.DB.prepare(
+    "SELECT name FROM portal_clinics WHERE id = ?",
+  )
+    .bind(row.clinic_id)
+    .first<{ name: string }>();
+
+  return jsonResponse({
+    order: publicOrderDetail(row, resolved.user, files, clinicRow?.name ?? null),
+  });
 };
 
 // ─── PATCH handler (aso_staff cross-clinic edit) ───────────────────────

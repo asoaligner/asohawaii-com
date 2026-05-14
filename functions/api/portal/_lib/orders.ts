@@ -30,6 +30,7 @@ export interface PortalOrderRow {
   design_notes: string | null;
   additional_memo: string | null;
   internal_memo: string | null;
+  review_slug: string | null;
   synced_at: string | null;
   source_data: string | null;
   created_at: string;
@@ -96,6 +97,10 @@ export interface PortalOrderFileSummary {
 export interface PortalOrderDetail {
   id: number;
   clinic_id: number;
+  /** Name of the clinic that owns this order. Joined from
+   *  portal_clinics so the order detail page can drive a clinic-aware
+   *  aligner-setup-review match without a second round-trip. */
+  clinic_name: string | null;
   source: string;
   source_order_id: string;
   order_number: string | null;
@@ -111,6 +116,10 @@ export interface PortalOrderDetail {
   stl_files: string[] | null;
   design_notes: string | null;
   additional_memo: string | null;
+  /** aso_staff override pinning a specific /cases/{slug}/ review to
+   *  this order. When set, the order detail UI uses it verbatim and
+   *  skips the manifest fuzzy-match. */
+  review_slug: string | null;
   /** Present only when the viewer is aso_staff. */
   internal_memo?: string | null;
   /** Present only when the viewer is aso_staff. JSON-parsed if valid. */
@@ -183,10 +192,12 @@ export function publicOrderDetail(
   row: PortalOrderRow,
   viewer: Pick<PortalUserRow, "role">,
   files: PortalOrderFileSummary[] = [],
+  clinicName: string | null = null,
 ): PortalOrderDetail {
   const base: PortalOrderDetail = {
     id: row.id,
     clinic_id: row.clinic_id,
+    clinic_name: clinicName,
     source: row.source,
     source_order_id: row.source_order_id,
     order_number: row.order_number,
@@ -202,6 +213,7 @@ export function publicOrderDetail(
     stl_files: safeParseJsonArray(row.stl_files),
     design_notes: row.design_notes,
     additional_memo: row.additional_memo,
+    review_slug: row.review_slug,
     files,
     synced_at: row.synced_at,
     created_at: row.created_at,

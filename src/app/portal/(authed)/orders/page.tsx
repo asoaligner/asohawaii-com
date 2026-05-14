@@ -26,6 +26,12 @@ import {
   type UpdateOrderInput,
 } from "@/lib/portal/orders";
 import {
+  caseReviewUrl,
+  fetchCaseReviewManifest,
+  matchCaseReviews,
+  type CaseReviewEntry,
+} from "@/lib/portal/case-reviews";
+import {
   DeliveryDateCell,
   SourceBadge,
 } from "@/components/portal/OrderBadges";
@@ -185,6 +191,7 @@ function OrderView({ order, viewerRole, onOrderUpdated }: ViewProps) {
             </button>
           )}
           <AskQuestionButton order={order} />
+          <AlignerSetupButton order={order} />
           {viewerRole === "aso_staff" && (
             <EditOrderButton order={order} onUpdated={onOrderUpdated} />
           )}
@@ -274,6 +281,116 @@ type QuestionStatus =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "error"; message: string };
+
+/**
+ * Surface the matching /cases/{slug}/ aligner setup review when the
+ * order matches one. Match order:
+ *
+ *   1. order.review_slug — explicit aso_staff pin (always wins).
+ *   2. Fuzzy match on the build-time manifest by clinic doctor lastname
+ *      + patient first-name prefix.
+ *
+ * Multiple matches (same patient, several setup revisions) render the
+ * newest as the primary button and the rest behind a "View N more"
+ * dropdown so the doctor can compare versions without leaving the page.
+ */
+function AlignerSetupButton({ order }: { order: OrderDetail }) {
+  const [pinned, setPinned] = useState<CaseReviewEntry | null>(null);
+  const [candidates, setCandidates] = useState<CaseReviewEntry[]>([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCaseReviewManifest().then((manifest) => {
+      if (cancelled) return;
+      const result = matchCaseReviews(manifest, {
+        reviewSlug: order.review_slug,
+        clinicName: order.clinic_name,
+        patientName: order.patient_name,
+      });
+      setPinned(result.pinned);
+      setCandidates(result.candidates);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [order.id, order.review_slug, order.clinic_name, order.patient_name]);
+
+  // Resolved entry that drives the primary button.
+  const primary = pinned ?? candidates[0] ?? null;
+  if (!primary) return null;
+
+  const extra = pinned ? [] : candidates.slice(1);
+
+  return (
+    <div className="relative inline-flex items-center">
+      <a
+        href={caseReviewUrl(primary.slug)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium bg-brandOrange text-white hover:bg-brandOrange/90 transition-colors"
+        title={
+          pinned
+            ? `Pinned review: ${primary.slug}`
+            : primary.generated_date
+              ? `Setup generated ${primary.generated_date}`
+              : undefined
+        }
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path
+            d="M5 12l5 5L20 7"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        View Aligner Setup
+        <span aria-hidden className="opacity-70">↗</span>
+      </a>
+      {extra.length > 0 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="ml-1 px-2 py-2 rounded-full text-[12px] font-medium border border-gray-200 bg-white text-gray-600 hover:border-navy hover:text-navy transition-colors"
+            aria-expanded={open}
+            aria-haspopup="menu"
+            title={`${extra.length} earlier setup${extra.length === 1 ? "" : "s"}`}
+          >
+            +{extra.length}
+          </button>
+          {open && (
+            <div
+              role="menu"
+              className="absolute z-10 top-full right-0 mt-1.5 min-w-[260px] rounded-xl border border-gray-200 bg-white shadow-lg py-1.5"
+              onMouseLeave={() => setOpen(false)}
+            >
+              <p className="px-3 pt-1 pb-2 text-[10.5px] uppercase tracking-widest text-gray-400">
+                Earlier setups
+              </p>
+              {extra.map((c) => (
+                <a
+                  key={c.slug}
+                  href={caseReviewUrl(c.slug)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block px-3 py-2 text-[12.5px] text-navy hover:bg-gray-50"
+                >
+                  <span className="font-mono text-[11.5px] text-gray-500">
+                    {c.generated_date ?? "—"}
+                  </span>
+                  <span className="ml-2">{c.slug}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function AskQuestionButton({ order }: { order: OrderDetail }) {
   const [open, setOpen] = useState(false);

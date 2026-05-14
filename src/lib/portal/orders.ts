@@ -28,6 +28,7 @@ export interface OrdersListResponse {
 export interface OrderDetail {
   id: number;
   clinic_id: number;
+  clinic_name: string | null;
   source: OrderSource | string;
   source_order_id: string;
   order_number: string | null;
@@ -43,6 +44,8 @@ export interface OrderDetail {
   stl_files: string[] | null;
   design_notes: string | null;
   additional_memo: string | null;
+  /** aso_staff override pinning a specific /cases/{slug}/ review. */
+  review_slug: string | null;
   /** aso_staff only. */
   internal_memo?: string | null;
   /** aso_staff only — JSON-parsed if it parsed cleanly server-side. */

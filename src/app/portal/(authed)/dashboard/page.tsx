@@ -30,6 +30,28 @@ import { usePortalSession } from "../session-context";
 
 const PAGE_SIZE = 20;
 
+type SortColumn =
+  | "order_date"
+  | "delivery_date"
+  | "order_number"
+  | "patient_name"
+  | "appliance_type"
+  | "source";
+type SortDir = "asc" | "desc";
+const SORTABLE_COLUMNS: readonly SortColumn[] = [
+  "order_date",
+  "delivery_date",
+  "order_number",
+  "patient_name",
+  "appliance_type",
+  "source",
+];
+function isSortColumn(s: string): s is SortColumn {
+  return (SORTABLE_COLUMNS as readonly string[]).includes(s);
+}
+const DEFAULT_SORT: SortColumn = "order_date";
+const DEFAULT_DIR: SortDir = "desc";
+
 interface FilterState {
   page: number;
   search: string;
@@ -37,6 +59,8 @@ interface FilterState {
   applianceType: string;
   dateFrom: string;
   dateTo: string;
+  sort: SortColumn;
+  dir: SortDir;
 }
 
 const EMPTY_FILTERS: FilterState = {
@@ -46,6 +70,8 @@ const EMPTY_FILTERS: FilterState = {
   applianceType: "",
   dateFrom: "",
   dateTo: "",
+  sort: DEFAULT_SORT,
+  dir: DEFAULT_DIR,
 };
 
 function readFilters(sp: URLSearchParams): FilterState {
@@ -53,6 +79,10 @@ function readFilters(sp: URLSearchParams): FilterState {
   const source: FilterState["source"] =
     sourceRaw === "visualdlp" || sourceRaw === "shop" ? sourceRaw : "";
   const pageRaw = Number.parseInt(sp.get("page") ?? "", 10);
+  const sortRaw = sp.get("sort") ?? "";
+  const sort: SortColumn = isSortColumn(sortRaw) ? sortRaw : DEFAULT_SORT;
+  const dirRaw = (sp.get("dir") ?? "").toLowerCase();
+  const dir: SortDir = dirRaw === "asc" ? "asc" : "desc";
   return {
     page: Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1,
     search: sp.get("search") ?? "",
@@ -60,6 +90,8 @@ function readFilters(sp: URLSearchParams): FilterState {
     applianceType: sp.get("applianceType") ?? "",
     dateFrom: sp.get("dateFrom") ?? "",
     dateTo: sp.get("dateTo") ?? "",
+    sort,
+    dir,
   };
 }
 
@@ -71,6 +103,8 @@ function filtersToSearchString(f: FilterState): string {
   if (f.applianceType) u.set("applianceType", f.applianceType);
   if (f.dateFrom) u.set("dateFrom", f.dateFrom);
   if (f.dateTo) u.set("dateTo", f.dateTo);
+  if (f.sort !== DEFAULT_SORT) u.set("sort", f.sort);
+  if (f.dir !== DEFAULT_DIR) u.set("dir", f.dir);
   return u.toString();
 }
 
@@ -138,6 +172,8 @@ export default function DashboardPage() {
         applianceType: filters.applianceType || undefined,
         dateFrom: filters.dateFrom || undefined,
         dateTo: filters.dateTo || undefined,
+        sort: filters.sort,
+        dir: filters.dir,
       },
       ctrl.signal,
     ).then((res) => {
@@ -374,6 +410,27 @@ export default function DashboardPage() {
               <DesktopTable
                 orders={data?.orders ?? []}
                 showClinic={user.role === "aso_staff"}
+                sort={filters.sort}
+                dir={filters.dir}
+                onSort={(col) => {
+                  // Click same column → toggle direction. Click new
+                  // column → start with desc (newest / Z-A by default,
+                  // which matches user intuition for date and ID
+                  // columns; text columns are also more useful "newest
+                  // first" since that's the data freshness order).
+                  const nextDir: SortDir =
+                    filters.sort === col
+                      ? filters.dir === "asc"
+                        ? "desc"
+                        : "asc"
+                      : "desc";
+                  pushFilters({
+                    ...filters,
+                    sort: col,
+                    dir: nextDir,
+                    page: 1,
+                  });
+                }}
               />
               <MobileCardList
                 orders={data?.orders ?? []}
@@ -420,30 +477,105 @@ interface RowsProps {
   showClinic: boolean;
 }
 
-function DesktopTable({ orders, showClinic }: RowsProps) {
+interface DesktopTableProps extends RowsProps {
+  sort: SortColumn;
+  dir: SortDir;
+  onSort: (col: SortColumn) => void;
+}
+
+function SortHeader({
+  label,
+  column,
+  active,
+  dir,
+  onSort,
+  className,
+}: {
+  label: string;
+  column: SortColumn;
+  active: boolean;
+  dir: SortDir;
+  onSort: (col: SortColumn) => void;
+  className?: string;
+}) {
+  return (
+    <th className={`px-5 py-3 font-medium border-b border-gray-200 ${className ?? ""}`}>
+      <button
+        type="button"
+        onClick={() => onSort(column)}
+        className={`inline-flex items-center gap-1 -mx-1 px-1 py-0.5 rounded transition-colors ${
+          active ? "text-navy" : "text-gray-500 hover:text-navy"
+        }`}
+        aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
+      >
+        <span>{label}</span>
+        <span
+          aria-hidden
+          className={`text-[10px] leading-none ${
+            active ? "text-brandOrange" : "text-gray-300"
+          }`}
+        >
+          {active ? (dir === "asc" ? "▲" : "▼") : "↕"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
+function DesktopTable({
+  orders,
+  showClinic,
+  sort,
+  dir,
+  onSort,
+}: DesktopTableProps) {
   return (
     <div className="hidden sm:block overflow-x-auto">
       <table className="w-full text-[13.5px]">
         <thead>
           <tr className="text-left text-[11px] uppercase tracking-widest text-gray-500 bg-gray-50/60">
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Order #
-            </th>
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Patient
-            </th>
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Appliance
-            </th>
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Order Date
-            </th>
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Delivery
-            </th>
-            <th className="px-5 py-3 font-medium border-b border-gray-200">
-              Source
-            </th>
+            <SortHeader
+              label="Order #"
+              column="order_number"
+              active={sort === "order_number"}
+              dir={dir}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Patient"
+              column="patient_name"
+              active={sort === "patient_name"}
+              dir={dir}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Appliance"
+              column="appliance_type"
+              active={sort === "appliance_type"}
+              dir={dir}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Order Date"
+              column="order_date"
+              active={sort === "order_date"}
+              dir={dir}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Delivery"
+              column="delivery_date"
+              active={sort === "delivery_date"}
+              dir={dir}
+              onSort={onSort}
+            />
+            <SortHeader
+              label="Source"
+              column="source"
+              active={sort === "source"}
+              dir={dir}
+              onSort={onSort}
+            />
             {showClinic && (
               <th className="px-5 py-3 font-medium border-b border-gray-200">
                 Clinic

@@ -87,6 +87,15 @@ export function orderFileDownloadUrl(
   return `/api/portal/orders/${orderId}/files/${fileId}`;
 }
 
+export type SortColumn =
+  | "order_date"
+  | "delivery_date"
+  | "order_number"
+  | "patient_name"
+  | "appliance_type"
+  | "source";
+export type SortDir = "asc" | "desc";
+
 export interface OrdersListParams {
   page?: number;
   limit?: number;
@@ -95,6 +104,8 @@ export interface OrdersListParams {
   dateFrom?: string;
   dateTo?: string;
   applianceType?: string;
+  sort?: SortColumn;
+  dir?: SortDir;
 }
 
 export type ApiResult<T> =
@@ -110,6 +121,8 @@ function paramsToQuery(p: OrdersListParams): string {
   if (p.dateFrom) u.set("dateFrom", p.dateFrom);
   if (p.dateTo) u.set("dateTo", p.dateTo);
   if (p.applianceType) u.set("applianceType", p.applianceType);
+  if (p.sort) u.set("sort", p.sort);
+  if (p.dir) u.set("dir", p.dir);
   return u.toString();
 }
 

@@ -215,10 +215,27 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
   // arrived without an r2_key are kept as metadata in source_data (above)
   // — they're already in the Formspree email so the lab isn't blind, the
   // dashboard just won't surface them for download.
+  //
+  // SECURITY: the r2_key arrives from the client, but POST
+  // /api/portal/uploads always namespaces keys as
+  // `submissions/{clinic_id}/{user_id}/...`. We refuse to link any key
+  // whose clinic segment isn't the caller's own clinic — otherwise a
+  // user could claim another clinic's uploaded object and read it back
+  // through the (clinic-scoped) file-download endpoint.
+  const clinicKeyPrefix = `submissions/${session.user.clinic_id}/`;
   let linkedFileCount = 0;
+  let rejectedKeyCount = 0;
   if (newId != null) {
     for (const f of files) {
       if (!f.r2_key) continue;
+      if (
+        typeof f.r2_key !== "string" ||
+        !f.r2_key.startsWith(clinicKeyPrefix)
+      ) {
+        // Foreign or malformed key — never link it.
+        rejectedKeyCount += 1;
+        continue;
+      }
       try {
         await ctx.env.DB.prepare(
           `INSERT INTO portal_order_files
@@ -257,6 +274,7 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
       due_date: body.due_date ?? null,
       file_count: files.length,
       r2_linked_count: linkedFileCount,
+      r2_rejected_count: rejectedKeyCount,
     },
     ipAddress: clientIp(ctx.request),
   });

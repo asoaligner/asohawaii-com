@@ -179,7 +179,7 @@ export function invitationEmail(args: {
         ? "院内管理者"
         : role === "aso_staff"
           ? "ASO スタッフ"
-          : "スタッフ";
+          : "医院メンバー";
     const subject = `ASO Hawaii Doctor Portal へのご招待 — ${clinicName}様`;
     const greeting = recipientName
       ? `${recipientName} 先生`

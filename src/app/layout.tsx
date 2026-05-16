@@ -52,21 +52,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  title: "ASO International Hawaii | Digital Case Submission with EasyRx",
+  // Title front-loads the location + service terms doctors actually
+  // search ("orthodontic lab Honolulu / Hawaii") rather than leading
+  // with the brand. `keywords` is intentionally omitted — Google has
+  // ignored the meta-keywords tag since 2009.
+  title: "Orthodontic Lab in Honolulu, Hawaii | ASO International Hawaii",
   description:
-    "Trusted orthodontic lab in Honolulu offering clear aligners, retainers, splints, expanders, and premium digital appliances. Accepts scans from every major IOS scanner via EasyRx. HIPAA-compliant, full case history, fast turnaround.",
-  keywords: [
-    "ASO Hawaii",
-    "EasyRx",
-    "orthodontic lab",
-    "digital case submission",
-    "iTero",
-    "Medit",
-    "3Shape TRIOS",
-    "Primescan",
-    "DEXIS",
-    "Honolulu orthodontic lab",
-  ],
+    "Honolulu's trusted orthodontic laboratory — clear aligners, retainers, splints, expanders, and digital appliances. Digital case submission via EasyRx, accepts every major intraoral scanner. Fast turnaround, full case history.",
   authors: [{ name: "ASO International Hawaii, Inc." }],
   openGraph: {
     title: "ASO International Hawaii — Submit cases digitally with EasyRx",

@@ -67,12 +67,21 @@ export function generateMetadata({
   }
   const hasColorCustomization =
     product.slug !== null && COLOR_CUSTOMIZABLE_SLUGS.has(product.slug);
-  const description = hasColorCustomization
-    ? `${product.description} ${COLOR_PALETTE_NOTE}`
-    : product.description;
+  // Meta description leads with the product + its concise blurb (a
+  // one-liner — keeps us inside Google's ~160-char display window far
+  // better than the long spec-style `description`), then a location-
+  // keyworded brand tail so "{product} Hawaii" queries have a signal.
+  const metaDescription = [
+    `${product.name} — ${product.blurb}`,
+    "Made by ASO International Hawaii, Honolulu's orthodontic laboratory.",
+    hasColorCustomization ? COLOR_PALETTE_NOTE : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return {
-    title: `${product.name} · ASO Hawaii`,
-    description,
+    // Title front-loads the product name + location intent; brand last.
+    title: `${product.name} — Orthodontic Lab Hawaii | ASO`,
+    description: metaDescription,
     alternates: { canonical: `/product/${product.slug}/` },
   };
 }

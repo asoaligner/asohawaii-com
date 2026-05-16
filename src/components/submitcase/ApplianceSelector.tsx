@@ -202,7 +202,7 @@ export default function ApplianceSelector({
   return (
     <div className="space-y-5">
       <div className="flex items-baseline justify-between gap-3">
-        <div className="text-xs uppercase tracking-widest text-brandOrange font-medium">
+        <div className="text-sm uppercase tracking-wide text-brandOrange font-semibold">
           {archLabel} appliance(s)
         </div>
         <div className="text-[11.5px] text-gray-500">

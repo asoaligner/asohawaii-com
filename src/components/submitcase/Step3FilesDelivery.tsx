@@ -17,7 +17,10 @@ import {
   getMaxLeadTime,
 } from "@/utils/leadTimeCalculator";
 
-const labelClass = "block text-xs uppercase tracking-widest text-gray-500 mb-2";
+// Decision-point field labels — bumped from 12px gray to 14px navy
+// semibold so each "you need to choose this" section reads clearly.
+const labelClass =
+  "block text-sm uppercase tracking-wide font-semibold text-navy mb-2";
 const inputClass =
   "w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors";
 

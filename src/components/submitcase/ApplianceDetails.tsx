@@ -53,8 +53,10 @@ type Props = {
   arch?: "upper" | "lower";
 };
 
+// Customisation-panel field labels — bumped from 11px gray to 13px
+// navy semibold so each option a doctor must set stands out.
 const labelClass =
-  "block text-[11px] uppercase tracking-widest text-gray-500 mb-1.5";
+  "block text-[13px] uppercase tracking-wide font-semibold text-navy mb-1.5";
 const inputClass =
   "w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] text-navy placeholder:text-gray-300 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10 transition-colors";
 

@@ -213,32 +213,9 @@ export default function Nav() {
           {/* Shop cart — always visible (badge hides at qty 0) */}
           <ShopCartIcon />
 
-          {/* ASO Login — desktop (outline / secondary) */}
+          {/* Doctor Portal — desktop (primary login CTA) */}
           <Link
             href="/portal/"
-            title="Coming Soon"
-            className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-navy border border-gray-300 px-3.5 py-1.5 rounded-full hover:border-navy hover:bg-navy/5 transition-colors"
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            ASO Login
-          </Link>
-
-          {/* EasyRx Login — desktop (primary, external) */}
-          <a
-            href="https://easyrxcloud.com"
-            target="_blank"
-            rel="noopener noreferrer"
             className="hidden md:inline-flex items-center gap-1.5 text-[13.5px] font-medium text-white bg-navy border border-navy px-3.5 py-1.5 rounded-full hover:bg-navy-light hover:border-navy-light transition-colors"
           >
             <svg
@@ -253,9 +230,8 @@ export default function Nav() {
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            EasyRx Login
-            <span aria-hidden className="text-[11px] leading-none">↗</span>
-          </a>
+            Doctor Portal
+          </Link>
 
           {/* Hamburger */}
           <button
@@ -349,28 +325,8 @@ export default function Nav() {
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              ASO Login
+              Doctor Portal
             </Link>
-            <a
-              href="https://easyrxcloud.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="md:hidden px-3 py-2.5 text-sm text-navy font-medium rounded-lg hover:bg-gray-50 inline-flex items-center gap-1.5"
-            >
-              <svg
-                className="w-3.5 h-3.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              EasyRx Login ↗
-            </a>
             <Link
               href="/contact/#invitation"
               className="mx-3 mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-medium bg-navy text-white px-4 py-3 rounded-full"

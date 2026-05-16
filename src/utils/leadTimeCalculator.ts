@@ -92,8 +92,16 @@ export function leadTimeForConfig(config: ApplianceConfig): LeadTimeKey {
   const product = productCatalog.find((p) => p.slug === slug);
   if (!product) return "2weeks";
 
-  if (config.itemCode && product.items) {
-    const item = product.items.find((it) => it.code === config.itemCode);
+  // Per-SKU override. Match by code when the catalog item has one,
+  // otherwise by name — Invisible Retainer's SKUs (incl. LuxCreo
+  // Direct-Print, the 2-week one) carry no code, so a code-only match
+  // would silently fall through to the product-level lead time.
+  if (product.items) {
+    const item = product.items.find(
+      (it) =>
+        (!!config.itemCode && it.code === config.itemCode) ||
+        (!!config.itemName && it.name === config.itemName),
+    );
     const itemLT = leadTimeFromString(item?.leadTime);
     if (itemLT) return itemLT;
   }

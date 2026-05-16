@@ -473,8 +473,12 @@ export const productCatalog: ProductTile[] = [
       },
       {
         name: "LuxCreo Direct-Print",
-        note: "0.6 / 0.8 / 1.0 / 1.5 / 2.0 mm · 3D-printed resin",
+        note: "0.6 / 0.8 / 1.0 / 1.5 / 2.0 mm · 3D-printed resin · 2-week lead time",
         image: "/images/aso/invisible-retainer/direct-print-luxcreo.jpg",
+        // Direct-print resin runs longer than the thermoformed SKUs —
+        // overrides the product-level "Approx. 1 week" so the due-date
+        // calendar blocks anything earlier than 2 weeks out.
+        leadTime: "Approx. 2 weeks",
       },
       {
         name: "Zendura A",

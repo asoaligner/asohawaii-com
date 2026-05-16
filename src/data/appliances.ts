@@ -92,16 +92,6 @@ const METAL_FIELD: ApplianceField = {
   ],
 };
 
-const MATERIAL_OPTIONS = [
-  "Standard",
-  "Zendura A",
-  "Zendura FLX",
-  "Zendura VIVA",
-  "Essix Ace",
-  "C+",
-  "LuxCreo",
-];
-
 export const APPLIANCES: Appliance[] = [
   {
     id: "plate_type_retainer",
@@ -211,14 +201,11 @@ export const APPLIANCES: Appliance[] = [
     category: "aligner",
     description:
       "Co-Polyester / C+ / LuxCreo / Zendura A / with Pontic.",
+    // No "material" field — the picked SKU (Standard Co-Polyester /
+    // C+ High-Strength / LuxCreo Direct-Print / Zendura A / with Pontic)
+    // already IS the material choice, so a separate dropdown was
+    // redundant.
     fields: [
-      {
-        key: "material",
-        type: "material",
-        required: true,
-        label: "Material",
-        options: MATERIAL_OPTIONS,
-      },
       {
         key: "tooth_position",
         type: "tooth_position",

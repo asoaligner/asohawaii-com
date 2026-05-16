@@ -80,10 +80,10 @@ export default function Step2Appliance({
         </p>
       </div>
 
-      {/* Patient reference */}
+      {/* Patient name */}
       <div>
         <label htmlFor="p-patient" className={labelClass}>
-          Patient Reference{" "}
+          Patient Name{" "}
           <span className="text-gray-400 normal-case tracking-normal">
             · optional
           </span>
@@ -98,7 +98,7 @@ export default function Step2Appliance({
               patient: { ...state.patient, reference: e.target.value },
             })
           }
-          placeholder="Patient initials or chart number"
+          placeholder="Patient name or chart number"
           className={inputClass}
           aria-describedby="p-patient-help"
         />
@@ -106,8 +106,7 @@ export default function Step2Appliance({
           id="p-patient-help"
           className="mt-2 text-[12px] text-gray-600 leading-snug"
         >
-          <span aria-hidden>⚠️</span> Use initials or chart number only — avoid
-          full patient names for HIPAA compliance.
+          Optional — appears on the order record.
         </p>
       </div>
 

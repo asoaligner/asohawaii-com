@@ -120,6 +120,20 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
       { status: 400 },
     );
   }
+  // Patient name (carried in patient_reference) is required — it's the
+  // human-readable identifier for the case in both the doctor's
+  // dashboard and the lab's records. The client gates this too; this
+  // is the server-side backstop.
+  const patientName =
+    typeof body.patient_reference === "string"
+      ? body.patient_reference.trim()
+      : "";
+  if (!patientName) {
+    return jsonResponse(
+      { error: "patient_name is required" },
+      { status: 400 },
+    );
+  }
   if (body.due_date && !/^\d{4}-\d{2}-\d{2}$/.test(body.due_date)) {
     return jsonResponse(
       { error: "due_date must be YYYY-MM-DD." },
@@ -181,7 +195,7 @@ export const onRequestPost: PagesFunction<PortalEnv> = async (ctx) => {
         session.user.clinic_id,
         body.reference,
         body.reference,
-        body.patient_reference?.trim() || null,
+        patientName,
         applianceType,
         today,
         body.due_date || null,

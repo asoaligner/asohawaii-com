@@ -80,17 +80,16 @@ export default function Step2Appliance({
         </p>
       </div>
 
-      {/* Patient name */}
+      {/* Patient name — required */}
       <div>
         <label htmlFor="p-patient" className={labelClass}>
-          Patient Name{" "}
-          <span className="text-gray-400 normal-case tracking-normal">
-            · optional
-          </span>
+          Patient Name
+          <span className="text-brandOrange ml-1">*</span>
         </label>
         <input
           id="p-patient"
           type="text"
+          required
           value={state.patient.reference}
           onChange={(e) =>
             setState({
@@ -98,7 +97,7 @@ export default function Step2Appliance({
               patient: { ...state.patient, reference: e.target.value },
             })
           }
-          placeholder="Patient name or chart number"
+          placeholder="Patient name or chart number (required)"
           className={inputClass}
           aria-describedby="p-patient-help"
         />
@@ -106,7 +105,8 @@ export default function Step2Appliance({
           id="p-patient-help"
           className="mt-2 text-[12px] text-gray-600 leading-snug"
         >
-          Optional — appears on the order record.
+          Required — used to identify the case in your dashboard and our
+          records.
         </p>
       </div>
 
@@ -199,6 +199,13 @@ export function step2IsValid(state: FormState): {
   ok: boolean;
   message?: string;
 } {
+  // Patient name is required — it identifies the case in the doctor's
+  // dashboard and the lab's records. Checked first so a blank name
+  // surfaces before the appliance-selection messages.
+  if (!state.patient.reference.trim()) {
+    return { ok: false, message: "Patient name is required." };
+  }
+
   const upper = state.upperAppliances;
   const lower = state.lowerAppliances;
   const needsUpper = state.arches === "upper" || state.arches === "both";

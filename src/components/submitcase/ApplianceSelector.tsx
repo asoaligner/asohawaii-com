@@ -353,6 +353,11 @@ export default function ApplianceSelector({
                                     </span>
                                   )}
                                   {itemName}
+                                  {it.leadTime === "Approx. 2 weeks" && (
+                                    <span className="ml-1.5 inline-block align-middle rounded-full bg-amber-100 text-amber-800 px-2 py-[1px] text-[10px] font-semibold whitespace-nowrap">
+                                      2-week lead time
+                                    </span>
+                                  )}
                                   {it.note && (
                                     <span className="block text-[11px] text-gray-500 mt-0.5">
                                       {it.note}

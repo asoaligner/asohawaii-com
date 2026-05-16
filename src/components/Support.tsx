@@ -48,23 +48,24 @@ export default function Support() {
                   <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
                 </svg>
               </a>
-              <a
-                href="https://easyrxcloud.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/portal/"
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-white/80 border border-white/20 rounded-full px-3.5 py-1.5 hover:border-brandOrange hover:text-brandOrange transition-colors"
               >
-                EasyRx Login
                 <svg
                   className="w-3 h-3"
-                  viewBox="0 0 16 16"
+                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path d="M5 3h8v8M13 3L3 13" strokeLinecap="round" />
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
                 </svg>
-              </a>
+                Doctor Portal
+              </Link>
             </div>
           </div>
 

@@ -709,7 +709,7 @@ export default function ToothChart({
                 fill="#6B7280"
                 letterSpacing="0.12em"
               >
-                UPPER {value.dentition.toUpperCase()}{" "}
+                UPPER · COVERAGE AREA{" "}
                 ({upperCount} selected)
               </text>
             </>
@@ -731,7 +731,7 @@ export default function ToothChart({
                 fill="#6B7280"
                 letterSpacing="0.12em"
               >
-                LOWER {value.dentition.toUpperCase()}{" "}
+                LOWER · COVERAGE AREA{" "}
                 ({lowerCount} selected)
               </text>
             </>

@@ -76,7 +76,7 @@ export default function SubmitCasePage() {
       </section>
 
       <section className="bg-white border-y border-gray-200/60">
-        <div className="container-narrow py-5">
+        <div className="container-narrow py-5 space-y-3">
           <div className="rounded-xl bg-brandOrange/5 border border-brandOrange/20 px-5 py-4 flex items-start gap-3">
             <span aria-hidden className="text-base leading-none mt-0.5">
               💡
@@ -92,6 +92,24 @@ export default function SubmitCasePage() {
                 className="text-brandOrange font-medium hover:text-brandOrange/80 underline underline-offset-2 transition-colors"
               >
                 Learn about EasyRx →
+              </Link>
+            </div>
+          </div>
+          <div className="rounded-xl bg-navy/[0.04] border border-navy/15 px-5 py-4 flex items-start gap-3">
+            <span aria-hidden className="text-base leading-none mt-0.5">
+              📋
+            </span>
+            <div className="text-[14px] text-gray-700 leading-relaxed">
+              <span className="font-medium text-navy">
+                Have a Doctor Portal account?
+              </span>{" "}
+              Sign in and submit through the portal to track your case
+              history and delivery dates anytime.{" "}
+              <Link
+                href="/portal/"
+                className="text-navy font-medium hover:text-brandOrange underline underline-offset-2 transition-colors"
+              >
+                Open Doctor Portal →
               </Link>
             </div>
           </div>

@@ -61,6 +61,51 @@ const SLUG_TO_APPLIANCE_ID: Record<string, string> = {
 type Status = "idle" | "submitting" | "success" | "error";
 type Step = 1 | 2 | 3;
 
+/**
+ * POST FormData with upload-progress reporting.
+ *
+ * The submit request carries the STL files (often several MB each) and
+ * is the long pole a doctor waits on. `fetch()` cannot surface upload
+ * progress, so this path uses XMLHttpRequest — `xhr.upload.onprogress`
+ * gives byte-level progress we can show as a percentage on the button
+ * so the form never looks frozen.
+ *
+ * Resolves with a fetch-like shape (`ok`, `status`, `json()`); `json()`
+ * returns the already-parsed body synchronously (null on parse failure).
+ */
+function postWithProgress(
+  url: string,
+  body: FormData,
+  onProgress: (pct: number) => void,
+): Promise<{ ok: boolean; status: number; json: () => unknown }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+    xhr.onload = () => {
+      let parsed: unknown = null;
+      try {
+        parsed = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+      } catch {
+        parsed = null;
+      }
+      resolve({
+        ok: xhr.status >= 200 && xhr.status < 300,
+        status: xhr.status,
+        json: () => parsed,
+      });
+    };
+    xhr.onerror = () => reject(new Error("Network error."));
+    xhr.ontimeout = () => reject(new Error("Upload timed out."));
+    xhr.send(body);
+  });
+}
+
 function generateReference() {
   const ts = Date.now().toString(36).toUpperCase();
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -163,6 +208,9 @@ export function SubmitCaseForm({
   const [visited, setVisited] = useState<Set<number>>(new Set([1]));
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  /** 0-100 while the submit upload is in flight; null when idle. Drives
+   *  the "Uploading… N%" button label so the form never looks frozen. */
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
   const [reference, setReference] = useState<string>("");
   const [submittedDoctor, setSubmittedDoctor] = useState<string>("");
 
@@ -249,6 +297,7 @@ export function SubmitCaseForm({
       return;
     }
     setStatus("submitting");
+    setUploadPct(0);
     const ref = generateReference();
     const data = new FormData();
     data.append("_formType", "Submit Case (Detailed Form)");
@@ -310,11 +359,15 @@ export function SubmitCaseForm({
     data.append("newsletter_optin", state.consent.newsletter ? "Yes" : "No");
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
-      });
+      const res = await postWithProgress(
+        FORMSPREE_ENDPOINT,
+        data,
+        setUploadPct,
+      );
+      // Bytes are all up once the request resolves; the button flips
+      // from "Uploading… N%" to "Finalizing…" for the server response
+      // + the best-effort portal-write hook below.
+      setUploadPct(100);
       if (res.ok) {
         setReference(ref);
         setSubmittedDoctor(state.practice.doctor || "Doctor");
@@ -335,13 +388,15 @@ export function SubmitCaseForm({
         }
         setStatus("success");
       } else {
-        const body = await res.json().catch(() => null);
+        const body = res.json() as { error?: string } | null;
         setErrorMsg(body?.error ?? `Request failed (${res.status}).`);
         setStatus("error");
       }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Network error.");
       setStatus("error");
+    } finally {
+      setUploadPct(null);
     }
   }
 
@@ -510,7 +565,11 @@ export function SubmitCaseForm({
             disabled={status === "submitting"}
             className="inline-flex items-center gap-2 bg-brandOrange text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-brandOrange/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {status === "submitting" ? "Submitting…" : "Submit case"}
+            {status === "submitting"
+              ? uploadPct !== null && uploadPct < 100
+                ? `Uploading… ${uploadPct}%`
+                : "Finalizing…"
+              : "Submit case"}
             {status !== "submitting" && (
               <svg
                 className="w-3.5 h-3.5"

@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import DueDatePicker from "./DueDatePicker";
 import FileUploadField from "./FileUploadField";
+import StlUploadField from "./StlUploadField";
 import ReviewSummary from "./ReviewSummary";
 import {
   SHIPPING_COUNTRIES,
@@ -32,6 +33,9 @@ const PDF_LIMIT = 20 * MB;
 type Props = {
   state: FormState;
   setState: (next: FormState) => void;
+  /** True in the logged-in portal context — enables on-select STL
+   *  upload (the /api/portal/uploads endpoint is session-gated). */
+  uploadEnabled: boolean;
 };
 
 function selectedAppliances(state: FormState) {
@@ -44,7 +48,11 @@ function computeMinDueDate(state: FormState): Date {
   return calculateMinDueDate(lead);
 }
 
-export default function Step3FilesDelivery({ state, setState }: Props) {
+export default function Step3FilesDelivery({
+  state,
+  setState,
+  uploadEnabled,
+}: Props) {
   const minDate = useMemo(() => computeMinDueDate(state), [
     state.upperAppliances,
     state.lowerAppliances,
@@ -111,16 +119,19 @@ export default function Step3FilesDelivery({ state, setState }: Props) {
           <span aria-hidden>📁</span> Files are transmitted over HTTPS. STL ≤
           50 MB each. For larger files send via EasyRx or contact us.
         </p>
-        <FileUploadField
+        <StlUploadField
           label="STL files · optional"
           description="Up to 50 MB each · .stl, .ply, .obj, .dcm"
-          multiple
           accept=".stl,.ply,.obj,.dcm"
           maxSize={STL_LIMIT}
           files={state.files.stl}
           onChange={(stl) =>
             setState({ ...state, files: { ...state.files, stl } })
           }
+          onUploadsChange={(stlUploads) =>
+            setState({ ...state, stlUploads })
+          }
+          uploadEnabled={uploadEnabled}
         />
         <FileUploadField
           label="Photos · optional"

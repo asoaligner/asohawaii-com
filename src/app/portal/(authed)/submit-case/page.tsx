@@ -24,6 +24,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SubmitCaseForm } from "@/components/submitcase/SubmitCaseForm";
+import { stlFileKey } from "@/components/submitcase/StlUploadField";
 import {
   formatShippingAddress,
   type ApplianceConfig,
@@ -148,12 +149,18 @@ export default function PortalSubmitCasePage() {
       file: File;
       formCategory: FormCategory;
       uploadCategory: PortalUploadCategory;
+      /** STL files upload the moment they're dropped (StlUploadField);
+       *  when that already succeeded we reuse the key and skip the
+       *  upload here. undefined → upload at submit (photos, rx PDFs,
+       *  or an STL whose on-select upload is still in flight / failed). */
+      preUploadedKey?: string;
     }
     const allFiles: FileWithCategory[] = [
       ...state.files.stl.map((f) => ({
         file: f,
         formCategory: "stl" as const,
         uploadCategory: "stl" as const,
+        preUploadedKey: state.stlUploads[stlFileKey(f)],
       })),
       ...state.files.photos.map((f) => ({
         file: f,
@@ -167,27 +174,31 @@ export default function PortalSubmitCasePage() {
       })),
     ];
 
-    // Upload to R2 in parallel, best-effort. Files that fail to upload
-    // still flow to the lab via the Formspree email attachment we already
-    // sent moments ago — they'll just be missing from the portal's
-    // downloads section. R2 503 (bucket unbound) is the common case while
-    // Phase 1.5b is rolling out.
-    const uploadResults = await Promise.all(
-      allFiles.map(({ file, uploadCategory }) =>
-        uploadPortalFile(file, uploadCategory),
-      ),
+    // Resolve each file to an r2_key. STL files dropped earlier already
+    // have one (on-select upload) — reuse it. Everything else uploads
+    // now, best-effort: a failed upload still reaches the lab via the
+    // Formspree attachment sent moments ago, it just won't appear in
+    // the portal's downloads section. R2 503 (bucket unbound) is the
+    // common case while Phase 1.5b is rolling out.
+    const filesForSubmit = await Promise.all(
+      allFiles.map(async (entry) => {
+        let r2_key: string | undefined = entry.preUploadedKey;
+        if (!r2_key) {
+          const result = await uploadPortalFile(
+            entry.file,
+            entry.uploadCategory,
+          );
+          r2_key = result.ok ? result.key : undefined;
+        }
+        return {
+          name: entry.file.name,
+          size: entry.file.size,
+          type: entry.file.type,
+          category: entry.formCategory,
+          r2_key,
+        };
+      }),
     );
-
-    const filesForSubmit = allFiles.map((entry, i) => {
-      const result = uploadResults[i];
-      return {
-        name: entry.file.name,
-        size: entry.file.size,
-        type: entry.file.type,
-        category: entry.formCategory,
-        r2_key: result.ok ? result.key : undefined,
-      };
-    });
 
     const doctorOverride =
       state.practice.doctor && state.practice.doctor !== user.name

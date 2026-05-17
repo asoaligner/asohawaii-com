@@ -307,6 +307,12 @@ export type FormState = {
     photos: File[];
     rxPdf: File[];
   };
+  /** R2 keys for STL files already uploaded on-select (portal context
+   *  only). Keyed by a stable per-file key — see stlFileKey() in
+   *  StlUploadField. The submit hook reuses these instead of
+   *  re-uploading; files without an entry fall back to submit-time
+   *  upload. Empty on the public form. */
+  stlUploads: Record<string, string>;
   delivery: {
     dueDate: string;
     address: ShippingAddress;
@@ -332,6 +338,7 @@ export const INITIAL_FORM_STATE: FormState = {
   lowerAppliances: [],
   toothSelection: { dentition: "permanent", upper: [], lower: [] },
   files: { stl: [], photos: [], rxPdf: [] },
+  stlUploads: {},
   delivery: {
     dueDate: "",
     address: { ...INITIAL_SHIPPING_ADDRESS },

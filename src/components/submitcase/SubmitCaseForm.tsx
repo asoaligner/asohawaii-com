@@ -505,7 +505,11 @@ export function SubmitCaseForm({
           />
         )}
         {step === 3 && (
-          <Step3FilesDelivery state={state} setState={setState} />
+          <Step3FilesDelivery
+            state={state}
+            setState={setState}
+            uploadEnabled={!!afterSubmitSuccess}
+          />
         )}
       </div>
 
